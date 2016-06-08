@@ -1,0 +1,55 @@
+{
+  "name": "mango",
+  "version": "0.0.1-alpha-01",
+  "description": "Automated Deployment of Cloud Platform SaaS Solutions",
+  "main": "lib/index.js",
+  "bin": {
+    "mango": "./bin/mango"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prepublish": "coffee -o lib/ -c src/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pandastrike/mango.git"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "engine-strict": true,
+  "dependencies": {
+    "commander": "^2.9.0",
+    "fairmont": "^1.1.6",
+    "panda-9000": "^2.0.0-alpha-02"
+  },
+  "keywords": [
+    "AWS",
+    "Gateway",
+    "Lambda",
+    "SaaS",
+    "DevOps",
+    "Deployment",
+    "API"
+  ],
+  "contributors": [
+    {
+      "name": "Dan Yoder",
+      "email": "dan@pandastrike.com"
+    },
+    {
+      "name": "David Harper",
+      "email": "david@pandastrike.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pandastrike/mango/issues"
+  },
+  "homepage": "https://github.com/pandastrike/mango#readme"
+}
