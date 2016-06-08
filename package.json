@@ -1,5 +1,5 @@
 {
-  "name": "mango",
+  "name": "panda-mango",
   "version": "0.0.1-alpha-01",
   "description": "Automated Deployment of Cloud Platform SaaS Solutions",
   "main": "lib/index.js",
