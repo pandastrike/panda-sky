@@ -24,8 +24,10 @@
   },
   "engine-strict": true,
   "dependencies": {
+    "aws-sdk": "^2.3.18",
     "commander": "^2.9.0",
     "fairmont": "^1.1.6",
+    "js-yaml": "^3.6.1",
     "panda-9000": "^2.0.0-alpha-02"
   },
   "keywords": [

@@ -1,15 +1,24 @@
 {define} = require "panda-9000"
 {async, first, sleep} = require "fairmont"
 
-define "publish", async (env) ->
-
+define "delete", async (env) ->
   stack = yield require("./cloudformation")(env)
 
-  console.log "Creating API"
-  id = yield stack.create()
-  console.log "Waiting for deployment to be ready."
-  yield stack.createWait id
+  console.log "Deleting API"
+  id = yield stack.delete()
+  console.log "Waiting to Confirm Deletion"
+  yield stack.deleteWait id
   console.log "Done"
+
+
+
+
+
+
+
+
+
+
 
 
 
