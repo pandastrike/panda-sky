@@ -1,17 +1,20 @@
 {async, first, sleep} = require "fairmont"
 
 module.exports = async (env) ->
-    {cfo} = yield require("./aws")()
-    config = require("./configuration/publish")(env)
+    config = require("../configuration/publish")(env)
+    {cfo} = yield require("./index")(config.aws.region)
+    lambda = yield require("./lambda")(env)
 
     getStack = async (id) ->
       first (yield cfo.describeStacks({StackName: id})).Stacks
 
     # Create the application's backend using CloudFormation.
     create: async ->
+      yield lambda.prepareSrc()
       params =
         StackName: "#{config.name}-#{env}"
         TemplateBody: config.aws.cfoTemplate
+        Capabilities: ["CAPABILITY_IAM"]
       {StackID} = yield cfo.createStack params
       StackID
 

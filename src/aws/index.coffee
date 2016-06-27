@@ -1,4 +1,4 @@
-# H9 uses the AWS-SDK and your credentials to directly interact with Amazon.
+# Mango uses the AWS-SDK and your credentials to directly interact with Amazon.
 {join} = require "path"
 {homedir} = require "os"
 
@@ -41,5 +41,7 @@ module.exports = async (region) ->
 
   # Module's we'd like to invoke from AWS are listed and lifted here.
   cfo = liftModule new AWS.CloudFormation()
+  lambda = liftModule new AWS.Lambda()
+  s3 = liftModule new AWS.S3()
 
-  {cfo}
+  {cfo, lambda, s3}

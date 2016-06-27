@@ -3,7 +3,7 @@
 
 define "publish", async (env) ->
 
-  stack = yield require("./cloudformation")(env)
+  stack = yield require("./aws/cloudformation")(env)
 
   console.log "Creating API"
   id = yield stack.create()

@@ -2,7 +2,7 @@
 {async, first, sleep} = require "fairmont"
 
 define "delete", async (env) ->
-  stack = yield require("./cloudformation")(env)
+  stack = yield require("./aws/cloudformation")(env)
 
   console.log "Deleting API"
   id = yield stack.delete()
