@@ -1,9 +1,8 @@
 {async, first, sleep} = require "fairmont"
 
-module.exports = async (env) ->
-    config = require("../configuration/publish")(env)
+module.exports = async (env, config) ->
     {cfo} = yield require("./index")(config.aws.region)
-    lambda = yield require("./lambda")(env)
+    lambda = yield require("./lambda")(env, config)
 
     getStack = async (id) ->
       first (yield cfo.describeStacks({StackName: id})).Stacks

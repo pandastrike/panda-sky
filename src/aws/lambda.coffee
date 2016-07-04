@@ -1,10 +1,9 @@
 {async} = require "fairmont"
 {resolve, join} = require "path"
 
-module.exports = async (env) ->
-  config = require("../configuration/publish")(env)
+module.exports = async (env, config) ->
   {lambda} = yield require("./index")(config.aws.region)
-  bucket = yield require("./s3")(env)
+  bucket = yield require("./s3")(env, config)
 
   # Create and/or update an S3 bucket with lambda source files.  When the CFo
   # template is generated to deploy the lambdas, it will be directed at this bucket.

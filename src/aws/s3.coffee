@@ -3,8 +3,7 @@
 {join} = require "path"
 mime = require "mime"
 
-module.exports = async (env) ->
-  config = require("../configuration/publish")(env)
+module.exports = async (env, config) ->
   {s3} = yield require("./index")(config.aws.region)
 
 
