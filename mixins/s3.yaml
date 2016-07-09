@@ -1,7 +1,7 @@
 # This is a templatized verion of a CFo template for Amazon S3 buckets.  This is
 # the mango S3 mixin for app deployment.
 {{#each s3}}
-Bucket:
+MixinBucket:
   Type: "AWS::S3::Bucket"
   DeletionPolicy: Retain
   Properties:

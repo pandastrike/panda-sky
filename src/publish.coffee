@@ -5,8 +5,8 @@ define "publish", async (env) ->
   config = yield require("./configuration/compile")(env)
   stack = yield require("./aws/cloudformation")(env, config)
 
-  console.log "Creating API"
-  id = yield stack.create()
-  console.log "Waiting for deployment to be ready."
-  yield stack.createWait id
+  id = yield stack.publish()
+  if id
+    console.log "Waiting for deployment to be ready."
+    yield stack.publishWait id
   console.log "Done"

@@ -41,7 +41,8 @@ module.exports = async (region) ->
 
   # Module's we'd like to invoke from AWS are listed and lifted here.
   cfo = liftModule new AWS.CloudFormation()
+  cfr = liftModule new AWS.CloudFront()
   lambda = liftModule new AWS.Lambda()
   s3 = liftModule new AWS.S3()
 
-  {cfo, lambda, s3}
+  {cfo, cfr, lambda, s3}
