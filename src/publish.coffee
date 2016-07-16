@@ -9,4 +9,5 @@ define "publish", async (env) ->
   if id
     console.log "Waiting for deployment to be ready."
     yield stack.publishWait id
+  yield stack.postPublish()
   console.log "Done"

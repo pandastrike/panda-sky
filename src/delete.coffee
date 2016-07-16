@@ -9,4 +9,5 @@ define "delete", async (env) ->
   id = yield stack.delete()
   console.log "Waiting to Confirm Deletion"
   yield stack.deleteWait id
+  yield stack.postDelete()
   console.log "Done"

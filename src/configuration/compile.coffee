@@ -10,6 +10,23 @@ _render = require "panda-template"
 
 module.exports = async (env) ->
   config = yield require "./read"
+
+  # Setup the custom url config based on the selected environment.
+  if config.aws.environments?[env]
+    desired = config.aws.environments[env]
+
+    if desired.hostnames
+      {domain} = config.aws
+      throw new Error "Domain not provided for custom URL creation." if !domain
+      hostnames = []
+      hostnames.push "#{name}.#{domain}" for name in desired.hostnames
+      config.aws.hostnames = hostnames
+      config.aws.cache = desired.cache || {}
+
+
+  #===================================================
+  # CFo Template Configuration
+  #===================================================
   globals = {env, name: config.name, description: config.description}
 
   # Each mixin has a template that gets rendered before joining the others.

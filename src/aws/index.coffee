@@ -40,9 +40,11 @@ module.exports = async (region) ->
      sslEnabled: true
 
   # Module's we'd like to invoke from AWS are listed and lifted here.
+  acm = liftModule new AWS.ACM()
+  gw = liftModule new AWS.APIGateway()
   cfo = liftModule new AWS.CloudFormation()
   cfr = liftModule new AWS.CloudFront()
-  lambda = liftModule new AWS.Lambda()
+  route53 = liftModule new AWS.Route53()
   s3 = liftModule new AWS.S3()
 
-  {cfo, cfr, lambda, s3}
+  {acm, gw, cfo, cfr, route53, s3}

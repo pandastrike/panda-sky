@@ -2,6 +2,7 @@
 
 module.exports = async (env, config) ->
     {cfo} = yield require("./index")(config.aws.region)
+    customURL = yield require("./cloudfront")(config, env)
     src = yield require("./app-root")(env, config)
     name = "#{config.name}-#{env}"
 
@@ -80,7 +81,6 @@ module.exports = async (env, config) ->
 
     # Delete the application using CloudFormation
     destroy = async ->
-      yield src.destroy()
       {StackId} = yield getStack name
       yield cfo.deleteStack StackName: name
       StackId
@@ -93,7 +93,6 @@ module.exports = async (env, config) ->
           when "CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS", "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS"
             yield sleep 5000
           when "CREATE_COMPLETE", "UPDATE_COMPLETE"
-            yield src.syncMetadata()
             return true
           else
             console.error "Stack creation failed. Aborting.", StackStatus, StackStatusReason
@@ -103,14 +102,24 @@ module.exports = async (env, config) ->
     # Confirm the stack is fully and properly deleted.
     deleteWait = async (id) ->
       while true
-        {StackStatus, StackStatusReason} = yield getStack id
-        switch StackStatus
-          when "DELETE_IN_PROGRESS"
+        s = yield getStack id
+        return true if !s
+        switch s.StackStatus
+          when "DELETE_IN_PROGRESS" || "DELETE_COMPLETE"
             yield sleep 5000
-          when "DELETE_COMPLETE"
-            return true
           else
-            console.warn "Stack deletion failed.", StackStatus, StackStatusReason
+            console.warn "Stack deletion failed.", s.StackStatus, s.StackStatusReason
             return false
 
-    {publish, delete: destroy, publishWait, deleteWait}
+    # Handle stuff that happens after we've confirmed the stack deployed successfully.
+    postPublish = async ->
+      yield src.syncMetadata()
+      yield customURL.deploy() if config.aws.cache
+
+    # Handle stuff that happens after we've confirmed the stack deleted successfully.
+    postDelete = async ->
+      yield src.destroy()
+      yield customURL.destroy()
+
+
+    {publish, delete: destroy, publishWait, deleteWait, postPublish, postDelete}
