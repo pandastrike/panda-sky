@@ -4,9 +4,28 @@
 # template pieces and applies them based on the description specification,
 # assembling something CloudFormation can use.
 {join, resolve} = require "path"
-{async, read, merge} = require "fairmont"
+{async, read, merge, identity, match} = require "fairmont"
 {yaml} = require "panda-serialize"
 _render = require "panda-template"
+
+extractQueryParameters = (resource) ->
+  for parameter in resource.query
+    name: parameter
+    query: true
+
+extractPathParameters = (resource) ->
+  for parameter in match /\{([^\{]+)\}/, path
+    name: parameter
+    path: true
+
+preprocessors =
+  api: ({resources}) ->
+    # merge query params and path params into a single list
+    for resource in resources
+      resource.parameters = cat (extractQueryParameters resource),
+        (extractPathParameters resource)
+
+  s3: identity
 
 module.exports = async (env) ->
   config = yield require "./read"
@@ -33,7 +52,7 @@ module.exports = async (env) ->
   render = async (mixin, path) ->
     template = yield read join(__dirname, "..", "..", "mixins", "#{mixin}.yaml")
     data = yaml yield read resolve join(process.cwd(), path)
-    data = merge data, globals
+    data = preprocessors[mixin] merge data, globals
     yaml _render template, data
 
   # Compile a CFo template using the API base and all specified Mango mixins.

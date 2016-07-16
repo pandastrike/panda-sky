@@ -80,10 +80,16 @@ Method:
     RequestModels:
       "application/json": {{capitalizeFirst signature.request}}
     {{/if}}
-    {{#match "\{([^\{]+)\}" ../path}}
+    {{#if parameters}}
     RequestParameters:
-      "method.request.path.{{replace "\{|\}" "" .}}": true
-    {{/match}}
+    {{#each parameters}}
+    {{#if path}}
+      "method.request.path.{{name}}": true
+    {{/else}}
+      "method.request.querystring.{{name}}": true
+    {{/if}}
+    {{/each}}
+    {{/if}}
     Integration:
       Type: AWS
       IntegrationHttpMethod: POST
@@ -99,16 +105,18 @@ Method:
             LambdaHandler",
             "Arn"]}
             - "/invocations"
-      {{#if (match "\{([^\{]+)\}" ../path)}}
       RequestTemplates:
         "application/json": >
-          #set($inputRoot = $input.path('$'))
-          {
-          {{#match "\{([^\{]+)\}" ../path}}
-            "{{replace "\{|\}" "" .}}" : "$input.params('{{replace "\{|\}" "" .}}')"
-          {{/match}}
-          }
-      {{/if}}
+        {{#if parameters}}
+        {
+        {{join "," parameters}}
+          "{{name}}": "$input.params('{{name}}')"
+        {{/join}}
+        }
+        {{/else}}
+        {}
+        {{/if}}
+
 
       IntegrationResponses:
         - StatusCode: {{signature.status}}

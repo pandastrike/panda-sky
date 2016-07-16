@@ -33,4 +33,4 @@ call ->
     .action((env)-> run "delete", [env])
 
   # Begin execution.
-  program.parse(process.argv);
+  program.parse process.argv
