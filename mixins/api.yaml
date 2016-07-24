@@ -80,12 +80,12 @@ Method:
     RequestModels:
       "application/json": {{capitalizeFirst signature.request}}
     {{/if}}
-    {{#if parameters}}
+    {{#if ../parameters}}
     RequestParameters:
-    {{#each parameters}}
+    {{#each ../parameters}}
     {{#if path}}
       "method.request.path.{{name}}": true
-    {{/else}}
+    {{else}}
       "method.request.querystring.{{name}}": true
     {{/if}}
     {{/each}}
@@ -107,15 +107,11 @@ Method:
             - "/invocations"
       RequestTemplates:
         "application/json": >
-        {{#if parameters}}
-        {
-        {{join "," parameters}}
-          "{{name}}": "$input.params('{{name}}')"
-        {{/join}}
-        }
-        {{/else}}
-        {}
-        {{/if}}
+          {{#if ../parameters}}
+          { {{#join ", " ../parameters}}"{{name}}": "$input.params('{{name}}')"{{/join}} }
+          {{else}}
+          {}
+          {{/if}}
 
 
       IntegrationResponses:

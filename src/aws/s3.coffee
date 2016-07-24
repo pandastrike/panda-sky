@@ -16,7 +16,7 @@ module.exports = async (env, config, name) ->
         when 301
           console.error "The bucket is in a different region than the client " +
             "is currently configured to target. Correct the region in your " +
-            ".h9 file."
+            "mango file."
           throw new Error()
         when 403
           console.error "You are not authorized to modify this bucket."

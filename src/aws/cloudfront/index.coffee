@@ -2,7 +2,7 @@
 
 module.exports = async (config, env) ->
 
-  {fetch, create, sync, update, destroy} = yield require("./distro")(config, env)
+  {fetch, create, sync, update, destroyDistro} = yield require("./distro")(config, env)
   url = yield require("../dns")(config)
 
   # Search the user's current distributions for ones that match app deployment
@@ -16,8 +16,8 @@ module.exports = async (config, env) ->
     yield url.set d
 
   destroy = async ->
-    if d = yield distro.fetch()
-      yield distro.destroy d
+    if d = yield fetch()
+      yield destroyDistro d
       yield url.destroy d
 
   {deploy, destroy}

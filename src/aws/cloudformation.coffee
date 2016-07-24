@@ -81,6 +81,7 @@ module.exports = async (env, config) ->
 
     # Delete the application using CloudFormation
     destroy = async ->
+      yield customURL.destroy() # dependent on the stack (API endpoint)
       {StackId} = yield getStack name
       yield cfo.deleteStack StackName: name
       StackId
@@ -105,8 +106,10 @@ module.exports = async (env, config) ->
         s = yield getStack id
         return true if !s
         switch s.StackStatus
-          when "DELETE_IN_PROGRESS" || "DELETE_COMPLETE"
+          when "DELETE_IN_PROGRESS"
             yield sleep 5000
+          when "DELETE_COMPLETE"
+            return true
           else
             console.warn "Stack deletion failed.", s.StackStatus, s.StackStatusReason
             return false
@@ -117,9 +120,7 @@ module.exports = async (env, config) ->
       yield customURL.deploy() if config.aws.cache
 
     # Handle stuff that happens after we've confirmed the stack deleted successfully.
-    postDelete = async ->
-      yield src.destroy()
-      yield customURL.destroy()
+    postDelete = async -> yield src.destroy()
 
 
     {publish, delete: destroy, publishWait, deleteWait, postPublish, postDelete}

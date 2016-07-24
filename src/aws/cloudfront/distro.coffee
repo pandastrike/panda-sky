@@ -7,18 +7,21 @@ module.exports = async (config, env) ->
 
   # Create a new CFr distro for the deployment.
   create = async ->
-    console.log "Creating CloudFront Distribution.  This will take 15-30 minutes."
+    console.log "Creating CloudFront Distro.  This will take 15-30 minutes."
     yield cfr.createDistribution { DistributionConfig: yield distroConfig.build() }
 
 
-  # Delete the deployment's CFr distro and wait for it to disappear from your list.
-  destroy = async ({Distribution}) ->
-    yield cfr.deleteDistribution Id: Distribution.Id
-    while true
-      list = yield cfr.listDistributions().DistributionList.Items
-      result = collect where {Id: Distribution.Id}, list
-      if empty result then return true else yield sleep 15000
-
+  # Disable and delete the deployment's CFr distro.
+  destroyDistro = async (distro) ->
+    try
+      d = yield update distro, true
+      yield sync d
+      yield cfr.deleteDistribution
+        Id: d.Distribution.Id
+        IfMatch: d.ETag
+    catch e
+      console.warn "WARNING: Did not delete CloudFront distribution."
+      console.warn e.stack
 
 
   # Find the app's CFr distro, or return false.
@@ -48,14 +51,18 @@ module.exports = async (config, env) ->
 
 
   # If neccessary, update this deployment's CFr distro.
-  update = async ({ETag, Distribution}) ->
-    if !distroConfig.compare Distribution.DistributionConfig, yield distroConfig.build()
-      console.log "Updating CloudFront Distribution.  This will take 15-30 minutes."
+  update = async ({ETag, Distribution}, disabled) ->
+    current = Distribution.DistributionConfig
+    desired = yield distroConfig.build disabled
+    if !(distroConfig.compare current, desired)
+      if disabled
+        console.log "Disabling CloudFront Distro. This will take 15-30 minutes."
+      else
+        console.log "Updating CloudFront Distro. This will take 15-30 minutes."
       params =
         Id: Distribution.Id
         IfMatch: ETag
-        DistributionConfig:
-          distroConfig.deepMerge Distribution.DistributionConfig, (yield distroConfig.build())
+        DistributionConfig: distroConfig.deepMerge current, desired
 
       yield cfr.updateDistribution params
     else
@@ -63,4 +70,4 @@ module.exports = async (config, env) ->
       {ETag, Distribution}
 
 
-  {fetch, create, sync, update, destroy}
+  {fetch, create, sync, update, destroyDistro}

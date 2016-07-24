@@ -1,5 +1,5 @@
 # This module handles a CFr distribution's annoyingly complex configuration.
-{async, merge} = require "fairmont"
+{async, merge, deepEqual} = require "fairmont"
 {randomKey} = require "key-forge"
 
 module.exports = async (config, env) ->
@@ -67,14 +67,15 @@ module.exports = async (config, env) ->
 
 
 
-  build = async ->
+  build = async (disabled) ->
     # Target the API GW deployment that we've finished.
     originID = "Mango-" + regularlyQualify config.aws.hostnames[0]
 
     # return a configuration for CloudFront distribution... it's a doozy.
     CallerReference: "Mango" + randomKey 32
-    Comment: "Origin is an API Gateway deployment. Setup by Mango."
-    Enabled: true
+    Comment: "Origin is API Gateway deployment #{config.name}-#{env} - " +
+             "Setup by Mango."
+    Enabled: if disabled then false else true
     PriceClass: "PriceClass_" + (config.aws.cache.priceClass || "100")
     DefaultRootObject: ""
 
@@ -84,10 +85,13 @@ module.exports = async (config, env) ->
     DefaultCacheBehavior: setDefaultCacheBehavior originID
 
   compare = (current, desired) ->
-    return false if current.PriceClass != "PriceClass_" + (config.aws.cache.priceClass || "100")
-    return false if current.DefaultCacheBehavior.MaxTTL != (config.aws.cache.expires || 0)
-    return false if current.Aliases.Items != setAliases()
-    return false if current.ViewerCertificate != yield setViewerCertificate()
+    return false if current.PriceClass != desired.PriceClass
+    return false if current.DefaultCacheBehavior.MaxTTL !=
+      desired.DefaultCacheBehavior.MaxTTL
+    return false if !(deepEqual current.Aliases.Items, desired.Aliases.Items)
+    return false if !(deepEqual current.ViewerCertificate,
+      desired.ViewerCertificate)
+    return false if current.Enabled != desired.Enabled
     true
 
   deepMerge = (current, desired) ->
@@ -95,6 +99,7 @@ module.exports = async (config, env) ->
     changes =
       PriceClass: "PriceClass_" + (config.aws.cache.priceClass || "100")
       DefaultRootObject: ""
+      Enabled: desired.Enabled
       Aliases: merge current.Aliases, desired.Aliases
       ViewerCertificate: merge current.ViewerCertificate, desired.ViewerCertificate
       DefaultCacheBehavior: merge current.DefaultCacheBehavior, desired.DefaultCacheBehavior

@@ -12,5 +12,6 @@ define "publish", async (env) ->
       yield stack.publishWait id
     yield stack.postPublish()
     console.log "Done"
-  catch error
-    console.error error.stack
+    console.log '\u0007'
+  catch e
+    console.error e.stack

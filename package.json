@@ -33,7 +33,7 @@
     "mime": "^1.3.4",
     "panda-9000": "^2.0.0-alpha-02",
     "panda-serialize": "^0.2.0",
-    "panda-template": "^0.2.0"
+    "panda-template": "0.3.0"
   },
   "keywords": [
     "AWS",
