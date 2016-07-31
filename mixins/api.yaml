@@ -93,6 +93,9 @@ Method:
     Integration:
       Type: AWS
       IntegrationHttpMethod: POST
+      {{#unless ../parameters}}
+      PassthroughBehavior: WHEN_NO_TEMPLATES
+      {{/unless}}
       Uri:
         "Fn::Join":
           - ""
@@ -105,13 +108,11 @@ Method:
             LambdaHandler",
             "Arn"]}
             - "/invocations"
+      {{#if ../parameters}}
       RequestTemplates:
         "application/json": >
-          {{#if ../parameters}}
           { {{#join ", " ../parameters}}"{{name}}": "$input.params('{{name}}')"{{/join}} }
-          {{else}}
-          {}
-          {{/if}}
+      {{/if}}
 
 
       IntegrationResponses:
@@ -146,6 +147,8 @@ OptionsMethod:
             "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
             "method.response.header.Access-Control-Allow-Methods": "'OPTIONS, {{method}}'"
             "method.response.header.Access-Control-Allow-Origin": "'*'"
+      RequestTemplates:
+        "application/json": "{statusCode: 200}"
     MethodResponses:
       - StatusCode: 200
         ResponseParameters:
