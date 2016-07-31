@@ -23,9 +23,14 @@ call ->
     .action(-> run "build")
 
   program
-    .command('publish')
+    .command('publish [env]')
     .description('deploy API, Lambdas to AWS infrastructure')
-    .action(-> run "publish")
+    .action((env)-> run "publish", [env])
+
+  program
+    .command('delete [env]')
+    .description('deploy API, Lambdas to AWS infrastructure')
+    .action((env)-> run "delete", [env])
 
   # Begin execution.
-  program.parse(process.argv);
+  program.parse process.argv

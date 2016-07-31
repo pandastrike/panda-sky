@@ -1,0 +1,247 @@
+# This is a templatized verion of a CFo template for Amazon API Gateway with
+# Lambda backends as the handlers.  This template forms the core of every
+# Mango app deployment, though additional optional templates may be grouped.
+API:
+  Type: "AWS::ApiGateway::RestApi"
+  Properties:
+    Name: {{name}}
+    Description: {{description}}
+
+LambdaRole:
+  Type: "AWS::IAM::Role"
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - "sts:AssumeRole"
+    Policies:
+      - PolicyName: "{{@root/name}}-{{@root/env}}"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "logs:CreateLogGroup"
+                - "logs:CreateLogStream"
+                - "logs:PutLogEvents"
+              Resource: "arn:aws:logs:*:*:*"
+            - Effect: Allow
+              Action:
+                - "s3:GetObject"
+                - "s3:PutObject"
+              Resource:
+                - "arn:aws:s3:::*"
+
+{{#each resources}}
+{{#isnt path "/"}}
+{{capitalizeFirst @key}}Resource:
+  Type: "AWS::ApiGateway::Resource"
+  Properties:
+    RestApiId:
+      Ref: API
+    ParentId:
+      {{#with (last (before (parsePath path) 1)) as |parent|}}
+      {{#isnt parent "/"}}
+      Ref: {{capitalizeFirst parent}}Resource
+      {{else}}
+      "Fn::GetAtt": ["API", "RootResourceId"]
+      {{/isnt}}
+      {{/with}}
+    PathPart: "{{last (parsePath path)}}"
+{{/isnt}}
+
+{{#each methods}}
+{{capitalizeFirst @key~}}
+{{~capitalizeFirst (pick signature.request signature.response)~}}
+Method:
+  {{#isnt ../path "/"}}
+  DependsOn:
+  - {{capitalizeFirst (pick signature.request signature.response)}}Resource
+  - {{capitalizeFirst (pick signature.request signature.response)}}Model
+  {{/isnt}}
+  Type: "AWS::ApiGateway::Method"
+  Properties:
+    RestApiId:
+      Ref: API
+    ResourceId:
+      {{#isnt ../path "/"}}
+      Ref: {{capitalizeFirst @../key}}Resource
+      {{else}}
+      "Fn::GetAtt": ["API", "RootResourceId"]
+      {{/isnt}}
+    AuthorizationType: NONE
+    HttpMethod: {{method}}
+    {{#if signature.request}}
+    RequestModels:
+      "application/json": {{capitalizeFirst signature.request}}
+    {{/if}}
+    {{#if ../parameters}}
+    RequestParameters:
+    {{#each ../parameters}}
+    {{#if path}}
+      "method.request.path.{{name}}": true
+    {{else}}
+      "method.request.querystring.{{name}}": true
+    {{/if}}
+    {{/each}}
+    {{/if}}
+    Integration:
+      Type: AWS
+      IntegrationHttpMethod: POST
+      {{#unless ../parameters}}
+      PassthroughBehavior: WHEN_NO_TEMPLATES
+      {{/unless}}
+      Uri:
+        "Fn::Join":
+          - ""
+          -
+            - "arn:aws:apigateway:"
+            - {"Ref": "AWS::Region"}
+            - ":lambda:path/2015-03-31/functions/"
+            - {"Fn::GetAtt": ["{{~capitalizeFirst @key}}
+            {{~capitalizeFirst (pick signature.request signature.response)~}}
+            LambdaHandler",
+            "Arn"]}
+            - "/invocations"
+      {{#if ../parameters}}
+      RequestTemplates:
+        "application/json": >
+          { {{#join ", " ../parameters}}"{{name}}": "$input.params('{{name}}')"{{/join}} }
+      {{/if}}
+
+
+      IntegrationResponses:
+        - StatusCode: {{signature.status}}
+          ResponseParameters:
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+    MethodResponses:
+      - StatusCode: {{signature.status}}
+        ResponseParameters:
+          "method.response.header.Access-Control-Allow-Origin": true
+
+{{capitalizeFirst @key~}}
+{{~capitalizeFirst (pick signature.request signature.response)~}}
+OptionsMethod:
+  Type: "AWS::ApiGateway::Method"
+  Properties:
+    RestApiId:
+      Ref: API
+    ResourceId:
+      {{#isnt ../path "/"}}
+      Ref: {{capitalizeFirst @../key}}Resource
+      {{else}}
+      "Fn::GetAtt": ["API", "RootResourceId"]
+      {{/isnt}}
+    AuthorizationType: NONE
+    HttpMethod: OPTIONS
+    Integration:
+      Type: MOCK
+      IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            "method.response.header.Access-Control-Allow-Methods": "'OPTIONS, {{method}}'"
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+      RequestTemplates:
+        "application/json": "{statusCode: 200}"
+    MethodResponses:
+      - StatusCode: 200
+        ResponseParameters:
+          "method.response.header.Access-Control-Allow-Headers": true
+          "method.response.header.Access-Control-Allow-Methods": true
+          "method.response.header.Access-Control-Allow-Origin": true
+
+{{capitalizeFirst @key~}}
+{{~capitalizeFirst (pick signature.request signature.response)~}}
+LambdaHandler:
+  Type: "AWS::Lambda::Function"
+  Properties:
+    Description: "Handler for API {{~@root/name~}}"
+    FunctionName: "
+      {{~@root/name}}-{{@root/env}}-
+      {{~@key}}-
+      {{~pick signature.request signature.response}}"
+
+    Handler: "lib/index.handler"
+    Role:
+      "Fn::GetAtt" : ["LambdaRole", "Arn"]
+    Runtime: nodejs4.3
+    Code:
+      S3Bucket: "{{@root/name}}-{{@root/env}}-src"
+      S3Key: "package.zip"
+
+{{capitalizeFirst @key~}}
+{{~capitalizeFirst (pick signature.request signature.response)~}}
+LambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName:
+        "Fn::GetAtt": ["
+          {{~capitalizeFirst @key~}}
+          {{~capitalizeFirst (pick signature.request signature.response)~}}
+          LambdaHandler",
+          "Arn"]
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        "Fn::Join":
+          - ""
+          -
+            - "arn:aws:execute-api:"
+            - {"Ref": "AWS::Region"}
+            - ":"
+            - {"Ref": "AWS::AccountId"}
+            - ":"
+            - {"Ref": "API"}
+            - "/*/{{method}}{{../path}}"
+
+{{/each}}
+{{/each}}
+
+{{#each schema}}
+{{capitalizeFirst @key}}Model:
+  Type: "AWS::ApiGateway::Model"
+  Properties:
+    ContentType: "application/json"
+    Description: TBD
+    Name: {{capitalizeFirst @key}}
+    RestApiId:
+      Ref: API
+    Schema: '{{json .}}'
+{{/each}}
+
+Deployment:
+  "DependsOn":
+  {{#each resources}}
+  {{#each methods}}
+  - {{capitalizeFirst @key~}}
+    {{~capitalizeFirst (pick signature.request signature.response)~}}
+    Method
+  - {{capitalizeFirst @key~}}
+    {{~capitalizeFirst (pick signature.request signature.response)~}}
+    OptionsMethod
+  {{/each}}
+  {{/each}}
+  Type: "AWS::ApiGateway::Deployment"
+  Properties:
+    Description:  {{description}} deployment (generated by Mango)
+    RestApiId:
+      Ref: API
+    StageName: {{@root/env}}
+    StageDescription:
+      Description: {{@root/env}} for {{description}} (generated by Mango)
+      StageName: {{@root/env}}
+      MethodSettings:
+        - ResourcePath: "/"
+          HttpMethod: GET
+          MetricsEnabled: true
+          DataTraceEnabled: true
+          LoggingLevel: INFO  # OFF, ERROR, INFO
+          CachingEnabled: false
+          # CacheTtlInSeconds: 1800
+          # CacheDataEncrypted: false
