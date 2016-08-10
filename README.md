@@ -1,2 +1,4 @@
-# mango
-Automated Deployment of Cloud Platform SaaS Solutions
+# Panda Sky
+Quicky publish severless, scalable applications in the cloud.
+
+> Wiki and docs pending for Beta Release

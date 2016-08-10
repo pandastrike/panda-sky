@@ -1,14 +1,15 @@
 {
-  "name": "panda-mango",
-  "version": "0.0.1-alpha-01",
-  "description": "Automated Deployment of Cloud Platform SaaS Solutions",
+  "name": "panda-sky",
+  "version": "1.0.0-alpha-01",
+  "description": "Quicky publish severless, scalable applications in the cloud",
   "main": "lib/index.js",
   "bin": {
-    "mango": "./bin/mango"
+    "sky": "./bin/sky"
   },
   "files": [
     "bin",
     "lib",
+    "mixins",
     "LICENSE"
   ],
   "scripts": {
@@ -18,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pandastrike/mango.git"
+    "url": "git+https://github.com/pandastrike/panda-sky.git"
   },
   "engines": {
     "node": ">=4.0.0"
@@ -36,6 +37,7 @@
     "panda-template": "0.3.0"
   },
   "keywords": [
+    "Serverless",
     "AWS",
     "Gateway",
     "Lambda",
@@ -56,7 +58,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pandastrike/mango/issues"
+    "url": "https://github.com/pandastrike/panda-sky/issues"
   },
-  "homepage": "https://github.com/pandastrike/mango#readme"
+  "homepage": "https://github.com/pandastrike/panda-sky#readme"
 }
