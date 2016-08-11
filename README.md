@@ -79,6 +79,10 @@ aws:
 
 ### Publish Your API
 
+This will take awhile the first time around,
+(Panda Sky is doing a lot of set up for you)
+but after that, it's relatively quick.
+
     sky publish production
 
 ### Test It Out
