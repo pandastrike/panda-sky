@@ -4,7 +4,7 @@ _Quicky publish severless APIs to AWS._
 
 ## Install
 
-    npm install panda-sky
+    npm install -g panda-sky
 
 ## Quick Start
 
