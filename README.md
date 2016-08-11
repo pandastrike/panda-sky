@@ -1,4 +1,4 @@
-<img alt="Ace, the fighter pilot Panda." src="./logo.jpg" width="20vw"/>
+<img alt="Ace, the fighter pilot Panda." src="./logo.jpg" width="40rem"/>
 
 # Panda Sky
 
