@@ -1,4 +1,8 @@
-# Panda Sky
-Quicky publish severless, scalable applications in the cloud.
+![Ace, the fighter pilot Panda.](./logo.jpg)
 
-> Wiki and docs pending for Beta Release
+# Panda Sky
+
+_Quicky publish severless APIs to AWS._
+
+
+
