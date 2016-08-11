@@ -89,3 +89,7 @@ but after that, it's relatively quick.
 
     curl https://greeting.com/greeting/Ace
     Hello, Ace
+
+## Status
+
+Panda Sky is in beta.
