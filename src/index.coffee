@@ -1,4 +1,5 @@
 require "./build"
 require "./delete"
+require "./init"
 require "./publish"
-require "./serve"
+require "./survey"

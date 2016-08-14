@@ -1,0 +1,17 @@
+name: SkyProject
+description: SkyProject API
+aws:
+  domain: example.com
+  region: us-west-2
+  environments:
+    staging:
+      hostnames:
+        - staging-api
+      ssl: true
+
+    production:
+      hostnames:
+        - api
+      cache:
+        expires: 1800
+        priceClass: 100

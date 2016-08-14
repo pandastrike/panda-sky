@@ -13,14 +13,14 @@ call ->
     .version(version)
 
   program
-    .command('serve')
-    .description('run a Web server to test your API endpoints')
-    .action(-> run "serve")
-
-  program
     .command('build')
     .description('compile the API, Lambdas, and resources to prepare for publishing.')
     .action(-> run "build")
+
+  program
+    .command('init')
+    .description('Initiallize a Panda Sky project.')
+    .action(-> run "init")
 
   program
     .command('publish [env]')
