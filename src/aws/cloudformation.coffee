@@ -2,7 +2,6 @@
 
 module.exports = async (env, config) ->
     {cfo} = yield require("./index")(config.aws.region)
-    customURL = yield require("./cloudfront")(config, env)
     src = yield require("./app-root")(env, config)
     name = "#{config.name}-#{env}"
 
@@ -11,9 +10,9 @@ module.exports = async (env, config) ->
       TemplateBody: config.aws.cfoTemplate
       Capabilities: ["CAPABILITY_IAM"]
 
-    # "hard" updates require a new stage deployment
+    # "hard" updates require a new stage deployment (url stays the same)
     hardUpdate = (str) ->
-      retain = ["API", "LambdaRole"]
+      retain = ["API", "LambdaRole", "CFRDistro"]
       out = JSON.parse(str)
       R = out.Resources
       delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
@@ -22,7 +21,7 @@ module.exports = async (env, config) ->
 
     # "soft" updates do not require a new stage deployment, so we retain it.
     softUpdate = (str) ->
-      retain = ["API", "LambdaRole", "Deployment"]
+      retain = ["API", "LambdaRole", "Deployment", "CFRDistro"]
       out = JSON.parse(str)
       R = out.Resources
       delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
@@ -36,6 +35,14 @@ module.exports = async (env, config) ->
       catch
         false
 
+    getApiUrl = async ->
+      params =
+        LogicalResourceId: "API"
+        StackName: name
+
+      data = yield cfo.describeStackResource params
+      apiID = data.StackResourceDetail.PhysicalResourceId
+      "https://#{apiID}.execute-api.#{config.aws.region}.amazonaws.com/#{env}"
 
     # Update an existing stack with a new template.
     update = async (updates) ->
@@ -96,7 +103,8 @@ module.exports = async (env, config) ->
           when "CREATE_COMPLETE", "UPDATE_COMPLETE"
             return true
           else
-            console.error "Stack creation failed. Aborting.", StackStatus, StackStatusReason
+            console.error "Stack creation failed. Aborting.", StackStatus,
+              StackStatusReason
             throw new Error()
 
 
@@ -111,15 +119,19 @@ module.exports = async (env, config) ->
           when "DELETE_COMPLETE"
             return true
           else
-            console.warn "Stack deletion failed.", s.StackStatus, s.StackStatusReason
+            console.warn "Stack deletion failed.", s.StackStatus,
+              s.StackStatusReason
             return false
 
-    # Handle stuff that happens after we've confirmed the stack deployed successfully.
+    # Handle stuff that happens after we've confirmed the stack deployed.
     postPublish = async ->
       yield src.syncMetadata()
-      yield customURL.deploy() if config.aws.cache
+      if !config.aws.environments[env].cache
+        console.log "Your API is online and ready at the following endpoint:"
+        console.log "  #{yield getApiUrl()}"
 
-    # Handle stuff that happens after we've confirmed the stack deleted successfully.
+
+    # Handle stuff that happens after we've confirmed the stack deleted.
     postDelete = async -> yield src.destroy()
 
 

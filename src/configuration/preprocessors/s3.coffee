@@ -1,5 +1,5 @@
 #===============================================================================
-# Mango Mixin: S3
+# Panda Sky Mixin: S3
 # This mixin allocates the requested S3 buckets into your CFo stack. Buckets
 # are retained after stack deletion, so here we scan for them in S3 before
 # adding them to the new CFo template.
@@ -21,14 +21,12 @@ module.exports = async (description) ->
         else
           throw e
 
-  if {buckets} = description
-    out = []
-    out.push b for b in buckets when !(yield bucketExists b)
-    return {} if empty out
+  buckets = ["#{description.name}-#{description.env}"]
+  out = []
+  out.push b for b in buckets when !(yield bucketExists b)
+  out
 
-    buckets:
-      for bucket in out
-        name: bucket
-        resourceTitle: capitalize camelCase plainText bucket
-  else
-    {}
+  buckets:
+    for bucket in out
+      name: bucket
+      resourceTitle: capitalize camelCase plainText bucket

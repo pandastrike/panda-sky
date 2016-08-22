@@ -12,26 +12,22 @@ preprocessors = require "./preprocessors"
 
 module.exports = async (config, env) ->
 
-  globals = {
-    env,
-    name: config.name,
-    description: config.description,
-    region:config.aws.region
-  }
+  globals = yaml yield read join process.cwd(), "sky.yaml"
+  globals = merge config, {env}
 
   # Each mixin has a template that gets rendered before joining the others.
-  render = async (mixin, path) ->
-    template = yield read join(__dirname, "..", "..", "mixins", "#{mixin}.yaml")
-    data = yaml yield read resolve join(process.cwd(), path)
-    data = yield preprocessors[mixin] merge data, globals
+  render = async (name) ->
+    template = yield read join __dirname, "..", "..", "mixins", "#{name}.yaml"
+    data = yaml yield read join process.cwd(), "#{name}.yaml"
+    data = yield preprocessors[name] merge data, globals
     yaml _render template, data
 
-  # Compile a CFo template using the API base and all specified Mango mixins.
+  # Compile a CFo template using the API base (mixins pending.)
   mixins = []
-  mixins.push(yield render(mixin, path)) for mixin, path of config.aws.mixins
+  mixins.push yield render "api"
   cfo =
     AWSTemplateFormatVersion: "2010-09-09"
-    Description: config.description || "#{config.name} - deployed by Mango"
+    Description: config.description || "#{config.name} - deployed by Panda Sky"
     Resources: merge mixins...
 
   # Add the stringified, rendered CloudFormation template to the config object.

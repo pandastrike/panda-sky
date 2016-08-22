@@ -7,7 +7,6 @@ aws:
     staging:
       hostnames:
         - staging-api
-      ssl: true
 
     production:
       hostnames:
