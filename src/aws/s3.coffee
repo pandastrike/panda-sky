@@ -16,7 +16,7 @@ module.exports = async (env, config, name) ->
         when 301
           console.error "The bucket is in a different region than the client " +
             "is currently configured to target. Correct the region in your " +
-            "mango file."
+            "sky.yaml file."
           throw new Error()
         when 403
           console.error "You are not authorized to modify this bucket."
@@ -74,7 +74,7 @@ module.exports = async (env, config, name) ->
         when 301
           console.error "The bucket is in a different region than the client " +
             "is currently configured to target. Correct the region in your " +
-            "mango.yaml file."
+            "sky.yaml file."
           throw new Error()
         when 403
           console.error "You are not authorized to modify this S3 bucket: #{name}"

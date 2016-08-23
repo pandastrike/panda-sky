@@ -12,7 +12,7 @@ module.exports = async (env, config) ->
 
     # "hard" updates require a new stage deployment (url stays the same)
     hardUpdate = (str) ->
-      retain = ["API", "LambdaRole", "CFRDistro"]
+      retain = ["API", "LambdaRole", "CFRDistro", "DNSRecords"]
       out = JSON.parse(str)
       R = out.Resources
       delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
@@ -21,7 +21,7 @@ module.exports = async (env, config) ->
 
     # "soft" updates do not require a new stage deployment, so we retain it.
     softUpdate = (str) ->
-      retain = ["API", "LambdaRole", "Deployment", "CFRDistro"]
+      retain = ["API", "LambdaRole", "Deployment", "CFRDistro", "DNSRecords"]
       out = JSON.parse(str)
       R = out.Resources
       delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
@@ -88,7 +88,6 @@ module.exports = async (env, config) ->
 
     # Delete the application using CloudFormation
     destroy = async ->
-      yield customURL.destroy() # dependent on the stack (API endpoint)
       {StackId} = yield getStack name
       yield cfo.deleteStack StackName: name
       StackId

@@ -170,7 +170,7 @@ LambdaHandler:
       {{~@key}}-
       {{~pick signature.request signature.response}}"
 
-    Handler: "lib/index.handler"
+    Handler: "lib/sky.handler"
     Role:
       "Fn::GetAtt" : ["LambdaRole", "Arn"]
     Runtime: nodejs4.3
@@ -266,39 +266,32 @@ CFRDistro:
       DefaultRootObject: ""
 
       Aliases:
-        Quantity: {{aws.cloudfront.aliases.length}}
-        Items:
-        {{#each aws.cloudfront.aliases}}
-          - {{.}}
-        {{/each}}
+      {{#each aws.cloudfront.aliases}}
+        - {{.}}
+      {{/each}}
 
       Origins:
-        - Quantity: 1
-          Items:
-            - Id: {{aws.cloudfront.originID}}
-              DomainName:
-                "Fn::Join":
-                  - "."
-                  -
-                    - {"Ref": "API"}
-                    - "execute-api"
-                    - {"Ref": "AWS::Region"}
-                    - "amazonaws.com"
-              OriginPath: "/{{env}}"
-              CustomOriginConfig:
-                HTTPPort: 80
-                HTTPSPort: 443
-                OriginProtocolPolicy: "https-only"
-                OriginSslProtocols:
-                  Quantity: 2
-                  Items: [ "SSLv3", "TLSv1" ]
+        - Id: {{aws.cloudfront.originID}}
+          DomainName:
+            "Fn::Join":
+              - "."
+              -
+                - {"Ref": "API"}
+                - "execute-api"
+                - {"Ref": "AWS::Region"}
+                - "amazonaws.com"
+          OriginPath: "/{{env}}"
+          CustomOriginConfig:
+            HTTPPort: 80
+            HTTPSPort: 443
+            OriginProtocolPolicy: "https-only"
+            OriginSSLProtocols: [ "SSLv3", "TLSv1" ]
 
       ViewerCertificate:
-        ACMCertificateArn: {{aws.cloudfront.cert}}
-        SSLSupportMethod: 'sni-only'
+        AcmCertificateArn: {{aws.cloudfront.cert}}
         MinimumProtocolVersion: 'TLSv1'
-        Certificate: {{aws.cloudfront.cert}}
-        CertificateSource: acm
+        SslSupportMethod: 'sni-only'
+
 
       DefaultCacheBehavior:
         TargetOriginId: {{aws.cloudfront.originID}}
@@ -307,24 +300,46 @@ CFRDistro:
           Cookies:
             Forward: all
           Headers:
-            Quantity: 3
-            Items:
-              - Accept
-              - Authorization
-              - "Content-Type"
+            - Accept
+            - Authorization
+            - "Content-Type"
+        DefaultTTL: 0
         MinTTL: 0
         MaxTTL: {{aws.cloudfront.maxTTL}}
-        TrustedSigners:
-          Enabled: false
-          Quantity: 0
+        TrustedSigners: []
         ViewerProtocolPolicy: "redirect-to-https"
         AllowedMethods:
-          Items: [ "GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE" ]
-          Quantity: 7
-          CachedMethods:
-            Items: [ "GET", "HEAD", "OPTIONS" ]
-            Quantity: 3
+          - GET
+          - HEAD
+          - OPTIONS
+          - PUT
+          - PATCH
+          - POST
+          - DELETE
+        CachedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
         Compress: false
+{{/if}}
+
+{{#if aws.route53}}
+DNSRecords:
+  DependsOn:
+    - CFRDistro
+  Type: "AWS::Route53::RecordSetGroup"
+  Properties:
+      Comment: "API Gateway deployment for {{name}}-{{env}} -
+        Setup by Panda Sky."
+      HostedZoneName: {{aws.route53.domain}}
+      RecordSets:
+        {{#each aws.route53.hostnames}}
+        - Name: {{.}}
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2  # CloudFront's HostedZoneId
+            DNSName: {"Fn::GetAtt": ["CFRDistro", "DomainName"]}
+        {{/each}}
 {{/if}}
 
 # For Beta-01, this adds a single S3 bucket to every deployment unconditionally.

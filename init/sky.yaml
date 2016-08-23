@@ -1,5 +1,5 @@
-name: SkyProject
-description: SkyProject API
+name: sky
+description: Example Project API
 aws:
   domain: example.com
   region: us-west-2
@@ -7,6 +7,9 @@ aws:
     staging:
       hostnames:
         - staging-api
+      # cache:
+      #   expires: 0
+      #   priceClass: 100
 
     production:
       hostnames:
