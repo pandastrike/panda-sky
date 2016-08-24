@@ -23,7 +23,7 @@
     "url": "git+https://github.com/pandastrike/panda-sky.git"
   },
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=4.5.0"
   },
   "engine-strict": true,
   "dependencies": {

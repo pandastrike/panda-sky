@@ -5,7 +5,7 @@
 {resolve, join} = require "path"
 
 module.exports = async (env, config) ->
-  name = "#{config.name}-#{env}-src"
+  name = "#{env}-#{config.projectID}"
   bucket = yield require("./s3")(env, config, name)
 
   pkg = join process.cwd(), "deploy", "package.zip"
