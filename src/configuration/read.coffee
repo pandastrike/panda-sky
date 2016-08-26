@@ -12,7 +12,7 @@ module.exports = call ->
     #   "..", "..", "configuration-schema", "definitions.yaml")
     #
     # jsck = new JSCK.draft4 schema
-    config = yaml yield read resolve join( process.cwd(), "mango.yaml")
+    config = yaml yield read resolve join( process.cwd(), "sky.yaml")
     # {errors} = jsck.validate config
   catch e
     console.error "There was a problem validating this repo's configuration.", e

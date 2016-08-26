@@ -1,13 +1,11 @@
 module.exports = (config, env) ->
-  if config.aws.environments?[env]
-    desired = config.aws.environments[env]
+  desired = config.aws.environments[env]
+  {domain} = config.aws
 
-    if desired.hostnames
-      {domain} = config.aws
-      throw new Error "Domain not provided for custom URL creation." if !domain
-      hostnames = []
-      hostnames.push "#{name}.#{domain}" for name in desired.hostnames
-      config.aws.hostnames = hostnames
-      config.aws.cache = desired.cache || {}
+  hostnames = []
+  hostnames.push "#{name}.#{domain}" for name in desired.hostnames
+  hostnames.unshift domain  if env.apex == "primary"
+  hostnames.push domain     if desired.apex == "secondary"
+  config.aws.hostnames = hostnames
 
   config

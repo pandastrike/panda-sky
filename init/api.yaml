@@ -1,0 +1,30 @@
+# Describe your API resources and the endpoints used to access them.
+resources:
+
+  discovery:
+
+    path: /
+    description: Provides a directory of available resources
+
+    methods:
+
+      get:
+        method: GET
+        signature:
+          response: description
+          status: 200
+
+# Define JSON schemas the API uses to validate requests.
+schema:
+
+  example:
+    $schema: |-
+      http://json-schema.org/draft-04/schema
+    title: example
+    type: object
+    properties:
+      name:
+        type: string
+      age:
+        type: integer
+        minimum: 1

@@ -1,16 +1,18 @@
 # This module supports out-of-CFo preparation and modification to our app's
 # API Gateway and all critical support services, lambdas, S3, CFr, etc.
-{async, read, md5, empty} = require "fairmont"
+{async, read, md5, empty, exists} = require "fairmont"
 {yaml} = require "panda-serialize"
 {resolve, join} = require "path"
 
 module.exports = async (env, config) ->
-  name = "#{config.name}-#{env}-src"
+  name = "#{env}-#{config.projectID}"
   bucket = yield require("./s3")(env, config, name)
 
-  # TODO: Should these be configurable or required by convention?
-  pkg = resolve(join(process.cwd(), "deploy", "package.zip"))
-  description = resolve(join(process.cwd(), "description.yaml"))
+  pkg = join process.cwd(), "deploy", "package.zip"
+  description = join process.cwd(), "api.yaml"
+
+  throw new Error("Unable to find deploy/package.zip") if !(yield exists pkg)
+  throw new Error("Unable to find api.yaml") if !(yield exists description)
 
   handlers =
     isCurrent: async (remote) ->
@@ -24,12 +26,12 @@ module.exports = async (env, config) ->
       local = md5 yield read description
       if local == remote.api then true else false
 
-    update: async -> yield bucket.putObject "description.yaml", description
+    update: async -> yield bucket.putObject "api.yaml", description
 
-  # .mango holds the app's tracking metadata, ie hashes of API and handler defs.
+  # .sky holds the app's tracking metadata, ie hashes of API and handler defs.
   metadata =
     fetch: async ->
-      if data = yield bucket.getObject ".mango"
+      if data = yield bucket.getObject ".sky"
         yaml data
       else
         false
@@ -39,7 +41,7 @@ module.exports = async (env, config) ->
         handlers: md5 yield read(pkg, "buffer")
         api: md5 yield read description
 
-      yield bucket.putObject(".mango", (yaml data), "text/yaml")
+      yield bucket.putObject(".sky", (yaml data), "text/yaml")
 
   # Create and/or update an S3 bucket for our app's GW deployment.  This bucket
   # is our Cloud repository for everything we need to run the core of a Mango
@@ -51,7 +53,7 @@ module.exports = async (env, config) ->
 
     # If this is a fresh deploy.
     if !app
-      console.log "No deployment detected. Preparing Mango infrastructure."
+      console.log "No deployment detected. Preparing Panda Sky infrastructure."
       yield bucket.establish()
       yield api.update()
       yield handlers.update()
@@ -78,8 +80,8 @@ module.exports = async (env, config) ->
 
   # Remove the bucket and all associated
   destroy = async ->
-    yield bucket.deleteObject ".mango"
-    yield bucket.deleteObject "description.yaml"
+    yield bucket.deleteObject ".sky"
+    yield bucket.deleteObject "api.yaml"
     yield bucket.deleteObject "package.zip"
     yield bucket.destroy()
 

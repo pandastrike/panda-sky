@@ -1,6 +1,6 @@
 {async, collect, where, empty} = require "fairmont"
 
-module.exports = async (config) ->
+module.exports = async ->
   # TODO: Consider how to handle multiple region cert placement.
   {acm} = yield require("./index")("us-east-1")
   {root, regularlyQualify} = do require "./url"

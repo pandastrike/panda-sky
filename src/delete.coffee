@@ -12,6 +12,6 @@ define "delete", async (env) ->
     yield stack.deleteWait id
     yield stack.postDelete()
     console.log "Done"
-    console.log '\u0007'
   catch e
     console.log e.stack
+  console.log '\u0007'
