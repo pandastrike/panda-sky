@@ -28,6 +28,6 @@ define "init", async ->
     yield render (src "sky.js"), (target "src/sky.js")
     yield render (src "s3.js"), (target "src/s3.js")
 
-    console.log "Panda Sky project initalized."
+    console.log "Panda Sky project initialized."
   catch e
     console.error e.stack
