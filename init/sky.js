@@ -16,7 +16,7 @@ var API = {};
 
 API[app + "-get-description"] = async( function*(data, context, callback) {
   // Instantiate new s3 helper to target deployment "src" bucket.
-  var get = require("./s3")(projectID + "-" + env).get;
+  var get = require("./s3")(env + "-" + projectID).get;
   var description = YAML.safeLoad( yield( get("api.yaml")));
   return callback( null, description);
 });
