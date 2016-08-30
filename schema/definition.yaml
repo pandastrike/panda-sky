@@ -9,6 +9,7 @@
     properties:
     
       resources:
+        title: Resource Definitions
         description: |-
           A dictionary describing the resources supported by this API.
           The keys are logical references to a given resource type.
@@ -21,14 +22,17 @@
           properties:
     
             path: 
+              title: Resource Path
               description: |-
                 The URL template for URLs referencing this resource type.
               type: string
     
             description:
+              title: Resource Description
               type: string
     
             methods:
+              title: Resource Methods
               description: |-
                 A dictionary describing the methods this type of resource supports.
                 The keys are a logical reference to the method and are used to map
@@ -40,6 +44,7 @@
                 type: object
 
                 method:
+                  title: HTTP Method
                   description: |-
                     The HTTP method name for the given method.
                   enum:
@@ -52,29 +57,36 @@
                     - OPTIONS
 
                   signature:
+                    title: Method Signature
                     description: |-
                       Defines the acceptable requests and expected response for this method.
                     type: object
                     properties:
 
                       request: 
+                        title: Request Media Type (Accept)
                         description: |-
                           The media type (or a reference a media type in the schema dictionary)
                           acceptable for this method, if applicable.
                         type: string
 
                       response:
+                        title: Response Media Type (Content-Type)
                         description: |-
                           The media type (or a reference a media type in the schema dictionary)
                           expected from this method, if applicable.
                         type: string
 
                       status: 
+                        title: Response Status Code
                         description: |-
                           The expected status code from this method.
                         type: integer
       
       # TODO: somehow reference JSON Schema schema here?
       schema:
+        title: Schema Definitions
+        description: |-
+          The schema for the various media types used in the API.
         type: object
         additionalProperties: true
