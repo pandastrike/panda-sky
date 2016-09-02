@@ -8,6 +8,14 @@
 
     properties:
     
+      name:
+        title: API Name
+        type: string
+        
+      description:
+        title: API Description
+        type: string
+        
       resources:
         title: Resource Definitions
         description: |-
@@ -16,9 +24,7 @@
         type: object
     
         additionalProperties:
-          description: |-
-            Defines a given resource type.
-          type: object
+        
           properties:
     
             path: 
@@ -39,9 +45,6 @@
                 a given method to a handler.
               type: object
               additionalProperties:
-                description: |-
-                  Defines a given method supprorted by the resource type.
-                type: object
 
                 method:
                   title: HTTP Method
