@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "1.0.0-alpha-02",
+  "version": "1.0.0-alpha-03",
   "description": "Quicky publish severless applications in the cloud",
   "main": "lib/index.js",
   "bin": {
@@ -37,6 +37,7 @@
     "panda-9000": "^2.0.0-alpha-02",
     "panda-serialize": "^0.2.0",
     "panda-template": "0.3.0",
+    "prompt": "^1.0.0",
     "rimraf": "^2.5.4"
   },
   "keywords": [
