@@ -6,9 +6,12 @@ module.exports =
 
   # Make a directory at the specified path if it doesn't already exist.
   safe_mkdir: async (path, mode) ->
-    unless yield exists path
-      mode ||= "0777"
-      yield mkdir mode, path
+    if yield exists path
+      console.log "Warning: #{path} exists. Skipping."
+      return
+
+    mode ||= "0777"
+    yield mkdir mode, path
 
   # Copy a file to the target, but only if it doesn't already exist.
   safe_cp: async (original, target) ->
