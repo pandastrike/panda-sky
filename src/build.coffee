@@ -15,7 +15,7 @@ define "build", ["survey"], async ->
         are listed."
       process.exit()
 
-    # Dump the processed assets from "src" into an intermidate directory, lib.
+    # Dump the processed assets from "src" into an intermediate directory, lib.
     yield rmrf "deploy"
     source = "src"
     target = "lib"

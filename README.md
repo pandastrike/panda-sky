@@ -1,6 +1,6 @@
 # Panda Sky
 
-_Quicky publish severless APIs to AWS._
+_Quickly publish serverless APIs to AWS._
 
 ## Install
 
