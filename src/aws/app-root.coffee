@@ -44,7 +44,7 @@ module.exports = async (env, config) ->
       yield bucket.putObject(".sky", (yaml data), "text/yaml")
 
   # Create and/or update an S3 bucket for our app's GW deployment.  This bucket
-  # is our Cloud repository for everything we need to run the core of a Mango
+  # is our Cloud repository for everything we need to run the core of a Panda Sky
   # app.  It contains the source code for the GW's lambda handlers (as a zip
   # archive), the API description, and associated metadata.
   prepare = async ->

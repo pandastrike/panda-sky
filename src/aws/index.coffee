@@ -1,4 +1,4 @@
-# Mango uses the AWS-SDK and your credentials to directly interact with Amazon.
+# Panda Sky uses the AWS-SDK and your credentials to directly interact with Amazon.
 {join} = require "path"
 {homedir} = require "os"
 
