@@ -14,11 +14,19 @@ var s3 = require("./s3")(app + "-" + projectID);
 // Handlers
 var API = {};
 
-API[app + "-get-description"] = async( function*(data, context, callback) {
+API[app + "-discovery-get"] = async( function*(data, context, callback) {
   // Instantiate new s3 helper to target deployment "src" bucket.
   var get = require("./s3")(env + "-" + projectID).get;
   var description = YAML.safeLoad( yield( get("api.yaml")));
   return callback( null, description);
+});
+
+API[app + "-greeting-get"] = async( function*(data, context, callback) {
+  var message, name;
+  name = data.name || "World";
+  message = "<h1>Hello, " + name + "!</h1>";
+  message += "<p>Seeing this page indicates a successful deployment of your test API with Panda Sky!</p>";
+  return callback(null, message);
 });
 
 exports.handler = function (event, context, callback) {

@@ -48,24 +48,29 @@ LambdaRole:
     RestApiId:
       Ref: API
     ParentId:
-      {{#with (last (before (parsePath path) 1)) as |parent|}}
       {{#isnt parent "/"}}
       Ref: {{capitalizeFirst parent}}Resource
       {{else}}
       "Fn::GetAtt": ["API", "RootResourceId"]
       {{/isnt}}
-      {{/with}}
-    PathPart: "{{last (parsePath path)}}"
+    PathPart: "{{pathPart}}"
 {{/isnt}}
 
-{{#each methods}}
-{{capitalizeFirst @key~}}
-{{~capitalizeFirst (pick signature.request signature.response)~}}
+{{#each actions}}
+{{camelName~}}
 Method:
   {{#isnt ../path "/"}}
+  {{#if signature.dependent}}
   DependsOn:
-  - {{capitalizeFirst (pick signature.request signature.response)}}Resource
-  - {{capitalizeFirst (pick signature.request signature.response)}}Model
+  {{#if signature.request}}
+  - {{capitalizeFirst signature.request}}Resource
+  - {{capitalizeFirst signature.request}}Model
+  {{/if}}
+  {{#if signature.response}}
+  - {{capitalizeFirst signature.response}}Resource
+  - {{capitalizeFirst signature.response}}Model
+  {{/if}}
+  {{/if}}
   {{/isnt}}
   Type: "AWS::ApiGateway::Method"
   Properties:
@@ -78,7 +83,7 @@ Method:
       "Fn::GetAtt": ["API", "RootResourceId"]
       {{/isnt}}
     AuthorizationType: NONE
-    HttpMethod: {{method}}
+    HttpMethod: {{uppercase method}}
     {{#if signature.request}}
     RequestModels:
       "application/json": {{capitalizeFirst signature.request}}
@@ -106,8 +111,7 @@ Method:
             - "arn:aws:apigateway:"
             - {"Ref": "AWS::Region"}
             - ":lambda:path/2015-03-31/functions/"
-            - {"Fn::GetAtt": ["{{~capitalizeFirst @key}}
-            {{~capitalizeFirst (pick signature.request signature.response)~}}
+            - {"Fn::GetAtt": ["{{~camelName~}}
             LambdaHandler",
             "Arn"]}
             - "/invocations"
@@ -122,13 +126,18 @@ Method:
         - StatusCode: {{signature.status}}
           ResponseParameters:
             "method.response.header.Access-Control-Allow-Origin": "'*'"
+            {{#if signature.accept}}
+            "method.response.header.Content-Type": "'{{signature.accept}}'"
+            {{/if}}
     MethodResponses:
       - StatusCode: {{signature.status}}
         ResponseParameters:
           "method.response.header.Access-Control-Allow-Origin": true
+          {{#if signature.accept}}
+          "method.response.header.Content-Type": true
+          {{/if}}
 
-{{capitalizeFirst @key~}}
-{{~capitalizeFirst (pick signature.request signature.response)~}}
+{{camelName~}}
 OptionsMethod:
   Type: "AWS::ApiGateway::Method"
   Properties:
@@ -148,7 +157,7 @@ OptionsMethod:
         - StatusCode: 200
           ResponseParameters:
             "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            "method.response.header.Access-Control-Allow-Methods": "'OPTIONS, {{method}}'"
+            "method.response.header.Access-Control-Allow-Methods": "'OPTIONS, {{uppercase method}}'"
             "method.response.header.Access-Control-Allow-Origin": "'*'"
       RequestTemplates:
         "application/json": "{statusCode: 200}"
@@ -159,16 +168,14 @@ OptionsMethod:
           "method.response.header.Access-Control-Allow-Methods": true
           "method.response.header.Access-Control-Allow-Origin": true
 
-{{capitalizeFirst @key~}}
-{{~capitalizeFirst (pick signature.request signature.response)~}}
+{{camelName~}}
 LambdaHandler:
   Type: "AWS::Lambda::Function"
   Properties:
     Description: "Handler for API {{~@root/name~}}"
     FunctionName: "
       {{~@root/name}}-{{@root/env}}-
-      {{~@key}}-
-      {{~pick signature.request signature.response}}"
+      {{~dashName}}"
 
     Handler: "lib/sky.handler"
     Role:
@@ -178,16 +185,14 @@ LambdaHandler:
       S3Bucket: "{{@root/env}}-{{@root/projectID}}"
       S3Key: "package.zip"
 
-{{capitalizeFirst @key~}}
-{{~capitalizeFirst (pick signature.request signature.response)~}}
+{{camelName~}}
 LambdaPermission:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: "lambda:InvokeFunction"
       FunctionName:
         "Fn::GetAtt": ["
-          {{~capitalizeFirst @key~}}
-          {{~capitalizeFirst (pick signature.request signature.response)~}}
+          {{~camelName~}}
           LambdaHandler",
           "Arn"]
       Principal: apigateway.amazonaws.com
@@ -201,7 +206,7 @@ LambdaPermission:
             - {"Ref": "AWS::AccountId"}
             - ":"
             - {"Ref": "API"}
-            - "/*/{{method}}{{../path}}"
+            - "/*/{{method}}{{../permissionsPath}}"
 
 {{/each}}
 {{/each}}
@@ -221,12 +226,10 @@ LambdaPermission:
 Deployment:
   DependsOn:
   {{#each resources}}
-  {{#each methods}}
-  - {{capitalizeFirst @key~}}
-    {{~capitalizeFirst (pick signature.request signature.response)~}}
+  {{#each actions}}
+  - {{camelName~}}
     Method
-  - {{capitalizeFirst @key~}}
-    {{~capitalizeFirst (pick signature.request signature.response)~}}
+  - {{camelName~}}
     OptionsMethod
   {{/each}}
   {{/each}}
