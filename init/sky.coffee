@@ -13,11 +13,18 @@ app = "#{name}-#{env}"
 
 # Handlers
 API =
-  "#{app}-get-description": async (data, context, callback) ->
+  "#{app}-discovery-get": async (data, context, callback) ->
     # Instantiate new s3 helper to target deployment "src" bucket.
     {get} = require("./s3")("#{projectID}-#{env}")
     description = YAML.safeLoad yield get "api.yaml"
     callback null, description
+
+  "#{app}-greeting-get": async (data, context, callback) ->
+    {name} = data
+    if !name then name = "World"
+    message = "<h1>Hello, #{name}!</h1>"
+    message +="<p>Seeing this page indicates a successful deployment of your test API with Panda Sky!</p>"
+    callback null, message
 
 exports.handler = (event, context, callback) ->
   try
