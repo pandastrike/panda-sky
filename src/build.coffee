@@ -7,7 +7,7 @@ AdmZip = require 'adm-zip'
 {render} = Asset = require "./asset"
 {safe_mkdir} = require "./utils"
 
-define "build", ["survey"], async ->
+define "build", ["survey"], async (limit) ->
   try
     if !yield exists "package.json"
       console.error "This project does not yet have a package.json. \nRun 'npm
@@ -39,7 +39,7 @@ define "build", ["survey"], async ->
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.
     zip = new AdmZip()
     zip.addLocalFolder "lib", "lib"
-    if yield exists "node_modules"
+    if not limit && yield exists "node_modules"
       zip.addLocalFolder "node_modules", "node_modules"
     yield safe_mkdir "deploy"
     zip.writeZip "deploy/package.zip"

@@ -15,7 +15,8 @@ call ->
   program
     .command('build')
     .description('compile the API, Lambdas, and resources to prepare for publishing.')
-    .action(-> run "build")
+    .option('-l, --limit', 'Limit build archive to code within src directory')
+    .action((options) -> run "build", [options.limit])
 
   program
     .command('init')
