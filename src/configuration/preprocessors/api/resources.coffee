@@ -6,7 +6,6 @@
 # Implicit, "virtual" collections are added here.
 module.exports = (description) ->
   {resources} = description
-  paths = collect project "path", values(resources)
   counter = 0 # keeps resource names unique #TODO: Do better
 
   # Helper to add a virtual, antecedeant resource to the resources dictionary.
@@ -32,6 +31,11 @@ module.exports = (description) ->
     p = if p.length > 2 then cat([ante], p[2...]) else [ante]
     walkPath p
 
+  stripPath = (p) ->
+    p = p[1...] if first(p) == "/"
+    p = p.slice(0, -1) if last(p) == "/"
+    p
+
   # Helper to return the key of a resource in the main dictionary given its url path.
   getKey = (path) ->
     for k, v of resources
@@ -41,13 +45,15 @@ module.exports = (description) ->
 
 
 
+  # Get an authoritative list of all paths.
+  paths = collect project "path", values(resources)
+  paths = (stripPath path for path in paths)
+
   # Remove path's leading and trailing slashes, if present.
   for r, resource of resources
     p = resource.path
     continue if p == "/"
-    p = p[1...] if first(p) == "/"
-    p = p.slice(0, -1) if last(p) == "/"
-    resources[r].path = p
+    resources[r].path = stripPath p
 
   # Inspect path for implicit resources.
   for r, resource of resources

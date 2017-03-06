@@ -15,7 +15,7 @@ app = "#{name}-#{env}"
 API =
   "#{app}-discovery-get": async (data, context, callback) ->
     # Instantiate new s3 helper to target deployment "src" bucket.
-    {get} = require("./s3")("#{projectID}-#{env}")
+    {get} = require("./s3")("#{env}-#{projectID}")
     description = YAML.safeLoad yield get "api.yaml"
     callback null, description
 

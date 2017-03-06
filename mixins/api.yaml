@@ -56,6 +56,36 @@ LambdaRole:
     PathPart: "{{pathPart}}"
 {{/isnt}}
 
+{{capitalizeFirst @key}}OptionsMethod:
+  Type: "AWS::ApiGateway::Method"
+  Properties:
+    RestApiId:
+      Ref: API
+    ResourceId:
+      {{#isnt path "/"}}
+      Ref: {{capitalizeFirst @key}}Resource
+      {{else}}
+      "Fn::GetAtt": ["API", "RootResourceId"]
+      {{/isnt}}
+    AuthorizationType: NONE
+    HttpMethod: OPTIONS
+    Integration:
+      Type: MOCK
+      IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            "method.response.header.Access-Control-Allow-Methods": "'{{methodList}}'"
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+      RequestTemplates:
+        "application/json": "{statusCode: 200}"
+    MethodResponses:
+      - StatusCode: 200
+        ResponseParameters:
+          "method.response.header.Access-Control-Allow-Headers": true
+          "method.response.header.Access-Control-Allow-Methods": true
+          "method.response.header.Access-Control-Allow-Origin": true
+
 {{#each actions}}
 {{camelName~}}
 Method:
@@ -138,37 +168,6 @@ Method:
           {{/if}}
 
 {{camelName~}}
-OptionsMethod:
-  Type: "AWS::ApiGateway::Method"
-  Properties:
-    RestApiId:
-      Ref: API
-    ResourceId:
-      {{#isnt ../path "/"}}
-      Ref: {{capitalizeFirst @../key}}Resource
-      {{else}}
-      "Fn::GetAtt": ["API", "RootResourceId"]
-      {{/isnt}}
-    AuthorizationType: NONE
-    HttpMethod: OPTIONS
-    Integration:
-      Type: MOCK
-      IntegrationResponses:
-        - StatusCode: 200
-          ResponseParameters:
-            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            "method.response.header.Access-Control-Allow-Methods": "'OPTIONS, {{uppercase method}}'"
-            "method.response.header.Access-Control-Allow-Origin": "'*'"
-      RequestTemplates:
-        "application/json": "{statusCode: 200}"
-    MethodResponses:
-      - StatusCode: 200
-        ResponseParameters:
-          "method.response.header.Access-Control-Allow-Headers": true
-          "method.response.header.Access-Control-Allow-Methods": true
-          "method.response.header.Access-Control-Allow-Origin": true
-
-{{camelName~}}
 LambdaHandler:
   Type: "AWS::Lambda::Function"
   Properties:
@@ -227,11 +226,9 @@ Deployment:
   DependsOn:
   {{#each resources}}
   {{#each actions}}
-  - {{camelName~}}
-    Method
-  - {{camelName~}}
-    OptionsMethod
+  - {{camelName~}}Method
   {{/each}}
+  - {{capitalizeFirst @key}}OptionsMethod
   {{/each}}
   Type: "AWS::ApiGateway::Deployment"
   Properties:
@@ -344,13 +341,3 @@ DNSRecords:
             DNSName: {"Fn::GetAtt": ["CFRDistro", "DomainName"]}
         {{/each}}
 {{/if}}
-
-# For Beta-01, this adds a single S3 bucket to every deployment unconditionally.
-# This will be pulled out when the mixin model is better refined in Beta-02
-{{#each aws.buckets}}
-MixinS3Bucket:
-  Type: "AWS::S3::Bucket"
-  DeletionPolicy: Retain
-  Properties:
-    BucketName: {{.}}
-{{/each}}
