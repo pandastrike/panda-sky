@@ -21,7 +21,7 @@ module.exports = async (description) ->
         else
           throw e
 
-  buckets = ["#{description.name}-#{description.env}"]
+  {buckets} = description
   out = []
   out.push b for b in buckets when !(yield bucketExists b)
   out
