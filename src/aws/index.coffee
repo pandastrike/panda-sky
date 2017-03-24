@@ -29,16 +29,7 @@ parseCreds = (data) ->
 # Looks for AWS credentials stored at ~/.aws/credentials
 awsPath = join homedir(), ".aws", "credentials"
 
-
-
-module.exports = async (region) ->
-  {id, key} = parseCreds yield read awsPath
-  AWS.config =
-     accessKeyId: id
-     secretAccessKey: key
-     region: region || "us-west-2"
-     sslEnabled: true
-
+module.exports = (region) ->
   # Module's we'd like to invoke from AWS are listed and lifted here.
   acm = liftModule new AWS.ACM()
   gw = liftModule new AWS.APIGateway()
