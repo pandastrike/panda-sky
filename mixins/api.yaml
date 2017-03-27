@@ -156,6 +156,8 @@ Method:
       IntegrationResponses:
         - StatusCode: {{signature.status}}
           ResponseParameters:
+            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            "method.response.header.Access-Control-Allow-Methods": "'{{../methodList}}'"
             "method.response.header.Access-Control-Allow-Origin": "'*'"
             {{#if signature.accept}}
             "method.response.header.Content-Type": "'{{signature.accept}}'"
@@ -163,6 +165,8 @@ Method:
     MethodResponses:
       - StatusCode: {{signature.status}}
         ResponseParameters:
+          "method.response.header.Access-Control-Allow-Headers": true
+          "method.response.header.Access-Control-Allow-Methods": true
           "method.response.header.Access-Control-Allow-Origin": true
           {{#if signature.accept}}
           "method.response.header.Content-Type": true
