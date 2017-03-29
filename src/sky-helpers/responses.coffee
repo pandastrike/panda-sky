@@ -23,7 +23,7 @@ module.exports =
   OK: create "OK", "ok", 200
   Created: create "Created", "created", 201
   Accepted: create "Accepted", "accepted", 202
-  NonAuthoritativeInformation: : create "NonAuthoritativeInformation", "non-authoritative information", 203
+  NonAuthoritativeInformation: create "NonAuthoritativeInformation", "non-authoritative information", 203
   NoContent: create "NoContent", "no content", 204
   ResetContent: create "ResetContent", "reset content", 205
   PartialContent: create "PartialContent", "partial content", 206
