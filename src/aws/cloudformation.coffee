@@ -5,29 +5,14 @@ module.exports = async (env, config) ->
     src = yield require("./app-root")(env, config)
     name = "#{config.name}-#{env}"
 
-    generateTemplate = ->
+    stackConfig = (type) ->
+      t = "template.yaml" if type == "full"
+      t = "soft-template.yaml" if type == "soft"
+      t = "hard-template.yaml" if type == "hard"
+
       StackName: name
-      TemplateBody: config.aws.cfoTemplate
+      TemplateURL: "http://#{env}-#{config.projectID}.s3.amazonaws.com/#{t}"
       Capabilities: ["CAPABILITY_IAM"]
-
-    # "hard" updates require a new stage deployment (url stays the same)
-    hardUpdate = (str) ->
-      retain = ["API", "LambdaRole", "CFRDistro", "DNSRecords"]
-      out = JSON.parse(str)
-      R = out.Resources
-      delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
-      out.Resources = R
-      JSON.stringify out
-
-    # "soft" updates do not require a new stage deployment, so we retain it.
-    softUpdate = (str) ->
-      retain = ["API", "LambdaRole", "Deployment", "CFRDistro", "DNSRecords"]
-      out = JSON.parse(str)
-      R = out.Resources
-      delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
-      R.Deployment.DependsOn = []
-      out.Resources = R
-      JSON.stringify out
 
     getStack = async (id) ->
       try
@@ -46,31 +31,22 @@ module.exports = async (env, config) ->
 
     # Update an existing stack with a new template.
     update = async (updates) ->
-      console.log "Existing stack detected. Updating."
       # Because of GW quirk, all API resources have to be wiped out before
       # making edits to child resources. Updating is a two-step process.
-      params = generateTemplate()
-      desired = params.TemplateBody # hold on to this for later...
-      params.TemplateBody =
-        if "GW" in updates
-          hardUpdate desired
-        else
-          softUpdate desired
-
+      console.log "Existing stack detected. Updating."
+      
       # Step 1: Destroy guts of Stack
-      yield cfo.updateStack params
+      updateType = if "GW" in updates then "hard" else "soft"
+      yield cfo.updateStack stackConfig updateType
       yield publishWait name
 
       # Step 2: Apply the full, updated Stack
-      params.TemplateBody = desired
-      yield cfo.updateStack params
+      yield cfo.updateStack stackConfig "full"
 
     # Create a new stack from scrath with the template.
     create = async ->
       console.log "Creating fresh stack."
-      yield cfo.createStack generateTemplate()
-
-
+      yield cfo.createStack stackConfig "full"
 
     publish = async ->
       console.log "Scanning AWS for current deploy."

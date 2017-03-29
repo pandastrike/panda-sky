@@ -154,23 +154,25 @@ Method:
 
 
       IntegrationResponses:
-        - StatusCode: {{signature.status}}
+      {{#each IntegrationResponses}}
+        - StatusCode: {{StatusCode}}
+        {{#if SelectionPattern}}
+          SelectionPattern: {{SelectionPattern}}
+        {{/if}}
           ResponseParameters:
-            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            "method.response.header.Access-Control-Allow-Methods": "'{{../methodList}}'"
-            "method.response.header.Access-Control-Allow-Origin": "'*'"
-            {{#if signature.accept}}
-            "method.response.header.Content-Type": "'{{signature.accept}}'"
-            {{/if}}
+          {{#eachProperty ResponseParameters}}
+            {{key}}: "{{value}}"
+          {{/eachProperty}}
+      {{/each}}
+
     MethodResponses:
-      - StatusCode: {{signature.status}}
+    {{#each MethodResponses}}
+      - StatusCode: {{StatusCode}}
         ResponseParameters:
-          "method.response.header.Access-Control-Allow-Headers": true
-          "method.response.header.Access-Control-Allow-Methods": true
-          "method.response.header.Access-Control-Allow-Origin": true
-          {{#if signature.accept}}
-          "method.response.header.Content-Type": true
-          {{/if}}
+        {{#eachProperty ResponseParameters}}
+          {{key}}: {{value}}
+        {{/eachProperty}}
+    {{/each}}
 
 {{camelName~}}
 LambdaHandler:

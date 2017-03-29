@@ -7,36 +7,36 @@
       - resources
 
     properties:
-    
+
       name:
         title: API Name
         type: string
-        
+
       description:
         title: API Description
         type: string
-        
+
       resources:
         title: Resource Definitions
         description: |-
           A dictionary describing the resources supported by this API.
           The keys are logical references to a given resource type.
         type: object
-    
+
         additionalProperties:
-        
+
           properties:
-    
-            path: 
+
+            path:
               title: Resource Path
               description: |-
                 The URL template for URLs referencing this resource type.
               type: string
-    
+
             description:
               title: Resource Description
               type: string
-    
+
             methods:
               title: Resource Methods
               description: |-
@@ -66,7 +66,7 @@
                     type: object
                     properties:
 
-                      request: 
+                      request:
                         title: Request Media Type (Accept)
                         description: |-
                           The media type (or a reference a media type in the schema dictionary)
@@ -80,12 +80,19 @@
                           expected from this method, if applicable.
                         type: string
 
-                      status: 
-                        title: Response Status Code
-                        description: |-
-                          The expected status code from this method.
-                        type: integer
-      
+                      status:
+                        anyOf:
+                          - title: Response Status Code
+                            description: |-
+                              The expected status code from this method.
+                            type: integer
+                          - title: Possible Response Status Codes
+                            description: |-
+                              A list of expected status codes from this method.
+                            type: array
+                            items:
+                              type: integer
+
       # TODO: somehow reference JSON Schema schema here?
       schema:
         title: Schema Definitions

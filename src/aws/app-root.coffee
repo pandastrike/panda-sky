@@ -43,6 +43,36 @@ module.exports = async (env, config) ->
 
       yield bucket.putObject(".sky", (yaml data), "text/yaml")
 
+
+  template =
+    update: async ->
+      # Sky stores the CloudFormation template that describes the infrastructure
+      # stack. For updates to Gateway with nested methods/resources, Sky needs
+      # to make intermediate templates that deletes all methods and then puts
+      # everything back with updates.
+      hard = (template) ->
+        retain = ["API", "LambdaRole", "CFRDistro", "DNSRecords"]
+        R = template.Resources
+        delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
+        template.Resources = R
+        template
+
+      soft = (template) ->
+        retain = ["API", "LambdaRole", "Deployment", "CFRDistro", "DNSRecords"]
+        R = template.Resources
+        delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
+        R.Deployment.DependsOn = []
+        template.Resources = R
+        template
+
+      t = JSON.parse config.aws.cfoTemplate
+      t2 = JSON.parse config.aws.cfoTemplate
+      yield bucket.putObject "template.yaml", (yaml t), "text/yaml"
+      yield bucket.putObject "hard-template.yaml", (yaml hard t), "text/yaml"
+      yield bucket.putObject "soft-template.yaml", (yaml soft t2), "text/yaml"
+
+
+
   # Create and/or update an S3 bucket for our app's GW deployment.  This bucket
   # is our Cloud repository for everything we need to run the core of a Mango
   # app.  It contains the source code for the GW's lambda handlers (as a zip
@@ -57,10 +87,13 @@ module.exports = async (env, config) ->
       yield bucket.establish()
       yield api.update()
       yield handlers.update()
+      yield template.update()
       return true
 
     # Compare what's in the local repository to the hashes stored in the bucket
     updates = []
+    console.log "updating template"
+    yield template.update()
     if !(yield api.isCurrent app)
       yield api.update()
       updates.push "GW"
@@ -82,6 +115,9 @@ module.exports = async (env, config) ->
   destroy = async ->
     yield bucket.deleteObject ".sky"
     yield bucket.deleteObject "api.yaml"
+    yield bucket.deleteObject "template.yaml"
+    yield bucket.deleteObject "soft-template.yaml"
+    yield bucket.deleteObject "hard-template.yaml"
     yield bucket.deleteObject "package.zip"
     yield bucket.destroy()
 

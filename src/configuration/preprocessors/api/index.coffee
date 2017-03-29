@@ -3,6 +3,7 @@ extractParamters = require "./parameters"
 extractCFr = require "./cfr"
 extractResources = require "./resources"
 extractActions = require "./actions"
+addResponses = require "./responses"
 
 module.exports = async (description) ->
   # Extract path and querystring parameter configuration
@@ -16,5 +17,8 @@ module.exports = async (description) ->
 
   # Compute the formatted template names for API action defintions.
   description = yield extractActions description
+
+  # Add the possible HTTP responses to every API action specification.
+  description = yield addResponses description
 
   description
