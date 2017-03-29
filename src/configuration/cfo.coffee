@@ -38,5 +38,7 @@ module.exports = async (config, env) ->
     Resources: merge (yield render mixins)...
 
   # Add the stringified, rendered CloudFormation template to the config object.
+  # console.log JSON.stringify(cfo, null, 2)
+  # process.exit()
   config.aws.cfoTemplate = JSON.stringify cfo
   config
