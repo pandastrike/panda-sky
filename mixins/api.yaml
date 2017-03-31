@@ -250,8 +250,8 @@ Deployment:
         - ResourcePath: "/"
           HttpMethod: GET
           MetricsEnabled: true
-          DataTraceEnabled: true
-          LoggingLevel: INFO  # OFF, ERROR, INFO
+          DataTraceEnabled: false
+          #LoggingLevel: INFO  # OFF, ERROR, INFO
           CachingEnabled: false
           # CacheTtlInSeconds: 1800
           # CacheDataEncrypted: false

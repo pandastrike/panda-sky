@@ -1,6 +1,6 @@
 {join} = require "path"
 program = require "commander"
-{call, read} = require "fairmont"
+{call, read, collect, project, empty} = require "fairmont"
 
 require "./index"
 {run} = require "panda-9000"
@@ -34,3 +34,13 @@ call ->
 
   # Begin execution.
   program.parse process.argv
+  console.log process.argv
+  # Handle error cases for no subcommands...
+  program.help() if empty program.args
+
+  # ...and incorrect subcommands
+  commands = collect project("_name", program.commands)
+  if program.args[0] not in commands
+    console.error "  Error: subcommand '#{program.args[0]}' not found."
+    program.outputHelp()
+    process.exit(1)
