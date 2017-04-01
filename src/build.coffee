@@ -3,7 +3,6 @@ path = require "path"
 {go, tee, pull, values, async, lift, shell, exists} = require "fairmont"
 {define, write} = require "panda-9000"
 rmrf = lift require "rimraf"
-AdmZip = require 'adm-zip'
 
 {render} = Asset = require "./asset"
 {safe_mkdir} = require "./utils"
