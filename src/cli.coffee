@@ -32,15 +32,9 @@ call ->
     .description('deploy API, Lambdas to AWS infrastructure')
     .action((env)-> run "delete", [env])
 
+  program
+    .command('*')
+    .action(-> program.help())
+
   # Begin execution.
   program.parse process.argv
-  console.log process.argv
-  # Handle error cases for no subcommands...
-  program.help() if empty program.args
-
-  # ...and incorrect subcommands
-  commands = collect project("_name", program.commands)
-  if program.args[0] not in commands
-    console.error "  Error: subcommand '#{program.args[0]}' not found."
-    program.outputHelp()
-    process.exit(1)

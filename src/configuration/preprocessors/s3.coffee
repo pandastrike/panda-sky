@@ -25,8 +25,6 @@ module.exports = async (description) ->
   out = []
   out.push b for b in buckets when !(yield bucketExists b)
   out
-  console.log out
-  process.exit()
 
   buckets:
     for bucket in out
