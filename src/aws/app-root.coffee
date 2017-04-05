@@ -139,6 +139,7 @@ module.exports = async (env, config) ->
   destroy = async ->
     yield bucket.deleteObject ".sky"
     yield bucket.deleteObject "api.yaml"
+    yield bucket.deleteObject "sky.yaml"
     yield bucket.deleteObject "template.yaml"
     yield bucket.deleteObject "soft-template.yaml"
     yield bucket.deleteObject "hard-template.yaml"

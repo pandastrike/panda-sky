@@ -186,7 +186,12 @@ LambdaHandler:
     Handler: "lib/sky.handler"
     Role:
       "Fn::GetAtt" : ["LambdaRole", "Arn"]
-    Runtime: nodejs4.3
+    Runtime: {{@root/aws/runtime}}
+    Environment:
+      Variables:
+      {{#eachProperty @root/variables}}
+        {{key}}: {{value}}
+      {{/eachProperty}}
     Code:
       S3Bucket: "{{@root/env}}-{{@root/projectID}}"
       S3Key: "package.zip"
