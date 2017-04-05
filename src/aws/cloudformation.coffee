@@ -13,6 +13,7 @@ module.exports = async (env, config) ->
       StackName: name
       TemplateURL: "http://#{env}-#{config.projectID}.s3.amazonaws.com/#{t}"
       Capabilities: ["CAPABILITY_IAM"]
+      Tags: config.tags
 
     getStack = async (id) ->
       try
@@ -34,7 +35,7 @@ module.exports = async (env, config) ->
       # Because of GW quirk, all API resources have to be wiped out before
       # making edits to child resources. Updating is a two-step process.
       console.log "Existing stack detected. Updating."
-      
+
       # Step 1: Destroy guts of Stack
       updateType = if "GW" in updates then "hard" else "soft"
       yield cfo.updateStack stackConfig updateType

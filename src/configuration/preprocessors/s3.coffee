@@ -21,7 +21,7 @@ module.exports = async (description) ->
         else
           throw e
 
-  {buckets} = description
+  {buckets, tags} = description
   out = []
   out.push b for b in buckets when !(yield bucketExists b)
   out
@@ -30,3 +30,4 @@ module.exports = async (description) ->
     for bucket in out
       name: bucket
       resourceTitle: capitalize camelCase plainText bucket
+      tags: tags

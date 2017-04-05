@@ -11,8 +11,6 @@ _render = require "panda-template"
 preprocessors = require "./preprocessors"
 
 module.exports = async (config, env) ->
-
-  globals = yaml yield read join process.cwd(), "sky.yaml"
   globals = merge config, {env}
 
   # Each mixin has a template that gets rendered before joining the others.
