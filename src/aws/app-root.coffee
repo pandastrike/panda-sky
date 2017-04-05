@@ -9,10 +9,12 @@ module.exports = async (env, config) ->
   bucket = yield require("./s3")(env, config, name)
 
   pkg = join process.cwd(), "deploy", "package.zip"
-  description = join process.cwd(), "api.yaml"
+  apiDef = join process.cwd(), "api.yaml"
+  skyDef = join process.cwd(), "sky.yaml"
 
   throw new Error("Unable to find deploy/package.zip") if !(yield exists pkg)
-  throw new Error("Unable to find api.yaml") if !(yield exists description)
+  throw new Error("Unable to find api.yaml") if !(yield exists apiDef)
+  throw new Error("Unable to find sky.yaml") if !(yield exists skyDef)
 
   handlers =
     isCurrent: async (remote) ->
@@ -23,10 +25,17 @@ module.exports = async (env, config) ->
 
   api =
     isCurrent: async (remote) ->
-      local = md5 yield read description
+      local = md5 yield read apiDef
       if local == remote.api then true else false
 
-    update: async -> yield bucket.putObject "api.yaml", description
+    update: async -> yield bucket.putObject "api.yaml", apiDef
+
+  skyConfig =
+    isCurrent: async (remote) ->
+      local = md5 yield read skyDef
+      if local == remote.sky then true else false
+
+    update: async -> yield bucket.putObject "sky.yaml", skyDef
 
   # .sky holds the app's tracking metadata, ie hashes of API and handler defs.
   metadata =
@@ -38,8 +47,10 @@ module.exports = async (env, config) ->
 
     update: async ->
       data =
+        api: md5 yield read apiDef
         handlers: md5 yield read(pkg, "buffer")
-        api: md5 yield read description
+        sky: md5 yield read skyDef
+
 
       yield bucket.putObject(".sky", (yaml data), "text/yaml")
 
@@ -50,6 +61,13 @@ module.exports = async (env, config) ->
       # stack. For updates to Gateway with nested methods/resources, Sky needs
       # to make intermediate templates that deletes all methods and then puts
       # everything back with updates.
+      _empty = (template) ->
+        retain = ["API"]
+        R = template.Resources
+        delete R[k] for k, v of R when !(k in retain)
+        template.Resources = R
+        template
+
       hard = (template) ->
         retain = ["API", "LambdaRole", "CFRDistro", "DNSRecords"]
         R = template.Resources
@@ -67,9 +85,11 @@ module.exports = async (env, config) ->
 
       t = JSON.parse config.aws.cfoTemplate
       t2 = JSON.parse config.aws.cfoTemplate
+      t3 = JSON.parse config.aws.cfoTemplate
       yield bucket.putObject "template.yaml", (yaml t), "text/yaml"
-      yield bucket.putObject "hard-template.yaml", (yaml hard t), "text/yaml"
-      yield bucket.putObject "soft-template.yaml", (yaml soft t2), "text/yaml"
+      yield bucket.putObject "empty-template.yaml", (yaml _empty t), "text/yaml"
+      yield bucket.putObject "hard-template.yaml", (yaml hard t2), "text/yaml"
+      yield bucket.putObject "soft-template.yaml", (yaml soft t3), "text/yaml"
 
 
 
@@ -86,6 +106,7 @@ module.exports = async (env, config) ->
       console.log "No deployment detected. Preparing Panda Sky infrastructure."
       yield bucket.establish()
       yield api.update()
+      yield skyConfig.update()
       yield handlers.update()
       yield template.update()
       return true
@@ -94,6 +115,9 @@ module.exports = async (env, config) ->
     updates = []
     console.log "updating template"
     yield template.update()
+    if !(yield skyConfig.isCurrent app)
+      yield skyConfig.update()
+      updates.push "All"
     if !(yield api.isCurrent app)
       yield api.update()
       updates.push "GW"
@@ -118,6 +142,7 @@ module.exports = async (env, config) ->
     yield bucket.deleteObject "template.yaml"
     yield bucket.deleteObject "soft-template.yaml"
     yield bucket.deleteObject "hard-template.yaml"
+    yield bucket.deleteObject "empty-template.yaml"
     yield bucket.deleteObject "package.zip"
     yield bucket.destroy()
 

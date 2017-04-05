@@ -9,6 +9,7 @@ module.exports = async (env, config) ->
       t = "template.yaml" if type == "full"
       t = "soft-template.yaml" if type == "soft"
       t = "hard-template.yaml" if type == "hard"
+      t = "empty-template.yaml" if type == "empty"
 
       StackName: name
       TemplateURL: "http://#{env}-#{config.projectID}.s3.amazonaws.com/#{t}"
@@ -37,11 +38,17 @@ module.exports = async (env, config) ->
       console.log "Existing stack detected. Updating."
 
       # Step 1: Destroy guts of Stack
-      updateType = if "GW" in updates then "hard" else "soft"
-      yield cfo.updateStack stackConfig updateType
+      if "All" in updates
+        updateWith = "empty" # destroys entire stack
+      else if "GW" in updates
+        updateWith = "hard"  # destroys most of stack
+      else
+        updateWith = "soft" # targets only Lamba handlers
+
+      yield cfo.updateStack stackConfig updateWith
       yield publishWait name
 
-      # Step 2: Apply the full, updated Stack
+      # Step 2: Apply the full, updated Stack. Put it all back.
       yield cfo.updateStack stackConfig "full"
 
     # Create a new stack from scrath with the template.

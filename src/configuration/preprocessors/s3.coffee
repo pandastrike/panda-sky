@@ -14,8 +14,11 @@ module.exports = async (description) ->
       true
     catch e
       switch e.statusCode
-        when 301, 403
+        when 403
           true
+        when 301
+          console.warn "S3 bucket exists, but is in a Region other than specified in sky.yaml."
+          console.warn "Panda Sky cannot move the bucket.  Please adjust manually and try again, or target the Region the bucket currently occupies."
         when 404
           false
         else
