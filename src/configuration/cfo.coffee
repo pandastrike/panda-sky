@@ -12,14 +12,19 @@ preprocessors = require "./preprocessors"
 
 module.exports = async (config, env) ->
 
+  # TODO: first assignment here is getting clobbered.
+  # Presumably we just need to remove it.
   globals = yaml yield read join process.cwd(), "sky.yaml"
   globals = merge config, {env}
 
   # Each mixin has a template that gets rendered before joining the others.
+  # TODO: Is there any reason to keep this function here, rather than hoisting
+  # it up to the file level?  Just add `globals` to the parameters.
   render = async (name) ->
     template = yield read join __dirname, "..", "..", "mixins", "#{name}.yaml"
     data = yaml yield read join process.cwd(), "#{name}.yaml"
     data = yield preprocessors[name] merge data, globals
+    console.log yaml JSON.parse JSON.stringify data
     yaml _render template, data
 
   # Compile a CFo template using the API base (mixins pending.)

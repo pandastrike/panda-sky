@@ -6,7 +6,7 @@ module.exports = ->
   fullyQualify = (name) -> if last(name) == "." then name else name + "."
 
   # Named somewhat sarcastically.  Enforces "regular" form of hostnames
-  # and domains that is more expected when navigating.  Idompotnent.
+  # and domains that is more expected when navigating.  Idempotent.
   regularlyQualify = (name) -> if last(name) == "." then name[...-1] else name
 
   # Given an arbitrary URL, return the fully qualified root domain.
