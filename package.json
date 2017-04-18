@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "1.0.0-beta-07",
+  "version": "1.0.0-beta-08",
   "description": "Quicky publish severless applications in the cloud",
   "main": "lib/sky-helpers/index.js",
   "bin": {
