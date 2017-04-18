@@ -2,15 +2,11 @@ name: sky
 description: Example Project API
 projectID: {{projectID}}
 aws:
+  runtime: nodejs6.10
   domain: example.com
   region: us-west-2
   environments:
-    staging:
-      hostnames:
-        - staging-api
-      # cache:
-      #   expires: 0
-      #   priceClass: 100
+    staging: {}
 
     production:
       hostnames:

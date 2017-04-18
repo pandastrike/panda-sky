@@ -70,9 +70,9 @@ resources:
 
 ### Define a handler.
 
-Add a JavaScript file under `lib/sky.js`:
+Add a JavaScript file under `src/sky.js`:
 
-Lambdas execute Javascript code compatible with Node 4.3+.  Lambdas accept context
+Lambdas execute Javascript code compatible with Node 6.10.  Lambdas accept context
 from the corresponding Gateway method's HTTP request.  After executing arbitrary
 code, the result is returned in the callback and sent as the response in the
 Gateway method.  
@@ -82,18 +82,69 @@ into your repo.  This method is invoked when the `GET` method is used in a
 request against the `greeting` resource.  Edits here affect the API's response.
 
 ```javascript
-API[app + "-greeting-get"] = async( function*(data, context, callback) {
+API[`${fullName}-greeting-get`] = async( function*(data, context, callback) {
   var message, name;
   name = data.name || "World";
-  message = "<h1>Hello, " + name + "!</h1>";
+  message = `<h1>Hello, ${name}!</h1>`;
   message += "<p>Seeing this page indicates a successful deployment of your test API with Panda Sky!</p>";
   return callback(null, message);
 });
 ```
 
-### Set Up Your Domain
+### Environmental Variables
+Panda Sky supports the injection of environmental variables into your Lambda's context.  These can be accessed from the `process` Node variable.
 
-In order to publish your API, you need a domain to publish it to.
+> Currently within api.yaml, however this may be moved into sky.yaml so they can be set on a per-environment basis.
+```yaml
+variables:
+  foobar: This optional value is injected into the Lambda context
+```
+> sky.js
+```javascript
+var {foobar} = process.env;
+```  
+
+## Built-in Helpers
+Panda Sky comes with helpers to ease development within a Lambda environment:
+```coffeescript
+# Import Panda Sky Helpers
+{async, response, s3} = require "panda-sky"
+```
+### async
+`async` is the function from `fairmont`, but it allows end users to pull it in without the whole library.
+
+### s3
+- `s3` is a wrapper around the AWS SDK library for S3.
+
+```coffeescript
+{get, put, del} = s3 BucketName
+data = yield get "foobar.yaml"
+```
+
+The `get`, `put`, and `del` methods do what they say.  They are promises you can either chain `.then` or use ES6's yield / generator construct with.  They are very thin wrappers, either succeeding or returning an error directly from the AWS library.
+
+### response
+To invoke a given response within a Lambda, use the response class from Panda Sky
+```coffeescript
+# Import Panda Sky Helpers
+{response} = require "panda-sky"
+new response.NotFound("Unable to locate the blog post in the database")
+new response.Unauthorized("You must login to access this resource")
+new response.ServiceUnavailable("Try again in 30 minutes")
+```
+
+It takes the form:
+```
+new response.<Response Type>(<Optional message>)
+```
+
+> Note that responses must be explicitly definied within the API description.
+
+
+
+## Custom Domains
+
+In order to publish your API to production, you need a domain to publish it to.
 [You need to tell AWS about it and acquire an SSL (TLS) cert][domain-setup].
 
 [domain-setup]:https://www.pandastrike.com/open-source/haiku9/publish/aws-setup
@@ -109,7 +160,7 @@ editing this file.
 
 The `cache` stanza holds configuration for CloudFront distributions, which
 provides both edge caching for your API responses and custom domain assignment.
-Please note that setting up a distribution is time-intensive.  It can take 10-20
+Please note that setting up a distribution is time-intensive.  It can take 15-30
 minutes to setup and sync your allocation across AWS's global constellation of
 edge servers.
 
@@ -117,17 +168,12 @@ edge servers.
 name: greeting
 description: Greeting API
 aws:
+  runtime: nodejs6.10
   domain: greeting.com
   region: us-west-2
   environments:
 
-    staging:
-      hostnames:
-        - staging-api
-      cache:
-        expires: 0
-        ssl: true
-        priceClass: 100
+    staging: {}
 
     production:
       hostnames:

@@ -13,8 +13,8 @@ define "init", async ->
     #     to be intorduced in beta-02
     interview.setup()
     questions = [
-      name: "fairmont"
-      description: "Add fairmont as a dependency to package.json? [Y/n]"
+      name: "ps"
+      description: "Add panda-sky as a dependency to package.json? [Y/n]"
       default: "Y"
     ,
       name: "yaml"
@@ -27,7 +27,7 @@ define "init", async ->
 
     if answers.fairmont || answers.yaml
       console.log "\n Adding module(s). One moment..."
-      yield shell "npm install fairmont --save" if answers.fairmont
+      yield shell "npm install panda-sky --save" if answers.ps
       yield shell "npm install js-yaml --save" if answers.yaml
 
 
@@ -53,7 +53,6 @@ define "init", async ->
     # Drop in a handler stub.
     yield safe_mkdir target "src"
     yield render (src "sky.js"), (target "src/sky.js")
-    yield render (src "s3.js"), (target "src/s3.js")
 
     console.log "Panda Sky project initialized."
   catch e
