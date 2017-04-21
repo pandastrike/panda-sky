@@ -1,0 +1,58 @@
+$schema: http://json-schema.org/draft-04/schema
+title: Panda Request Representation
+description: >
+  A standard format for expressing all of the dimensions of an HTTP request in
+  a single, nested object.  Usable in AWS Lambda handler functions, or in any
+  simiar function-based approach.
+
+example:
+
+  url:
+    path:
+      account: wyrdspirits
+    query:
+      campaignID: a93f15c7081
+  method: PATCH
+  headers:
+    Authorization: PandaGuard z=asdfi8092,yy=akdflasdidfms,d=4tnookie
+    Content-Type: application/vnd.pandamarket.campaign_update+json
+    Accept: application/vnd.pandamarket.campaign_view+json
+  content: # May also be a Buffer or other non-Object
+    startTime: 1094057845748
+    spend: 40000
+    proof: 107
+
+type: object
+properties:
+  required:
+    - url
+    - method
+    - headers
+    # I'm not sure yet if the VTL will let us put in a null value for requests
+    # where there is no message body.
+    # - content
+  url:
+    description: >
+      Contains the parameters derived from the URL path and querystring
+      as separate dictionaries.
+    type: object
+    properties:
+      path:
+        type: object
+        additionalProperties:
+          type: string
+      query:
+        type: object
+        additionalProperties:
+          type: string
+  method:
+    description: >
+      The name of the HTTP method.
+    type: string
+  headers:
+    description: >
+      A dictionary of the HTTP request headers.
+    type: object
+  content:
+    description: >
+      The parsed content of the HTTP message body.
