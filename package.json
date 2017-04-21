@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "prepublish": "coffee -o lib/ -c src/",
-    "watch": "coffee -o lib/ -cw src/*.coffee src/**/*.coffee",
+    "watch": "coffee -o lib/ -cw src/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
