@@ -148,7 +148,7 @@ Method:
             - "/invocations"
       {{#if ../parameters}}
       RequestTemplates:
-        "application/json": |-
+        "application/json": >
           {
             "url": {
               "path": {
