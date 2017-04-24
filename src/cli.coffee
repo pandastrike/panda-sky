@@ -35,7 +35,7 @@ call ->
     .action((env)-> run "delete", [env])
 
   program
-    .command('render')
+    .command('render [env]')
     .description('render the CloudFormation template to STDOUT')
     .action (env) -> render(env)
 
