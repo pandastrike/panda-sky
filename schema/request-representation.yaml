@@ -11,12 +11,12 @@ example:
     path:
       account: wyrdspirits
     query:
-      campaignID: a93f15c7081
+      product: a93f15c7081
   method: PATCH
   headers:
     Authorization: PandaGuard z=asdfi8092,yy=akdflasdidfms,d=4tnookie
-    Content-Type: application/vnd.pandamarket.campaign_update+json
-    Accept: application/vnd.pandamarket.campaign_view+json
+    Content-Type: application/vnd.pandamarket.product_update+json
+    Accept: application/vnd.pandamarket.product_view+json
   content: # May also be a Buffer or other non-Object
     startTime: 1094057845748
     spend: 40000
