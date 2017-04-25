@@ -20,3 +20,5 @@ module.exports =
       return
 
     yield shell "cp #{original} #{target}"
+
+  bellChar: '\u0007'

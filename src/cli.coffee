@@ -5,6 +5,8 @@ program = require "commander"
 require "./index"
 {run} = require "panda-9000"
 
+render = require "./render"
+
 call ->
 
   {version} = JSON.parse yield read join __dirname, "..", "package.json"
@@ -31,6 +33,11 @@ call ->
     .command('delete [env]')
     .description('deploy API, Lambdas to AWS infrastructure')
     .action((env)-> run "delete", [env])
+
+  program
+    .command('render [env]')
+    .description('render the CloudFormation template to STDOUT')
+    .action (env) -> render(env)
 
   program
     .command('*')

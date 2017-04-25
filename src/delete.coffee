@@ -1,5 +1,6 @@
 {define} = require "panda-9000"
 {async, first, sleep} = require "fairmont"
+{bellChar} = require "./utils"
 
 define "delete", async (env) ->
   try
@@ -14,4 +15,4 @@ define "delete", async (env) ->
     console.log "Done"
   catch e
     console.log e.stack
-  console.log '\u0007'
+  console.log bellChar
