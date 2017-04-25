@@ -1,5 +1,6 @@
 {yaml, json} = require "panda-serialize"
 {async, first, sleep} = require "fairmont"
+{bellChar} = require "./utils"
 
 module.exports = async (env) ->
   try
@@ -16,5 +17,5 @@ module.exports = async (env) ->
   catch e
     console.error e.stack
 
-  console.log '\u0007'
+  console.log bellChar
 
