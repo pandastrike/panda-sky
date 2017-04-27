@@ -185,6 +185,14 @@ Method:
           {{#eachProperty ResponseParameters}}
             {{key}}: "{{value}}"
           {{/eachProperty}}
+
+        {{#if ResponseTemplates}}
+          ResponseTemplates:
+          {{#eachProperty ResponseTemplates}}
+            {{key}}: "{{value}}"
+          {{/eachProperty}}
+        {{/if}}
+
       {{/each}}
 
     MethodResponses:

@@ -19,6 +19,13 @@ module.exports = (description) ->
 
       if a.signature.accept?
         response.ResponseParameters["method.response.header.Content-Type"] = "'#{a.signature.accept}'"
+
+        # FIXME: the following is very hackish, formalize our integration response mapping template
+        if a.signature.accept == "text/html"
+          # ammend response object w/ response template (velocity code)
+          response.ResponseTemplates =
+            "text/html": """#set($inputRoot = $input.path('$'))
+              $inputRoot.body"""
       response
 
     addOthers = (statuses) ->
