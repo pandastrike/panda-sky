@@ -25,7 +25,7 @@ API[`${fullName}-greeting-get`] = async( function*(data, context, callback) {
   name = data.name || "World";
   message = `<h1>Hello, ${name}!</h1>`;
   message += "<p>Seeing this page indicates a successful deployment of your test API with Panda Sky!</p>";
-  return callback(null, message);
+  return callback(null, {body: message});
 });
 
 exports.handler = function (event, context, callback) {
