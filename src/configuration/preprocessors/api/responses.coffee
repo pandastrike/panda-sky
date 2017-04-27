@@ -41,7 +41,6 @@ module.exports = (description) ->
         )
       out
 
-
     s = a.signature.status
     if !isArray s
       return [addDefault s] # Only one response specified.
@@ -49,7 +48,6 @@ module.exports = (description) ->
       # Start by adding the "default" response, then all others.
       [d, others...] = s
       return cat [addDefault d], (addOthers others)
-
 
   # Array of possible responses whitelisted by the Method response, coming from
   # the Integration response.
@@ -85,9 +83,6 @@ module.exports = (description) ->
       # Start by adding the "default" response, then all others.
       [d, others...] = s
       return cat [addDefault d], (addOthers others)
-
-
-
 
   {resources} = description
   for r, resource of resources
