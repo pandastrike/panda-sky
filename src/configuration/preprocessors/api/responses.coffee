@@ -19,6 +19,13 @@ module.exports = (description) ->
 
       if a.signature.accept?
         response.ResponseParameters["method.response.header.Content-Type"] = "'#{a.signature.accept}'"
+
+        # FIXME: the following is very hackish, formalize our integration response mapping template
+        if a.signature.accept == "text/html"
+          # ammend response object w/ response template (velocity code)
+          response.ResponseTemplates =
+            "text/html": """#set($inputRoot = $input.path('$'))
+              $inputRoot.body"""
       response
 
     addOthers = (statuses) ->
@@ -34,7 +41,6 @@ module.exports = (description) ->
         )
       out
 
-
     s = a.signature.status
     if !isArray s
       return [addDefault s] # Only one response specified.
@@ -42,7 +48,6 @@ module.exports = (description) ->
       # Start by adding the "default" response, then all others.
       [d, others...] = s
       return cat [addDefault d], (addOthers others)
-
 
   # Array of possible responses whitelisted by the Method response, coming from
   # the Integration response.
@@ -78,9 +83,6 @@ module.exports = (description) ->
       # Start by adding the "default" response, then all others.
       [d, others...] = s
       return cat [addDefault d], (addOthers others)
-
-
-
 
   {resources} = description
   for r, resource of resources
