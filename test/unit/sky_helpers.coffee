@@ -6,7 +6,7 @@ AWS = require "aws-sdk"
 Sky = require "../.."
 sky = Sky(AWS)
 
-describe "sky.method wrapper function", ({describe, test}) ->
+describe "sky.method", ({describe, test}) ->
 
   describe "Interface", ({test}) ->
 
@@ -49,4 +49,6 @@ describe "sky.method wrapper function", ({describe, test}) ->
         assert.deepEqual authorization,
           scheme: "GrossScheme"
           token: "thisisjustanatomictoken"
+
+    describe "request.accept"
 
