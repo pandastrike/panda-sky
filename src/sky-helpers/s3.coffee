@@ -1,5 +1,7 @@
 # This helper makes it easier to manipulate data in S3.  It takes a bucket name
 # and returns an interface that lets you put, get, or delete an object.
+{merge} = require "fairmont"
+
 module.exports = (AWS) ->
   s3 = new AWS.S3
   (bucketName) ->
@@ -25,12 +27,14 @@ module.exports = (AWS) ->
             else
               reject error
 
-    put = (key, value) ->
+    put = (key, value, options={}) ->
       new Promise (resolve, reject) ->
-        s3.putObject
+        basic =
           Bucket: bucketName
           Key: key
           Body: value
+
+        s3.putObject merge(basic, options),
           (error, data) ->
             unless error?
               resolve null
