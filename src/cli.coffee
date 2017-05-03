@@ -44,9 +44,9 @@ call ->
     .action((env)-> run "update", [env])
 
   program
-    .command('watch [env]')
+    .command('watch')
     .description('Watch for file changes and update *only* the Lambda code for an environment')
-    .action((env)-> watch env)
+    .action(-> watch())
 
   program
     .command('*')

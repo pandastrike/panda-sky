@@ -6,7 +6,7 @@ http = require "http"
 
 watch = require "watch"
 
-module.exports = async (env) ->
+module.exports = async ->
   try
     # the default options
     opts =
