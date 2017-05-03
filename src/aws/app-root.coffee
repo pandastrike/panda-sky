@@ -4,9 +4,11 @@
 {yaml} = require "panda-serialize"
 {resolve, join} = require "path"
 
+
 module.exports = async (env, config) ->
   name = "#{env}-#{config.projectID}"
   bucket = yield require("./s3")(env, config, name)
+  lambda = yield require("./lambda")(config)
 
   pkg = join process.cwd(), "deploy", "package.zip"
   apiDef = join process.cwd(), "api.yaml"
@@ -147,5 +149,14 @@ module.exports = async (env, config) ->
     yield bucket.deleteObject "package.zip"
     yield bucket.destroy()
 
+
+  lambdaUpdate = async (names, bucket) ->
+    republish = ->
+      lambda.update(name, bucket, "package.zip") for name in names
+
+    yield handlers.update()
+    yield Promise.all(republish()) 
+
+
   # Return exposed functions.
-  {destroy, prepare, syncMetadata}
+  {destroy, prepare, syncMetadata, lambdaUpdate}

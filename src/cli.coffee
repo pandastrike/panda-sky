@@ -3,9 +3,8 @@ program = require "commander"
 {call, read, collect, project, empty} = require "fairmont"
 
 require "./index"
+watch = require "./watch"
 {run} = require "panda-9000"
-
-render = require "./render"
 
 call ->
 
@@ -37,7 +36,17 @@ call ->
   program
     .command('render [env]')
     .description('render the CloudFormation template to STDOUT')
-    .action (env) -> render(env)
+    .action((env)-> run "render", [env])
+
+  program
+    .command('update [env]')
+    .description('Update *only* the Lambda code for an environment')
+    .action((env)-> run "update", [env])
+
+  program
+    .command('watch')
+    .description('Watch for file changes and update *only* the Lambda code for an environment')
+    .action(-> watch())
 
   program
     .command('*')
