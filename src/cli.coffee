@@ -5,6 +5,7 @@ program = require "commander"
 require "./index"
 {run} = require "panda-9000"
 
+watch = require "./watch"
 render = require "./render"
 
 call ->
@@ -38,6 +39,12 @@ call ->
     .command('render [env]')
     .description('render the CloudFormation template to STDOUT')
     .action (env) -> render(env)
+
+  program
+  .command('watch')
+  .description('Watch for file changes and update *only* the Lambda code for an environment')
+  .action((env)-> watch())
+
 
   program
     .command('*')
