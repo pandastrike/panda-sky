@@ -26,13 +26,15 @@ definitions:
         additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
       methods:
         type: object
-        additionalProperties: false
+        additionalProperties: true
         properties:
           GET: {$ref: "#/definitions/method"}
           POST: {$ref: "#/definitions/method"}
           PUT: {$ref: "#/definitions/method"}
           PATCH: {$ref: "#/definitions/method"}
           DELETE: {$ref: "#/definitions/method"}
+          OPTIONS: {$ref: "#/definitions/method"}
+          HEAD: {$ref: "#/definitions/method"}
 
   method:
     type: object
@@ -70,17 +72,18 @@ examples:
         description: "Virtual collection of blurbs"
         methods:
           POST:
-            name: create
-            request:
-              authorization:
-                - PandaGuard
-              mediatype:
-                - "application/vnd.blurb9.blurb+json;version=1"
-            response:
-              status: [201]
-              mediatype:
-                - "application/json"
-                - "text/html"
+            signatures:
+              create:
+                request:
+                  authorization:
+                    - PandaGuard
+                  mediatype:
+                    - "application/vnd.blurb9.blurb+json;version=1"
+                response:
+                  status: [201]
+                  mediatype:
+                    - "application/json"
+                    - "text/html"
 
       public_blurbs:
         description: "Publicly viewable blurbs"
@@ -94,10 +97,11 @@ examples:
               type: string
         methods:
           GET:
-            name: search
-            request:
-            response:
-              status: [200]
-              mediatype:
-                - "application/vnd.blurb9.blurb_list+json;version=1"
-                - "application/vnd.blurb9.blurb_list+json;version=2"
+            signatures:
+              search:
+                request: {}
+                response:
+                  status: [200]
+                  mediatype:
+                    - "application/vnd.blurb9.blurb_list+json;version=1"
+                    - "application/vnd.blurb9.blurb_list+json;version=2"
