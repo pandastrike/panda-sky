@@ -7,12 +7,17 @@
 
 {merge} = require "fairmont"
 module.exports = (config) ->
-  config.variables = {} if !config.variables
-  config.variables = merge config.variables, {
+  {env, aws:{environments}} = config
+  {variables} = environments[env]
+
+  variables = {} if !variables
+  variables = merge variables, {
     baseName: config.name
     environment: config.env
     projectID: config.projectID
     fullName: "#{config.name}-#{config.env}"
     skyBucket: "#{config.env}-#{config.projectID}"  # Root bucket used to orchastrate Panda Sky state.
   }
+
+  config.environmentVariables = variables
   config
