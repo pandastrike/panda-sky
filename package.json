@@ -65,5 +65,8 @@
   "bugs": {
     "url": "https://github.com/pandastrike/panda-sky/issues"
   },
-  "homepage": "https://github.com/pandastrike/panda-sky#readme"
+  "homepage": "https://github.com/pandastrike/panda-sky#readme",
+  "devDependencies": {
+    "amen": "^1.0.6"
+  }
 }

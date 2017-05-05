@@ -4,6 +4,7 @@
 module.exports = (handler) ->
   handler = async handler
   # TODO: parse Accept header
+  # TODO: logging instrumentation
   (request, context) ->
     if (header = request.headers['Authorization'])?
       {scheme, params, token} = parse header
@@ -12,3 +13,4 @@ module.exports = (handler) ->
       else
         request.authorization = {scheme, params}
     handler request, context
+
