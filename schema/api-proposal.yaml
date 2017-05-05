@@ -1,0 +1,103 @@
+$schema: http://json-schema.org/draft-04/schema
+title: Panda Sky API Description
+
+type: object
+required:
+  - resources
+  - schema
+properties:
+  resources:
+    type: object
+    additionalProperties: {$ref: "#/definitions/resource"}
+  schema:
+    type: object
+    additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
+
+definitions:
+  resource:
+    type: object
+    required:
+      - methods
+    properties:
+      path:
+        type: string
+      query:
+        type: object
+        additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
+      methods:
+        type: object
+        additionalProperties: false
+        properties:
+          GET: {$ref: "#/definitions/method"}
+          POST: {$ref: "#/definitions/method"}
+          PUT: {$ref: "#/definitions/method"}
+          PATCH: {$ref: "#/definitions/method"}
+          DELETE: {$ref: "#/definitions/method"}
+
+  method:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      request:
+        type: object
+        properties:
+          authorization:
+            type: array
+          mediatype:
+            type: array
+      response:
+        type: object
+        properties:
+          status:
+            type: array
+            items:
+              type: integer
+              minimum: 200
+              maximum: 599
+          mediatype:
+            type: array
+            items:
+              type: string
+
+examples:
+  -
+    resources:
+      blurbs:
+        path: /blurbs
+        description: "Virtual collection of blurbs"
+        methods:
+          POST:
+            name: create
+            request:
+              authorization:
+                - PandaGuard
+              mediatype:
+                - "application/vnd.blurb9.blurb+json;version=1"
+            response:
+              status: [201]
+              mediatype:
+                - "application/json"
+                - "text/html"
+
+      public_blurbs:
+        description: "Publicly viewable blurbs"
+        path: /public_blurbs
+        query:
+          required: []
+          properties:
+            title:
+              type: string
+            tag:
+              type: string
+        methods:
+          GET:
+            name: search
+            request:
+            response:
+              status: [200]
+              mediatype:
+                - "application/vnd.blurb9.blurb_list+json;version=1"
+                - "application/vnd.blurb9.blurb_list+json;version=2"
