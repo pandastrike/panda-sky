@@ -220,6 +220,9 @@ LambdaHandler:
       {{#eachProperty @root/environmentVariables}}
         {{key}}: {{value}}
       {{/eachProperty}}
+  {{#if timeout}}
+    Timeout: {{timeout}}
+  {{/if}}
     Code:
       S3Bucket: "{{@root/env}}-{{@root/projectID}}"
       S3Key: "package.zip"
