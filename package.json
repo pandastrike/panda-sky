@@ -27,6 +27,7 @@
   },
   "engine-strict": true,
   "dependencies": {
+    "auth-header": "^0.3.1",
     "aws-sdk": "^2.3.18",
     "commander": "^2.9.0",
     "fairmont": "^1.1.6",
@@ -64,5 +65,8 @@
   "bugs": {
     "url": "https://github.com/pandastrike/panda-sky/issues"
   },
-  "homepage": "https://github.com/pandastrike/panda-sky#readme"
+  "homepage": "https://github.com/pandastrike/panda-sky#readme",
+  "devDependencies": {
+    "amen": "^1.0.6"
+  }
 }
