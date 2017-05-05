@@ -217,7 +217,7 @@ LambdaHandler:
     Runtime: {{@root/aws/runtime}}
     Environment:
       Variables:
-      {{#eachProperty @root/variables}}
+      {{#eachProperty @root/environmentVariables}}
         {{key}}: {{value}}
       {{/eachProperty}}
     Code:
