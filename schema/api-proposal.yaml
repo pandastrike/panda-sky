@@ -66,6 +66,7 @@ definitions:
 
 examples:
   -
+    provider: "blurb9"
     resources:
       blurbs:
         path: /blurbs
