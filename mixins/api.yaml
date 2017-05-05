@@ -35,9 +35,7 @@ LambdaRole:
               Resource: "arn:aws:logs:*:*:*"
             - Effect: Allow
               Action:
-                - "s3:GetObject"
-                - "s3:PutObject"
-                - "s3:DeleteObject"
+                - "s3:*"
               Resource:
                 - "arn:aws:s3:::*"
 
@@ -185,6 +183,14 @@ Method:
           {{#eachProperty ResponseParameters}}
             {{key}}: "{{value}}"
           {{/eachProperty}}
+
+        {{#if ResponseTemplates}}
+          ResponseTemplates:
+          {{#eachProperty ResponseTemplates}}
+            {{key}}: "{{value}}"
+          {{/eachProperty}}
+        {{/if}}
+
       {{/each}}
 
     MethodResponses:

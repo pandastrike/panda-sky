@@ -40,6 +40,11 @@ call ->
     .action (env) -> render(env)
 
   program
+  .command('update [env]')
+  .description('Update *only* the Lambda code for an environment')
+  .action((env)-> run "update", [env])
+
+  program
     .command('*')
     .action(-> program.help())
 

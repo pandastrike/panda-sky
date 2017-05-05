@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "1.0.0-beta-09",
+  "version": "1.0.0-beta-13",
   "description": "Quicky publish severless applications in the cloud",
   "main": "lib/sky-helpers/index.js",
   "bin": {
@@ -65,5 +65,8 @@
   "bugs": {
     "url": "https://github.com/pandastrike/panda-sky/issues"
   },
-  "homepage": "https://github.com/pandastrike/panda-sky#readme"
+  "homepage": "https://github.com/pandastrike/panda-sky#readme",
+  "devDependencies": {
+    "amen": "^1.0.6"
+  }
 }
