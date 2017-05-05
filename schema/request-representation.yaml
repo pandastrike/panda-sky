@@ -23,14 +23,14 @@ example:
     proof: 107
 
 type: object
+required:
+  - url
+  - method
+  - headers
+  # I'm not sure yet if the VTL will let us put in a null value for requests
+  # where there is no message body.
+  # - content
 properties:
-  required:
-    - url
-    - method
-    - headers
-    # I'm not sure yet if the VTL will let us put in a null value for requests
-    # where there is no message body.
-    # - content
   url:
     description: >
       Contains the parameters derived from the URL path and querystring
