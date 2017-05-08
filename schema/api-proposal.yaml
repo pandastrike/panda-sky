@@ -1,4 +1,6 @@
 $schema: http://json-schema.org/draft-04/schema
+# We'll alter the id when we actually publish this schema
+id: "urn:panda-sky.api.1#"
 title: Panda Sky API Description
 
 type: object
@@ -13,9 +15,11 @@ properties:
   version:
     type: string
   resources:
+    description: >
+      A dictionary of Resource descriptions, keyed by the logical name of the resource.
     type: object
     additionalProperties: {$ref: "#/definitions/resource"}
-  schema:
+  schemas:
     type: object
     additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
 
@@ -23,52 +27,73 @@ definitions:
   resource:
     type: object
     required:
+      - path
       - methods
     properties:
       path:
+        description: >
+          The (potentially templatized) URL path for the resource.
+          Must not include any querystring, as we specify the parameters
+          derived from the querystring separately.
+          The template syntax uses braces to indicate path parameters:
+          "/blurbs/{key}"
         type: string
+        pattern: "^/[^?#]*" # TODO: improve this regex
       query:
         type: object
+        # we don't actually want to allow the full JSON Schema featureset here.
+        # I have a schema for limiting to things desired for query params
+        # somewhere in Patchboard.
         additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
       methods:
+        description: >
+          A dictionary of Resource Method descriptions, keyed by the HTTP
+          method name (GET, PUT, etc.)
         type: object
-        additionalProperties: true
-        properties:
-          GET: {$ref: "#/definitions/method"}
-          POST: {$ref: "#/definitions/method"}
-          PUT: {$ref: "#/definitions/method"}
-          PATCH: {$ref: "#/definitions/method"}
-          DELETE: {$ref: "#/definitions/method"}
-          OPTIONS: {$ref: "#/definitions/method"}
-          HEAD: {$ref: "#/definitions/method"}
+        additionalProperties: {$ref: "#/definitions/method"}
 
   method:
     type: object
     required:
-      - name
+      - signatures
     properties:
-      name:
-        type: string
-      request:
+      pragma:
+        description: Place to record configurations unrelated to HTTP concerns.
         type: object
-        properties:
-          authorization:
-            type: array
-          mediatype:
-            type: array
-      response:
+      signatures:
         type: object
+        required:
+          - request
+          - response
         properties:
-          status:
-            type: array
-            items:
-              type: integer
-              minimum: 200
-              maximum: 599
-          mediatype:
-            type: array
-            items:
-              type: string
+          request:
+            type: object
+            properties:
+              authorization:
+                type: array
+                items:
+                  description: The name of an authorization scheme
+                  type: string
+              mediatype:
+                type: array
+                items:
+                  type: string
+          response:
+            type: object
+            required:
+              - status
+            properties:
+              status:
+                description: An array of the status codes that indicate success.
+                type: array
+                items:
+                  type: integer
+                  minimum: 200
+                  maximum: 599
+              mediatype:
+                type: array
+                items:
+                  type: string
 
 examples:
   -
@@ -80,6 +105,9 @@ examples:
         description: "Virtual collection of blurbs"
         methods:
           POST:
+            pragma:
+              integration:
+                timeout: 10 # seconds
             signatures:
               create:
                 request:
