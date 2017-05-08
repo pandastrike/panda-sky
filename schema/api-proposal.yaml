@@ -40,15 +40,17 @@ definitions:
         type: string
         pattern: "^/[^?#]*" # TODO: improve this regex
       query:
-        type: object
+        description: >
+          A limited JSON Schema to describe and constrain the acceptable values
+          of query parameters.
+        type: {$ref: "http://json-schema.org/draft-04/schema#"}
         # we don't actually want to allow the full JSON Schema featureset here.
         # I have a schema for limiting to things desired for query params
         # somewhere in Patchboard.
-        additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
       methods:
         description: >
           A dictionary of Resource Method descriptions, keyed by the HTTP
-          method name (GET, PUT, etc.)
+          method name (GET, PUT, etc.).
         type: object
         additionalProperties: {$ref: "#/definitions/method"}
 
@@ -58,42 +60,55 @@ definitions:
       - signatures
     properties:
       pragma:
-        description: Place to record configurations unrelated to HTTP concerns.
+        description: >
+          Place to record configurations unrelated to HTTP concerns.
+          For example, integration details specific to a particular backend service.
         type: object
       signatures:
+        description: >
+          A dictionary of "request signatures" to provide more granular dispatching
+          than merely to a "resource method handler".
+          Keys are arbitrary, but will usually represent the logical name of a
+          request handling function.
+        type: object
+        additionalProperties: {$ref: "#definitions/signature"}
+
+  signature:
+    description: >
+      Describes the elements of an HTTP request and response
+    type: object
+    required:
+      - request
+      - response
+    properties:
+      request:
+        type: object
+        properties:
+          authorization:
+            type: array
+            items:
+              description: The name of an authorization scheme
+              type: string
+          mediatype:
+            type: array
+            items:
+              type: string
+      response:
         type: object
         required:
-          - request
-          - response
+          - status
         properties:
-          request:
-            type: object
-            properties:
-              authorization:
-                type: array
-                items:
-                  description: The name of an authorization scheme
-                  type: string
-              mediatype:
-                type: array
-                items:
-                  type: string
-          response:
-            type: object
-            required:
-              - status
-            properties:
-              status:
-                description: An array of the status codes that indicate success.
-                type: array
-                items:
-                  type: integer
-                  minimum: 200
-                  maximum: 599
-              mediatype:
-                type: array
-                items:
-                  type: string
+          status:
+            description: An array of the status codes that indicate success.
+            type: array
+            items:
+              type: integer
+              minimum: 200
+              maximum: 599
+          mediatype:
+            type: array
+            items:
+              type: string
 
 examples:
   -
@@ -126,9 +141,13 @@ examples:
         path: /public_blurbs
         query:
           required: []
+          minProperties: 1
           properties:
             title:
               type: string
+            content:
+              type: string
+              maxLength: 32
             tag:
               type: string
         methods:
