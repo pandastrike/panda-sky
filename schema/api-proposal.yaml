@@ -114,6 +114,17 @@ examples:
   -
     name: Blurb9 API
     version: 0.1.0
+    schemas:
+      blurb:
+        mediaType: "application/vnd.blurb9.blurb+json;version=1"
+        type: object
+        properties:
+          content:
+            type: string
+          expiration:
+            type: string
+            format: date-time
+        
     resources:
       blurbs:
         path: /blurbs
