@@ -10,9 +10,9 @@ env = "staging"
 
 
 call ->
-  blurb9 = yaml yield read "test/data/blurb9/_cloudformation.yaml"
+  knowngood = yaml yield read "test/data/blurb9/_cloudformation.yaml"
 
   config = yield configuration.readApp appRoot
   globals = merge config, {env}
-  cfo = yield cloudformation.renderTemplate appRoot,  globals
-  assert.deepEqual cfo, blurb9
+  generated = yield cloudformation.renderTemplate appRoot,  globals
+  assert.deepEqual generated, knowngood
