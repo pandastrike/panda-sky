@@ -27,9 +27,12 @@ renderTemplate = async (appRoot, globals) ->
     Resources
   }
 
-# Finds and renders all mixins as the Resources for a CloudFormation Template.
+# Finds and renders the API description and all mixins as the Resources for a
+# CloudFormation Template.
 renderResources = async (appRoot, globals) ->
   resources = []
+  resources.push yield renderAPI appRoot, globals
+
   mixinNames = yield listMixins appRoot
   for name in mixinNames
     resources.push yield renderMixin appRoot, name, globals
@@ -70,7 +73,7 @@ renderMixin = async (dir, name, globals) ->
 
 listMixins = async (appRoot) ->
   mixinPath = resolve appRoot, "mixins"
-  mixins = ["api"]
+  mixins = []
 
   if yield exists mixinPath
     files = yield readdir mixinPath
@@ -81,6 +84,7 @@ listMixins = async (appRoot) ->
 
 
 module.exports = {
+  AWSTemplateFormatVersion
   renderTemplate
   listMixins
   renderResources
