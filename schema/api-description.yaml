@@ -1,0 +1,73 @@
+$schema: http://json-schema.org/draft-04/schema#
+title: Panda Sky API Description
+
+type: object
+required:
+  - resources
+properties:
+  name:
+    type: string
+  version:
+    type: string
+  resources:
+    description: >
+      A dictionary of Resource descriptions, keyed by the logical name of the resource.
+    type: object
+    additionalProperties: {$ref: "#/definitions/resource"}
+  schema:
+    type: object
+    # FIXME: apparently a bug in JSCK
+    #additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
+
+definitions:
+  resource:
+    type: object
+    required:
+      - path
+      - actions
+    properties:
+      path:
+        description: >
+          The (potentially templatized) URL path for the resource.
+          Must not include any querystring, as we specify the parameters
+          derived from the querystring separately.
+          The template syntax uses braces to indicate path parameters:
+          "/blurbs/{key}"
+        type: string
+        pattern: "^/[^?#]*" # TODO: improve this regex
+      query:
+        description: >
+          A limited JSON Schema to describe and constrain the acceptable values
+          of query parameters.
+        $ref: "http://json-schema.org/draft-04/schema#"
+        # we don't actually want to allow the full JSON Schema featureset here.
+        # I have a schema for limiting to things desired for query params
+        # somewhere in Patchboard.
+      actions:
+        type: object
+        additionalProperties: {$ref: "#/definitions/action"}
+
+  action:
+    type: object
+    required:
+      - method
+      - signature
+    properties:
+      method:
+        type: string
+      signature: {$ref: "#/definitions/signature"}
+
+  signature:
+    type: object
+    properties:
+      request:
+        type: string
+      response:
+        type: string
+      status:
+        type: [array, integer]
+        items:
+          type: integer
+          minimum: 200
+          maximum: 599
+

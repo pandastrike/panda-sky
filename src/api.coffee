@@ -4,12 +4,13 @@ JSCK = require "jsck"
 
 Schemas = require "./schemas"
 
-validator = Schemas.validator "api"
+validator = Schemas.validator "api-description"
 
 module.exports = class API
 
-  @read: async (apiFile) ->
-    new @ yaml yield read apiFile
+  @read: async (apiPath) ->
+    # TODO: allow either a yaml file or a directory of yaml files
+    new @ yaml yield read apiPath
 
   constructor: (description) ->
     {valid, errors} = validator.validate description
