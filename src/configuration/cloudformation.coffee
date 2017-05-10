@@ -42,11 +42,13 @@ renderResources = async (appRoot, globals) ->
   # of results returned by `fairmont.readdir`.
   merge resources...
   
-renderAPI = async (dir, globals) ->
+apiDescription = async (dir, globals) ->
   api = yield API.read resolve dir, "api.yaml"
-
   mungedConfig = merge api, globals
-  mungedConfig = yield preprocessors.api mungedConfig
+  yield preprocessors.api mungedConfig
+
+renderAPI = async (dir, globals) ->
+  mungedConfig = yield apiDescription dir, globals
   template = yield read resolve skyMixinsPath, "api.yaml"
   yaml _render template, mungedConfig
   
@@ -85,6 +87,7 @@ listMixins = async (appRoot) ->
 
 module.exports = {
   AWSTemplateFormatVersion
+  apiDescription
   renderTemplate
   listMixins
   renderResources
