@@ -1,8 +1,8 @@
 {go, map, tee, reject, include, Type, isType, Method, glob} = require "fairmont"
 
 {define, context, coffee} = require "panda-9000"
-{save, render} = Asset = require "../asset"
-{pathWithUnderscore} = require "../utils"
+{save, render} = Asset = require "../../asset"
+{pathWithUnderscore} = require "../../utils"
 
 type = Type.define Asset
 

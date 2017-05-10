@@ -1,9 +1,9 @@
 {yaml, json} = require "panda-serialize"
 {async, merge} = require "fairmont"
 
-{bellChar} = require "./utils"
-configuration = require "./configuration"
-cloudformation = require("./configuration/cloudformation")
+{bellChar} = require "../utils"
+configuration = require "../configuration"
+cloudformation = require("../configuration/cloudformation")
 
 module.exports = async (env) ->
   try
