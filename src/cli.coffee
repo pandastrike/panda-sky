@@ -5,8 +5,6 @@ program = require "commander"
 require "./index"
 {run} = require "panda-9000"
 
-render = require "./render"
-
 call ->
 
   {version} = JSON.parse yield read join __dirname, "..", "package.json"
@@ -37,7 +35,7 @@ call ->
   program
     .command('render [env]')
     .description('render the CloudFormation template to STDOUT')
-    .action (env) -> render(env)
+    .action((env)-> run "render", [env])
 
   program
   .command('update [env]')
