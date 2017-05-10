@@ -7,30 +7,30 @@ addResponses = require "./responses"
 selectRuntime = require "./runtime"
 addVariables = require "./variables"
 
-module.exports = async (description) ->
-  {name, env} = description
-  description.gatewayName = "#{name}-#{env}"
-  description.policyName = "#{name}-#{env}"
+module.exports = async (mungedConfig) ->
+  {name, env} = mungedConfig
+  mungedConfig.gatewayName = "#{name}-#{env}"
+  mungedConfig.policyName = "#{name}-#{env}"
 
   # Extract path and querystring parameter configuration
-  description = extractParameters description
+  mungedConfig = extractParameters mungedConfig
 
   # Add environment varialbles that are injected into every Lambda.
-  description = yield addVariables description
+  mungedConfig = yield addVariables mungedConfig
 
   # Extract CloudFront configuration
-  description = yield extractCFr description
+  mungedConfig = yield extractCFr mungedConfig
 
   # Build up resource array that includes virtual resources needed by Gateway.
-  description = yield extractResources description
+  mungedConfig = yield extractResources mungedConfig
 
   # Compute the formatted template names for API action defintions.
-  description = yield extractActions description
+  mungedConfig = yield extractActions mungedConfig
 
   # Add the possible HTTP responses to every API action specification.
-  description = yield addResponses description
+  mungedConfig = yield addResponses mungedConfig
 
   # Select the runtime for the Lambda, setting a default if not set.
-  description = yield selectRuntime description
+  mungedConfig = yield selectRuntime mungedConfig
 
-  description
+  mungedConfig
