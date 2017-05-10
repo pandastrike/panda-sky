@@ -15,6 +15,6 @@ module.exports = async (env) ->
   config = require("./tags")(config, env)
 
   # Apply API and mixin definitions to generate a CloudFormation template.
-  config = yield require("./cfo")(config, env)
+  config = yield require("./cloudformation").transitional(config, env)
 
   config
