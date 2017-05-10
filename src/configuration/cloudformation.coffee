@@ -9,6 +9,7 @@
 {yaml} = require "panda-serialize"
 _render = require "panda-template"
 preprocessors = require "./preprocessors"
+API = require "../api"
 
 AWSTemplateFormatVersion = "2010-09-09"
 
@@ -37,6 +38,14 @@ renderResources = async (appRoot, globals) ->
   # Resource key supplied by a predecessor. Predictability depends on the order
   # of results returned by `fairmont.readdir`.
   merge resources...
+  
+renderAPI = async (dir, globals) ->
+  api = yield API.read resolve dir, "api.yaml"
+
+  mungedConfig = merge api, globals
+  mungedConfig = yield preprocessors.api mungedConfig
+  template = yield read resolve skyMixinsPath, "api.yaml"
+  yaml _render template, mungedConfig
   
 
 renderMixin = async (dir, name, globals) ->
