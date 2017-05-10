@@ -1,0 +1,17 @@
+name: sky-test
+description: Test application for Panda Sky
+projectID: this-is-testing
+aws:
+  domain: test.pandasky.com
+  region: us-west-2
+  runtime: nodejs4.3 # "nodejs6.10" Defaults to Node 4.3
+  environments:
+    test:
+      hostnames:
+        test
+
+# Optional, but lets us track things in billing.
+tags:
+  - Key: owner
+    Value: panda-products
+
