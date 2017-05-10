@@ -42,7 +42,7 @@ schema:
     #$schema: "http://json-schema.org/draft-04/schema"
     # mediaType: |-
     #   application/vnd.blurb9.blurb+json; version=1.0; charset=UTF-8
-    title: Blurb9
+    title: Blurb
     type: object
     properties:
       content:

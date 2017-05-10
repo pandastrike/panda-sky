@@ -241,12 +241,12 @@ LambdaRole:
 {{/each}} # resource?
 
 {{#each schema}}
-{{capitalizeFirst @key}}Model:
+{{title}}Model:
   Type: "AWS::ApiGateway::Model"
   Properties:
     ContentType: "application/json"
     Description: TBD
-    Name: {{capitalizeFirst @key}}
+    Name: {{title}}
     RestApiId:
       Ref: API
     Schema: '{{json .}}'

@@ -712,7 +712,7 @@ Resources:
       RestApiId:
         Ref: API
       Schema: >-
-        { "title": "Blurb9", "type": "object", "properties": { "content": {
+        { "title": "Blurb", "type": "object", "properties": { "content": {
         "type": "string" }, "expiration": { "type": "string", "format":
         "date-time" } } }
   Deployment:
