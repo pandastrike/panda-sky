@@ -1,4 +1,4 @@
-{toLower, capitalize, first, last, values, project, collect, cat} = require "fairmont"
+{toLower, camelCase, capitalize, first, last, values, project, collect, cat} = require "fairmont"
 
 # Cycle through every resource and build up a dictionary of resources that is
 # acceptable to Gateway.  In the case of nested resources or those with path
@@ -86,6 +86,13 @@ module.exports = (description) ->
         resources[r].parent = "/"
       else
         resources[r].parent = getKey( parts.slice(0,-1).join("/") )
+
+  for name, resource of resources
+    resource.name = capitalize name
+    resource.gatewayResourceName = "#{capitalize(name)}Resource"
+    resource.parentResourceName = "#{capitalize(resource.parent)}Resource"
+    if resource.path == "/"
+      resource.rootResource = true
 
   description.resources = resources
   description

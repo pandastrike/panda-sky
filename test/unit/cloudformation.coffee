@@ -18,5 +18,6 @@ describe "CloudFormation template generation", ({describe, test}) ->
     config = yield configuration.readApp appRoot
     globals = merge config, {env}
     generated = yield cloudformation.renderTemplate appRoot,  globals
+    write "test/data/blurb9/_generated.yaml", yaml generated
     assert.deepEqual generated, knowngood
 

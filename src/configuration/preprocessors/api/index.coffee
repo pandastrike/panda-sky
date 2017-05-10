@@ -1,5 +1,5 @@
 {async} = require "fairmont"
-extractParamters = require "./parameters"
+extractParameters = require "./parameters"
 extractCFr = require "./cfr"
 extractResources = require "./resources"
 extractActions = require "./actions"
@@ -8,8 +8,15 @@ selectRuntime = require "./runtime"
 addVariables = require "./variables"
 
 module.exports = async (description) ->
+  {name, env} = description
+  description.gatewayName = "#{name}-#{env}"
+  description.policyName = "#{name}-#{env}"
+
   # Extract path and querystring parameter configuration
-  description = extractParamters description
+  description = extractParameters description
+
+  # Add environment varialbles that are injected into every Lambda.
+  description = yield addVariables description
 
   # Extract CloudFront configuration
   description = yield extractCFr description
@@ -25,8 +32,5 @@ module.exports = async (description) ->
 
   # Select the runtime for the Lambda, setting a default if not set.
   description = yield selectRuntime description
-
-  # Add environment varialbles that are injected into every Lambda.
-  description = yield addVariables description
 
   description

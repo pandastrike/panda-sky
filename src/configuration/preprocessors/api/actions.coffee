@@ -5,7 +5,8 @@
 # defintion names (dash-name).  These names are attached to the resource actions
 # as implict properties and applied in the templates.
 module.exports = (description) ->
-  {resources} = description
+  {resources, env} = description
+  appName = description.name
 
   makeCamelName = (resource, action) ->
     out = capitalize toLower resource
@@ -21,13 +22,38 @@ module.exports = (description) ->
   hasDependency = (signature) ->
     if signature.request || signature.response then true else false
 
+  dependencies = ({request, response}) ->
+    result = []
+    if request
+      result.push "#{capitalize(request)}Resource"
+      result.push "#{capitalize(request)}Model"
+    if response
+      result.push "#{capitalize(response)}Resource"
+      result.push "#{capitalize(response)}Model"
+    result
+
   for r, resource of resources
     methods = ["options"]
     for a, action of resource.actions
+      action.method = capitalize action.method
       methods.push action.method
-      resources[r]["actions"][a].camelName = makeCamelName r, action
-      resources[r]["actions"][a].dashName = makeDashName r, action
-      resources[r]["actions"][a]["signature"].dependent = hasDependency action.signature
+      action.camelName = makeCamelName r, action
+      action.gatewayMethodName = "#{action.camelName}Method"
+      action.dashName = makeDashName r, action
+
+      action.parameters = resource.parameters
+      if action.signature.request?
+        action.requestModel = capitalize action.signature.request
+      action.dependencies = dependencies action.signature
+      action.lambda =
+        handler:
+          name: "#{action.camelName}LambdaHandler"
+          bucket: description.environmentVariables.skyBucket
+        permission:
+          name: "#{action.camelName}LambdaPermission"
+          path: "/*/#{action.method}#{resource.permissionsPath}"
+        "function":
+          name: "#{appName}-#{env}-#{action.dashName}"
 
     resources[r].methodList = toUpper methods.join ", "
 

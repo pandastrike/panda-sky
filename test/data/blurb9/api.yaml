@@ -36,8 +36,6 @@ resources:
         signature:
           status: [204, 404]
 
-variables:
-  foobar: "This optional value is injected into the Lambda context"
 
 schema:
   blurb:
