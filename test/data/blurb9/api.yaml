@@ -1,0 +1,54 @@
+resources:
+  discovery:
+    path: /
+    description: Provides a directory of available resources
+    actions:
+      get:
+        method: GET
+        signature:
+          status: 200
+
+  blurbs:
+    path: /blurbs
+    description: "Virtual collection of blurbs"
+    actions:
+      create:
+        method: POST
+        signature:
+          request: blurb
+          status: [201, 400]
+
+  blurb:
+    path: "/blurbs/{key}"
+    description: Individual blurbs
+    actions:
+      get:
+        method: GET
+        signature:
+          response: blurb
+          status: [200, 404]
+      update:
+        method: PUT
+        signature:
+          status: [200, 404]
+      delete:
+        method: DELETE
+        signature:
+          status: [204, 404]
+
+variables:
+  foobar: "This optional value is injected into the Lambda context"
+
+schema:
+  blurb:
+    #$schema: "http://json-schema.org/draft-04/schema"
+    # mediaType: |-
+    #   application/vnd.blurb9.blurb+json; version=1.0; charset=UTF-8
+    title: Blurb9
+    type: object
+    properties:
+      content:
+        type: string
+      expiration:
+        type: string
+        format: date-time
