@@ -1,5 +1,5 @@
 # Accept a configuration for the deployment and come up with tags for every
-# resrouce we label within the stack.
+# resource we label within the stack.
 module.exports = (config, env) ->
   tags = [
     {

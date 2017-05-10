@@ -1,13 +1,11 @@
 {resolve} = require "path"
-{async, read} = require "fairmont"
+{async, read, merge} = require "fairmont"
 {yaml} = require "panda-serialize"
 cloudformation = require("./cloudformation")
 
-compile = async (env) ->
-  config = yield readApp process.cwd()
+compile = async (appRoot, env) ->
+  config = yield readApp appRoot
 
-  # IDEA: use fairmont.flow/go/pull
-  #
   # Setup the custom url config based on the selected environment.
   config = require("./url")(config, env)
 
@@ -15,10 +13,11 @@ compile = async (env) ->
   config = require("./tags")(config, env)
 
   # Apply API and mixin definitions to generate a CloudFormation template.
-  config = yield cloudformation.transitional(config, env)
+  globals = merge config, {env}
+  cfoTemplate = yield cloudformation.renderTemplate appRoot, globals
+  config.aws.cfoTemplate = JSON.stringify cfoTemplate
 
   config
-
 
 readApp = async (appRoot) ->
   try
