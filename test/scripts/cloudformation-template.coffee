@@ -8,7 +8,7 @@ appRoot = "test/data/test-app/"
 env = "test"
 
 call ->
-  config = yield configuration.read appRoot
+  config = yield configuration.readApp appRoot
   globals = merge config, {env}
   cfo = yield cloudformation.renderTemplate appRoot,  globals
   console.log yaml cfo

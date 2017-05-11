@@ -15,14 +15,6 @@ AWSTemplateFormatVersion = "2010-09-09"
 skyMixinsPath = resolve __dirname, "..", "..", "mixins"
 
 
-# Adapter to keep existing code working
-transitional = async (config, envName) ->
-  globals = merge config, {env: envName}
-  appRoot = process.cwd()
-  cfoTemplate = yield renderTemplate appRoot, globals
-  config.aws.cfoTemplate = JSON.stringify cfoTemplate
-  config
-
 # Returns an object, not a serialized string.
 renderTemplate = async (appRoot, globals) ->
   Description = globals.description || "#{globals.name} - deployed by Panda Sky"
@@ -80,7 +72,6 @@ listMixins = async (appRoot) ->
 
 
 module.exports = {
-  transitional
   renderTemplate
   listMixins
   renderResources

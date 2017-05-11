@@ -1,10 +1,13 @@
 {define} = require "panda-9000"
 {async, first, sleep} = require "fairmont"
+
 {bellChar} = require "./utils"
+configuration = require "./configuration"
 
 define "publish", async (env) ->
   try
-    config = yield require("./configuration/compile")(env)
+    appRoot = process.cwd()
+    config = yield configuration.compile(appRoot, env)
     stack = yield require("./aws/cloudformation")(env, config)
 
     id = yield stack.publish()
