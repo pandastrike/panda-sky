@@ -129,7 +129,7 @@ Resources:
   DiscoveryGetLambdaHandler:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: Handler for APIblurb9
+      Description: Handler for API blurb9
       FunctionName: blurb9-staging-discovery-get
       Handler: lib/sky.handler
       Role:
@@ -284,7 +284,7 @@ Resources:
   BlurbsPostLambdaHandler:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: Handler for APIblurb9
+      Description: Handler for API blurb9
       FunctionName: blurb9-staging-blurbs-post
       Handler: lib/sky.handler
       Role:
@@ -436,7 +436,7 @@ Resources:
   BlurbGetLambdaHandler:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: Handler for APIblurb9
+      Description: Handler for API blurb9
       FunctionName: blurb9-staging-blurb-get
       Handler: lib/sky.handler
       Role:
@@ -551,7 +551,7 @@ Resources:
   BlurbPutLambdaHandler:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: Handler for APIblurb9
+      Description: Handler for API blurb9
       FunctionName: blurb9-staging-blurb-put
       Handler: lib/sky.handler
       Role:
@@ -666,7 +666,7 @@ Resources:
   BlurbDeleteLambdaHandler:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: Handler for APIblurb9
+      Description: Handler for API blurb9
       FunctionName: blurb9-staging-blurb-delete
       Handler: lib/sky.handler
       Role:
@@ -712,7 +712,7 @@ Resources:
       RestApiId:
         Ref: API
       Schema: >-
-        { "title": "Blurb9", "type": "object", "properties": { "content": {
+        { "title": "Blurb", "type": "object", "properties": { "content": {
         "type": "string" }, "expiration": { "type": "string", "format":
         "date-time" } } }
   Deployment:

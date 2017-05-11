@@ -36,15 +36,13 @@ resources:
         signature:
           status: [204, 404]
 
-variables:
-  foobar: "This optional value is injected into the Lambda context"
 
 schema:
   blurb:
     #$schema: "http://json-schema.org/draft-04/schema"
     # mediaType: |-
     #   application/vnd.blurb9.blurb+json; version=1.0; charset=UTF-8
-    title: Blurb9
+    title: Blurb
     type: object
     properties:
       content:

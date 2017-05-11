@@ -7,7 +7,7 @@
 API:
   Type: "AWS::ApiGateway::RestApi"
   Properties:
-    Name: "{{name}}-{{env}}"
+    Name: {{gatewayName}}
     Description: {{description}}
 
 LambdaRole:
@@ -23,7 +23,7 @@ LambdaRole:
           Action:
             - "sts:AssumeRole"
     Policies:
-      - PolicyName: "{{@root/name}}-{{@root/env}}"
+      - PolicyName: {{policyName}}
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
@@ -40,32 +40,32 @@ LambdaRole:
                 - "arn:aws:s3:::*"
 
 {{#each resources}}
-{{#isnt path "/"}}
-{{capitalizeFirst @key}}Resource:
+{{#unless rootResource}}
+{{gatewayResourceName}}:
   Type: "AWS::ApiGateway::Resource"
   Properties:
     RestApiId:
       Ref: API
     ParentId:
       {{#isnt parent "/"}}
-      Ref: {{capitalizeFirst parent}}Resource
+      Ref: {{parentResourceName}}
       {{else}}
       "Fn::GetAtt": ["API", "RootResourceId"]
       {{/isnt}}
     PathPart: "{{pathPart}}"
-{{/isnt}}
+{{/unless}}
 
-{{capitalizeFirst @key}}OptionsMethod:
+{{name}}OptionsMethod:
   Type: "AWS::ApiGateway::Method"
   Properties:
     RestApiId:
       Ref: API
     ResourceId:
-      {{#isnt path "/"}}
-      Ref: {{capitalizeFirst @key}}Resource
+      {{#unless rootResource}}
+      Ref: {{gatewayResourceName}}
       {{else}}
       "Fn::GetAtt": ["API", "RootResourceId"]
-      {{/isnt}}
+      {{/unless}}
     AuthorizationType: NONE
     HttpMethod: OPTIONS
     Integration:
@@ -86,40 +86,34 @@ LambdaRole:
           "method.response.header.Access-Control-Allow-Origin": true
 
 {{#each actions}}
-{{camelName~}}
-Method:
-  {{#isnt ../path "/"}}
-  {{#if signature.dependent}}
+{{gatewayMethodName}}:
+  {{#unless ../rootResource}}
+  {{#if dependencies}}
   DependsOn:
-  {{#if signature.request}}
-  - {{capitalizeFirst signature.request}}Resource
-  - {{capitalizeFirst signature.request}}Model
+    {{#each dependencies}}
+    - {{this}}
+    {{/each}}
   {{/if}}
-  {{#if signature.response}}
-  - {{capitalizeFirst signature.response}}Resource
-  - {{capitalizeFirst signature.response}}Model
-  {{/if}}
-  {{/if}}
-  {{/isnt}}
+  {{/unless}}
   Type: "AWS::ApiGateway::Method"
   Properties:
     RestApiId:
       Ref: API
     ResourceId:
-      {{#isnt ../path "/"}}
-      Ref: {{capitalizeFirst @../key}}Resource
+      {{#unless ../rootResource}}
+      Ref: {{../gatewayResourceName}}
       {{else}}
       "Fn::GetAtt": ["API", "RootResourceId"]
-      {{/isnt}}
+      {{/unless}}
     AuthorizationType: NONE
-    HttpMethod: {{uppercase method}}
-    {{#if signature.request}}
+    HttpMethod: {{method}}
+    {{#if requestModel}}
     RequestModels:
-      "application/json": {{capitalizeFirst signature.request}}
+      "application/json": {{requestModel}}
     {{/if}}
-    {{#if ../parameters}}
+    {{#if parameters}}
     RequestParameters:
-    {{#each ../parameters}}
+    {{#each parameters}}
     {{#if path}}
       "method.request.path.{{name}}": true
     {{else}}
@@ -130,7 +124,7 @@ Method:
     Integration:
       Type: AWS
       IntegrationHttpMethod: POST
-      {{#unless ../parameters}}
+      {{#unless parameters}}
       PassthroughBehavior: WHEN_NO_TEMPLATES
       {{/unless}}
       Uri:
@@ -140,9 +134,7 @@ Method:
             - "arn:aws:apigateway:"
             - {"Ref": "AWS::Region"}
             - ":lambda:path/2015-03-31/functions/"
-            - {"Fn::GetAtt": ["{{~camelName~}}
-            LambdaHandler",
-            "Arn"]}
+            - {"Fn::GetAtt": [{{lambda.handler.name}}, "Arn"]}
             - "/invocations"
       RequestTemplates:
         "application/json": >
@@ -202,41 +194,35 @@ Method:
         {{/eachProperty}}
     {{/each}}
 
-{{camelName~}}
-LambdaHandler:
+{{#with lambda}}
+{{handler.name}}:
   Type: "AWS::Lambda::Function"
   Properties:
-    Description: "Handler for API {{~@root/name~}}"
-    FunctionName: "
-      {{~@root/name}}-{{@root/env}}-
-      {{~dashName}}"
+    Description: "Handler for API {{@root.name}}"
+    FunctionName: {{function.name}}
 
     Handler: "lib/sky.handler"
     Role:
       "Fn::GetAtt" : ["LambdaRole", "Arn"]
-    Runtime: {{@root/aws/runtime}}
+    Runtime: {{@root.aws.runtime}}
     Environment:
       Variables:
-      {{#eachProperty @root/environmentVariables}}
+      {{#eachProperty @root.environmentVariables}}
         {{key}}: {{value}}
       {{/eachProperty}}
   {{#if timeout}}
     Timeout: {{timeout}}
   {{/if}}
     Code:
-      S3Bucket: "{{@root/env}}-{{@root/projectID}}"
+      S3Bucket: {{handler.bucket}}
       S3Key: "package.zip"
 
-{{camelName~}}
-LambdaPermission:
+{{permission.name}}:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: "lambda:InvokeFunction"
       FunctionName:
-        "Fn::GetAtt": ["
-          {{~camelName~}}
-          LambdaHandler",
-          "Arn"]
+        "Fn::GetAtt": [{{handler.name}}, "Arn"]
       Principal: apigateway.amazonaws.com
       SourceArn:
         "Fn::Join":
@@ -248,18 +234,19 @@ LambdaPermission:
             - {"Ref": "AWS::AccountId"}
             - ":"
             - {"Ref": "API"}
-            - "/*/{{method}}{{../permissionsPath}}"
+            - {{permission.path}}
+{{/with}} # lambda
 
-{{/each}}
-{{/each}}
+{{/each}} # action?
+{{/each}} # resource?
 
 {{#each schema}}
-{{capitalizeFirst @key}}Model:
+{{title}}Model:
   Type: "AWS::ApiGateway::Model"
   Properties:
     ContentType: "application/json"
     Description: TBD
-    Name: {{capitalizeFirst @key}}
+    Name: {{title}}
     RestApiId:
       Ref: API
     Schema: '{{json .}}'
@@ -269,19 +256,19 @@ Deployment:
   DependsOn:
   {{#each resources}}
   {{#each actions}}
-  - {{camelName~}}Method
+  - {{gatewayMethodName}}
   {{/each}}
-  - {{capitalizeFirst @key}}OptionsMethod
+  - {{name}}OptionsMethod
   {{/each}}
   Type: "AWS::ApiGateway::Deployment"
   Properties:
     Description:  {{description}} deployment (generated by Panda Sky)
     RestApiId:
       Ref: API
-    StageName: {{@root/env}}
+    StageName: {{@root.env}}
     StageDescription:
-      Description: {{@root/env}} for {{description}} (generated by Panda Sky)
-      StageName: {{@root/env}}
+      Description: {{@root.env}} for {{description}} (generated by Panda Sky)
+      StageName: {{@root.env}}
       MethodSettings:
         - ResourcePath: "/"
           HttpMethod: GET
