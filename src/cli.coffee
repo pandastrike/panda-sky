@@ -5,7 +5,7 @@ program = require "commander"
 require "./index"
 {run} = require "panda-9000"
 
-render = require "./render"
+render = require "./commands/render"
 
 call ->
 

@@ -4,8 +4,8 @@ w, include, Type, isType, isMatch, Method,
 glob} = require "fairmont"
 
 {define, context} = require "panda-9000"
-{save, render} = Asset = require "../asset"
-{pathWithUnderscore} = require "../utils"
+{save, render} = Asset = require "../../asset"
+{pathWithUnderscore} = require "../../utils"
 
 formats = w ".html .css .js .xml .json .yaml"
 

@@ -4,8 +4,8 @@ path = require "path"
 {define, write} = require "panda-9000"
 rmrf = lift require "rimraf"
 
-{render} = Asset = require "./asset"
-{safe_mkdir} = require "./utils"
+{render} = Asset = require "../asset"
+{safe_mkdir} = require "../utils"
 
 define "build", ["survey"], async ->
   try

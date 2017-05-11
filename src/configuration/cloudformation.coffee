@@ -9,6 +9,7 @@
 {yaml} = require "panda-serialize"
 _render = require "panda-template"
 preprocessors = require "./preprocessors"
+API = require "../api"
 
 AWSTemplateFormatVersion = "2010-09-09"
 
@@ -26,9 +27,12 @@ renderTemplate = async (appRoot, globals) ->
     Resources
   }
 
-# Finds and renders all mixins as the Resources for a CloudFormation Template.
+# Finds and renders the API description and all mixins as the Resources for a
+# CloudFormation Template.
 renderResources = async (appRoot, globals) ->
   resources = []
+  resources.push yield renderAPI appRoot, globals
+
   mixinNames = yield listMixins appRoot
   for name in mixinNames
     resources.push yield renderMixin appRoot, name, globals
@@ -37,6 +41,14 @@ renderResources = async (appRoot, globals) ->
   # Resource key supplied by a predecessor. Predictability depends on the order
   # of results returned by `fairmont.readdir`.
   merge resources...
+  
+renderAPI = async (dir, globals) ->
+  api = yield API.read resolve dir, "api.yaml"
+
+  mungedConfig = merge api, globals
+  mungedConfig = yield preprocessors.api mungedConfig
+  template = yield read resolve skyMixinsPath, "api.yaml"
+  yaml _render template, mungedConfig
   
 
 renderMixin = async (dir, name, globals) ->
@@ -61,7 +73,7 @@ renderMixin = async (dir, name, globals) ->
 
 listMixins = async (appRoot) ->
   mixinPath = resolve appRoot, "mixins"
-  mixins = ["api"]
+  mixins = []
 
   if yield exists mixinPath
     files = yield readdir mixinPath
@@ -72,6 +84,7 @@ listMixins = async (appRoot) ->
 
 
 module.exports = {
+  AWSTemplateFormatVersion
   renderTemplate
   listMixins
   renderResources

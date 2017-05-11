@@ -1,0 +1,26 @@
+name: blurb9
+description: Backend for the Blurb9 Microblogging App
+projectID: fearless-panda-blurb9
+aws:
+  domain: blurb9.com
+  region: us-west-2
+  runtime: nodejs4.3 # "nodejs6.10" Defaults to Node 4.3
+  environments:
+    staging:
+      hostnames:
+        - staging-api
+    production:
+      hostnames:
+        - api
+      cache:
+        expires: 1800
+        ssl: true
+        priceClass: 100
+    matthew:
+      hostnames:
+        - mkultra
+
+# Optional, but lets us track things in billing.
+tags:
+  - Key: owner
+    Value: panda-products

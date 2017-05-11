@@ -2,8 +2,8 @@
 {define} = require "panda-9000"
 {async, randomWords, read, write, shell} = require "fairmont"
 _render = require "panda-template"
-{safe_cp, safe_mkdir} = require "./utils"
-interview = require "./interview"
+{safe_cp, safe_mkdir} = require "../utils"
+interview = require "../interview"
 
 # This sets up an existing directory to hold a Panda Sky project.
 define "init", async ->
@@ -36,7 +36,7 @@ define "init", async ->
       projectID: yield randomWords 6
 
     # Drop in the file stubs.
-    src = (file) -> join( __dirname, "../init/#{file}")
+    src = (file) -> join( __dirname, ".../init/#{file}")
     target = (file) -> join process.cwd(), file
 
     render = async (src, target) ->
