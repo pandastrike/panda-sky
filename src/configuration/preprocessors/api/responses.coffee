@@ -17,12 +17,12 @@ module.exports = (description) ->
           "method.response.header.Access-Control-Allow-Methods": "'#{methodList}'"
           "method.response.header.Access-Control-Allow-Origin": "'*'"
 
-      if method.signature.accept?
-        response.ResponseParameters["method.response.header.Content-Type"] = "'#{method.signature.accept}'"
+      if method.signatures.accept?
+        response.ResponseParameters["method.response.header.Content-Type"] = "'#{method.signatures.accept}'"
 
         # FIXME: the following is very hackish, formalize our integration
         # response mapping template
-        if method.signature.accept == "text/html"
+        if method.signatures.accept == "text/html"
           # ammend response object w/ response template (velocity code)
           response.ResponseTemplates =
             "text/html": """#set($inputRoot = $input.path('$'))
@@ -42,7 +42,7 @@ module.exports = (description) ->
         )
       out
 
-    s = method.signature.status
+    s = method.signatures.response.status
     if !isArray s
       return [addDefault s] # Only one response specified.
     else
@@ -61,7 +61,7 @@ module.exports = (description) ->
           "method.response.header.Access-Control-Allow-Methods": true
           "method.response.header.Access-Control-Allow-Origin": true
 
-      if method.signature.accept?
+      if method.signatures.accept?
         response.ResponseParameters["method.response.header.Content-Type"] = true
       return response
 
@@ -77,7 +77,7 @@ module.exports = (description) ->
         )
       out
 
-    s = method.signature.status
+    s = method.signatures.response.status
     if !isArray s
       return [addDefault s] # Only one response specified.
     else
@@ -87,9 +87,10 @@ module.exports = (description) ->
 
   {resources} = description
   for r, resource of resources
-    for method, httpMethod of resource.methods
-      resources[r].methods[method].IntegrationResponses = addIntegrationResponses httpMethod, resource.methodList
-      resources[r].methods[method].MethodResponses = addMethodResponses httpMethod
+    for httpMethod, method of resource.methods
+      resources[r].methods[httpMethod].IntegrationResponses = addIntegrationResponses method, resource.methodList
+      resources[r].methods[httpMethod].MethodResponses = addMethodResponses method
+      delete method.signatures
 
   description.resources = resources
   description

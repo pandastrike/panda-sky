@@ -3,38 +3,43 @@ resources:
     path: /
     description: Provides a directory of available resources
     methods:
-      get:
-        method: GET
-        signature:
-          status: 200
+      GET:
+        signatures:
+          request: {}
+          response:
+            status: [200]
 
   blurbs:
     path: /blurbs
     description: "Virtual collection of blurbs"
     methods:
-      create:
-        method: POST
-        signature:
-          request: blurb
-          status: [201, 400]
+      POST:
+        signatures:
+          request:
+            resource: blurb
+          response:
+            status: [201, 400]
 
   blurb:
     path: "/blurbs/{key}"
     description: Individual blurbs
     methods:
-      get:
-        method: GET
-        signature:
-          response: blurb
-          status: [200, 404]
-      update:
-        method: PUT
-        signature:
-          status: [200, 404]
-      delete:
-        method: DELETE
-        signature:
-          status: [204, 404]
+      GET:
+        signatures:
+          request: {}
+          response:
+            status: [200, 404]
+            resource: blurb
+      PUT:
+        signatures:
+          request: {}
+          response:
+            status: [200, 404]
+      DELETE:
+        signatures:
+          request: {}
+          response:
+            status: [204, 404]
 
 
 schema:
@@ -50,3 +55,4 @@ schema:
       expiration:
         type: string
         format: date-time
+

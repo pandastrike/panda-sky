@@ -10,48 +10,45 @@ module.exports = (description) ->
 
   makeCamelName = (resource, method) ->
     out = capitalize toLower resource
-    out += capitalize toLower method.method
+    out += capitalize toLower method
     out
 
   makeDashName = (resource, method) ->
     out = toLower resource
     out += "-"
-    out += toLower method.method
+    out += toLower method
     out
-
-  hasDependency = (signature) ->
-    if signature.request || signature.response then true else false
 
   dependencies = ({request, response}) ->
     result = []
-    if request
-      result.push "#{capitalize(request)}Resource"
-      result.push "#{capitalize(request)}Model"
-    if response
-      result.push "#{capitalize(response)}Resource"
-      result.push "#{capitalize(response)}Model"
+    if request?.resource?
+      result.push "#{capitalize(request.resource)}Resource"
+      result.push "#{capitalize(request.resource)}Model"
+    if response?.resource?
+      result.push "#{capitalize(response.resource)}Resource"
+      result.push "#{capitalize(response.resource)}Model"
     result
 
   for r, resource of resources
-    methods = ["options"]
-    for a, method of resource.methods
-      method.method = capitalize method.method
-      methods.push method.method
-      method.camelName = makeCamelName r, method
+    methods = ["OPTIONS"]
+    for key, method of resource.methods
+      methods.push key
+      method.method = key
+      method.camelName = makeCamelName r, key
       method.gatewayMethodName = "#{method.camelName}Method"
-      method.dashName = makeDashName r, method
+      method.dashName = makeDashName r, key
 
       method.parameters = resource.parameters
-      if method.signature.request?
-        method.requestModel = capitalize method.signature.request
-      method.dependencies = dependencies method.signature
+      if method.signatures.request?.resource?
+        method.requestModel = capitalize method.signatures.request.resource
+      method.dependencies = dependencies method.signatures
       method.lambda =
         handler:
           name: "#{method.camelName}LambdaHandler"
           bucket: description.environmentVariables.skyBucket
         permission:
           name: "#{method.camelName}LambdaPermission"
-          path: "/*/#{method.method}#{resource.permissionsPath}"
+          path: "/*/#{key}#{resource.permissionsPath}"
         "function":
           name: "#{appName}-#{env}-#{method.dashName}"
 

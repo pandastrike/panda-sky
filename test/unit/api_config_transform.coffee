@@ -19,7 +19,11 @@ describe "API config transformation", ({describe, test}) ->
 
     config = yield configuration.readApp appRoot
     globals = merge config, {env}
-    generated = yield cloudformation.apiConfig appRoot,  globals
+    try
+      generated = yield cloudformation.apiConfig appRoot,  globals
+    catch e
+      console.error e.errors
+      throw e
     write generatedPath, yaml JSON.parse JSON.stringify generated
     assert.deepEqual (yield read generatedPath), (yield read knowngoodPath)
 

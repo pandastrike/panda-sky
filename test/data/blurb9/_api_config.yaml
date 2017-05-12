@@ -3,10 +3,8 @@ resources:
     path: /
     description: Provides a directory of available resources
     methods:
-      get:
+      GET:
         method: GET
-        signature:
-          status: 200
         camelName: DiscoveryGet
         gatewayMethodName: DiscoveryGetMethod
         dashName: discovery-get
@@ -47,13 +45,8 @@ resources:
     path: blurbs
     description: Virtual collection of blurbs
     methods:
-      create:
+      POST:
         method: POST
-        signature:
-          request: blurb
-          status:
-            - 201
-            - 400
         camelName: BlurbsPost
         gatewayMethodName: BlurbsPostMethod
         dashName: blurbs-post
@@ -108,13 +101,8 @@ resources:
     path: 'blurbs/{key}'
     description: Individual blurbs
     methods:
-      get:
+      GET:
         method: GET
-        signature:
-          response: blurb
-          status:
-            - 200
-            - 404
         camelName: BlurbGet
         gatewayMethodName: BlurbGetMethod
         dashName: blurb-get
@@ -158,12 +146,8 @@ resources:
               method.response.header.Access-Control-Allow-Headers: true
               method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
-      update:
+      PUT:
         method: PUT
-        signature:
-          status:
-            - 200
-            - 404
         camelName: BlurbPut
         gatewayMethodName: BlurbPutMethod
         dashName: blurb-put
@@ -205,12 +189,8 @@ resources:
               method.response.header.Access-Control-Allow-Headers: true
               method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
-      delete:
+      DELETE:
         method: DELETE
-        signature:
-          status:
-            - 204
-            - 404
         camelName: BlurbDelete
         gatewayMethodName: BlurbDeleteMethod
         dashName: blurb-delete
