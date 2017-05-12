@@ -1,22 +1,22 @@
 {toLower, capitalize, first, toUpper} = require "fairmont"
 
-# Cycle through the actions on every resource and generate their algorithmic
+# Cycle through the methods on every resource and generate their algorithmic
 # names.  This includes CFo template names (CamelName) as well as lambda
-# defintion names (dash-name).  These names are attached to the resource actions
+# defintion names (dash-name).  These names are attached to the resource methods
 # as implict properties and applied in the templates.
 module.exports = (description) ->
   {resources, env} = description
   appName = description.name
 
-  makeCamelName = (resource, action) ->
+  makeCamelName = (resource, method) ->
     out = capitalize toLower resource
-    out += capitalize toLower action.method
+    out += capitalize toLower method.method
     out
 
   makeDashName = (resource, method) ->
     out = toLower resource
     out += "-"
-    out += toLower action.method
+    out += toLower method.method
     out
 
   hasDependency = (signature) ->
@@ -34,26 +34,26 @@ module.exports = (description) ->
 
   for r, resource of resources
     methods = ["options"]
-    for a, action of resource.actions
-      action.method = capitalize action.method
-      methods.push action.method
-      action.camelName = makeCamelName r, action
-      action.gatewayMethodName = "#{action.camelName}Method"
-      action.dashName = makeDashName r, action
+    for a, method of resource.methods
+      method.method = capitalize method.method
+      methods.push method.method
+      method.camelName = makeCamelName r, method
+      method.gatewayMethodName = "#{method.camelName}Method"
+      method.dashName = makeDashName r, method
 
-      action.parameters = resource.parameters
-      if action.signature.request?
-        action.requestModel = capitalize action.signature.request
-      action.dependencies = dependencies action.signature
-      action.lambda =
+      method.parameters = resource.parameters
+      if method.signature.request?
+        method.requestModel = capitalize method.signature.request
+      method.dependencies = dependencies method.signature
+      method.lambda =
         handler:
-          name: "#{action.camelName}LambdaHandler"
+          name: "#{method.camelName}LambdaHandler"
           bucket: description.environmentVariables.skyBucket
         permission:
-          name: "#{action.camelName}LambdaPermission"
-          path: "/*/#{action.method}#{resource.permissionsPath}"
+          name: "#{method.camelName}LambdaPermission"
+          path: "/*/#{method.method}#{resource.permissionsPath}"
         "function":
-          name: "#{appName}-#{env}-#{action.dashName}"
+          name: "#{appName}-#{env}-#{method.dashName}"
 
     resources[r].methodList = toUpper methods.join ", "
 

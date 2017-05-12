@@ -2,7 +2,7 @@ resources:
   discovery:
     path: /
     description: Provides a directory of available resources
-    actions:
+    methods:
       get:
         method: GET
         signature:
@@ -11,7 +11,7 @@ resources:
   blurbs:
     path: /blurbs
     description: "Virtual collection of blurbs"
-    actions:
+    methods:
       create:
         method: POST
         signature:
@@ -21,7 +21,7 @@ resources:
   blurb:
     path: "/blurbs/{key}"
     description: Individual blurbs
-    actions:
+    methods:
       get:
         method: GET
         signature:
