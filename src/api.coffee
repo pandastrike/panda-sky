@@ -17,5 +17,6 @@ module.exports = class API
     if not valid
       error = new Error "Invalid Sky API document"
       error.errors = errors
+      throw error
     {@resources, @schema, @variables} = description
 
