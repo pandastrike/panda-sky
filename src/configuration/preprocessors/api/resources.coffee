@@ -93,6 +93,7 @@ module.exports = (description) ->
     resource.parentResourceName = "#{capitalize(resource.parent)}Resource"
     if resource.path == "/"
       resource.rootResource = true
+      description.rootResource = resource
 
   description.resources = resources
   description

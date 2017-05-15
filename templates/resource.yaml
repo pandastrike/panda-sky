@@ -1,0 +1,13 @@
+{{gatewayResourceName}}:
+  Type: "AWS::ApiGateway::Resource"
+  Properties:
+    RestApiId:
+      Ref: API
+    ParentId:
+      {{#isnt parent "/"}}
+      Ref: {{parentResourceName}}
+      {{else}}
+      "Fn::GetAtt": ["API", "RootResourceId"]
+      {{/isnt}}
+    PathPart: "{{pathPart}}"
+
