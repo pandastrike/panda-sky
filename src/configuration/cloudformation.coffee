@@ -56,6 +56,7 @@ renderAPI = async (dir, globals) ->
   H.registerPartial 'model', yield read resolve "templates", "model.yaml"
   H.registerPartial 'cloudfront', yield read resolve "templates", "cloudfront.yaml"
   H.registerPartial 'route53', yield read resolve "templates", "route53.yaml"
+  H.registerPartial 'deployment', yield read resolve "templates", "deployment.yaml"
 
   template = yield read resolve "templates", "api.yaml"
   mungedConfig.apiResources = mungedConfig.resources
