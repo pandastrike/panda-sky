@@ -12,18 +12,24 @@ API:
 
 {{> iamrole rolename="LambdaRole"}}
 
-{{#each apiResources}}
-
-{{#unless rootResource}}
-{{> resource}}
-{{/unless}}
-
+# The Root Resource needs different expansion than others.
+{{#with rootResource}}
+# Define the OPTIONS handler
 {{> options}}
-
 {{#each methods}}
-{{> method gatewayResourceName=../gatewayResourceName rootResource=../rootResource}}
+{{> method resource=.. }}
 {{/each}} # methods
-{{/each}} # apiResources
+{{/with}}
+
+{{#each skyResources}}
+# Define the API Gateway Resource
+{{> resource}}
+# Define the OPTIONS method
+{{> options}}
+{{#each methods}}
+{{> method resource=.. }}
+{{/each}} # methods
+{{/each}} # skyResources
 
 {{#each schema}}
 {{> model }}

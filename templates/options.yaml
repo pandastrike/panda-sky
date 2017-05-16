@@ -4,11 +4,7 @@
     RestApiId:
       Ref: API
     ResourceId:
-      {{#unless rootResource}}
-      Ref: {{gatewayResourceName}}
-      {{else}}
-      "Fn::GetAtt": ["API", "RootResourceId"]
-      {{/unless}}
+      {{gateway.resourceID}}
     AuthorizationType: NONE
     HttpMethod: OPTIONS
     Integration:

@@ -6,4 +6,4 @@
     Name: {{title}}
     RestApiId:
       Ref: API
-    Schema: '{{json .}}'
+    Schema: '{{json this}}'

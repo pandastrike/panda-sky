@@ -1,6 +1,5 @@
-
 {{gatewayMethodName}}:
-  {{#unless ../rootResource}}
+  {{#unless resource.rootResource}}
   {{#if dependencies}}
   DependsOn:
     {{#each dependencies}}
@@ -13,11 +12,7 @@
     RestApiId:
       Ref: API
     ResourceId:
-      {{#unless rootResource}}
-      Ref: {{gatewayResourceName}}
-      {{else}}
-      "Fn::GetAtt": ["API", "RootResourceId"]
-      {{/unless}}
+      {{resource.gateway.resourceID}}
     AuthorizationType: NONE
     HttpMethod: {{method}}
     {{#if requestModel}}

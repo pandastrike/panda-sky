@@ -1,6 +1,12 @@
 {{deployment}}:
   DependsOn:
-  {{#each apiResources}}
+
+  {{#each rootResource.methods}}
+  - {{gatewayMethodName}}
+  {{/each}}
+  - {{rootResource.name}}OptionsMethod
+
+  {{#each skyResources}}
   {{#each methods}}
   - {{gatewayMethodName}}
   {{/each}}

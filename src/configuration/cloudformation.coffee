@@ -60,7 +60,7 @@ renderAPI = async (dir, globals) ->
   H.registerPartial 'iamrole', yield read resolve "templates", "iamrole.yaml"
 
   template = yield read resolve "templates", "api.yaml"
-  mungedConfig.apiResources = mungedConfig.resources
+  mungedConfig.skyResources = mungedConfig.resources
   yaml _render template, mungedConfig
   
 
