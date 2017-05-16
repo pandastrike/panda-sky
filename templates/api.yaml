@@ -3,19 +3,22 @@
 # Panda Sky app deployment, with mixins adding resources to the description.
 #===============================================================================
 
-# Specify the API Gateway
+# IAM (Identity and Access Management)
+{{> iamrole rolename="LambdaRole"}}
+
+## API Gateway
+
 API:
   Type: "AWS::ApiGateway::RestApi"
   Properties:
     Name: {{gatewayName}}
     Description: {{description}}
 
-{{> iamrole rolename="LambdaRole"}}
-
-# The Root Resource needs different expansion than others.
+# The root resource needs different expansion than others.
 {{#with rootResource}}
 # Define the OPTIONS handler
 {{> options}}
+# Define all the other methods on the root resource.
 {{#each methods}}
 {{> method resource=.. }}
 {{/each}} # methods
@@ -26,22 +29,26 @@ API:
 {{> resource}}
 # Define the OPTIONS method
 {{> options}}
+# Define all the other methods for this resource
 {{#each methods}}
 {{> method resource=.. }}
 {{/each}} # methods
 {{/each}} # skyResources
 
+# API Gateway Models
 {{#each schema}}
 {{> model }}
 {{/each}}
 
+# API Gateway Deployment
 {{> deployment deployment="Deployment"}}
 
-# Specify CloudFront Distribution, if required.
+# CloudFront Distribution
 {{#if aws.cloudfront}}
 {{> cloudfront distro="CFRDistro"}}
 {{/if}}
 
+# DNS
 {{#if aws.route53}}
 {{> route53 distro="CFRDistro"}}
 {{/if}}

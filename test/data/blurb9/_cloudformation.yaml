@@ -1,11 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Backend for the Blurb9 Microblogging App
 Resources:
-  API:
-    Type: 'AWS::ApiGateway::RestApi'
-    Properties:
-      Name: blurb9-staging
-      Description: Backend for the Blurb9 Microblogging App
   LambdaRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -34,6 +29,11 @@ Resources:
                   - 's3:*'
                 Resource:
                   - 'arn:aws:s3:::*'
+  API:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      Name: blurb9-staging
+      Description: Backend for the Blurb9 Microblogging App
   DiscoveryOptionsMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
