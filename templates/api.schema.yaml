@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-04/schema#
+title: Panda Sky CloudFormation Config
+description: Config for generating a Panda Sky CloudFormation template
+
+type: object
+required:
+  - smurf
+  - env
+  - projectID
+  - policyName
+  - rootResource
+  - resources
+  - environmentVariables
+  - aws
+properties:
+  name:
+    type: string
+  env:
+    type: string
+  projectID:
+    type: string
+  policyName:
+    type: string
+  rootResource: {$ref: "#/definitions/resource"}
+  resources:
+    type: object
+    additionalProperties: {$ref: "#/definitions/resource"}
+  schema:
+    type: object
+  aws:
+    type: object
+
+definitions:
+  resource:
+    type: object
+  method:
+    type: object

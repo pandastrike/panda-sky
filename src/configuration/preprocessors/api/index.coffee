@@ -37,5 +37,6 @@ module.exports = async (config) ->
   # Remove the root resource, because it needs special handling
   rootKey = config.rootResourceKey
   delete config.resources[rootKey]
+  delete config.rootResourceKey
 
   config
