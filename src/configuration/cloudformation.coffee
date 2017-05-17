@@ -10,6 +10,7 @@
 _render = require "panda-template"
 preprocessors = require "./preprocessors"
 API = require "../api"
+Templater = require "../templater"
 
 AWSTemplateFormatVersion = "2010-09-09"
 
@@ -42,15 +43,29 @@ renderResources = async (appRoot, globals) ->
   # of results returned by `fairmont.readdir`.
   merge resources...
   
-apiDescription = async (dir, globals) ->
+apiConfig = async (dir, globals) ->
   api = yield API.read resolve dir, "api.yaml"
   mungedConfig = merge api, globals
   yield preprocessors.api mungedConfig
 
 renderAPI = async (dir, globals) ->
-  mungedConfig = yield apiDescription dir, globals
-  template = yield read resolve skyMixinsPath, "api.yaml"
-  yaml _render template, mungedConfig
+  H = require "handlebars"
+  mungedConfig = yield apiConfig dir, globals
+  # TODO: factor this out into something saner
+  H.registerPartial 'resource', yield read resolve "templates", "resource.yaml"
+  H.registerPartial 'method', yield read resolve "templates", "method.yaml"
+  H.registerPartial 'options', yield read resolve "templates", "options.yaml"
+  H.registerPartial 'model', yield read resolve "templates", "model.yaml"
+  H.registerPartial 'cloudfront', yield read resolve "templates", "cloudfront.yaml"
+  H.registerPartial 'route53', yield read resolve "templates", "route53.yaml"
+  H.registerPartial 'deployment', yield read resolve "templates", "deployment.yaml"
+  H.registerPartial 'iamrole', yield read resolve "templates", "iamrole.yaml"
+
+  templater = yield Templater.read (resolve "templates", "api.yaml"),
+    (resolve "templates", "api.schema.yaml")
+
+  mungedConfig.skyResources = mungedConfig.resources
+  yaml templater.render mungedConfig
   
 
 renderMixin = async (dir, name, globals) ->
@@ -87,7 +102,7 @@ listMixins = async (appRoot) ->
 
 module.exports = {
   AWSTemplateFormatVersion
-  apiDescription
+  apiConfig
   renderTemplate
   listMixins
   renderResources

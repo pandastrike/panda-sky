@@ -1,62 +1,12 @@
 resources:
-  discovery:
-    path: /
-    description: Provides a directory of available resources
-    actions:
-      get:
-        method: GET
-        signature:
-          status: 200
-        camelName: DiscoveryGet
-        gatewayMethodName: DiscoveryGetMethod
-        dashName: discovery-get
-        parameters: []
-        dependencies: []
-        lambda:
-          handler:
-            name: DiscoveryGetLambdaHandler
-            bucket: staging-fearless-panda-blurb9
-          permission:
-            name: DiscoveryGetLambdaPermission
-            path: /*/GET/
-          function:
-            name: blurb9-staging-discovery-get
-        IntegrationResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: >-
-                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-              method.response.header.Access-Control-Allow-Methods: '''OPTIONS, GET'''
-              method.response.header.Access-Control-Allow-Origin: '''*'''
-        MethodResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: true
-              method.response.header.Access-Control-Allow-Methods: true
-              method.response.header.Access-Control-Allow-Origin: true
-    parameters: []
-    permissionsPath: /
-    parent: /
-    pathPart: /
-    name: Discovery
-    gatewayResourceName: DiscoveryResource
-    parentResourceName: /Resource
-    rootResource: true
-    methodList: 'OPTIONS, GET'
   blurbs:
     path: blurbs
     description: Virtual collection of blurbs
-    actions:
-      create:
-        method: POST
-        signature:
-          request: blurb
-          status:
-            - 201
-            - 400
-        camelName: BlurbsPost
-        gatewayMethodName: BlurbsPostMethod
-        dashName: blurbs-post
+    methods:
+      POST:
+        name: POST
+        gateway:
+          name: BlurbsPostMethod
         parameters: []
         requestModel: Blurb
         dependencies:
@@ -100,24 +50,22 @@ resources:
     permissionsPath: /blurbs
     pathPart: blurbs
     parent: /
+    parentID: '"Fn::GetAtt": ["API", "RootResourceId"]'
     name: Blurbs
+    gateway:
+      name: BlurbsResource
+      resourceID: 'Ref: BlurbsResource'
     gatewayResourceName: BlurbsResource
     parentResourceName: /Resource
     methodList: 'OPTIONS, POST'
   blurb:
     path: 'blurbs/{key}'
     description: Individual blurbs
-    actions:
-      get:
-        method: GET
-        signature:
-          response: blurb
-          status:
-            - 200
-            - 404
-        camelName: BlurbGet
-        gatewayMethodName: BlurbGetMethod
-        dashName: blurb-get
+    methods:
+      GET:
+        name: GET
+        gateway:
+          name: BlurbGetMethod
         parameters:
           - name: key
             path: true
@@ -158,15 +106,10 @@ resources:
               method.response.header.Access-Control-Allow-Headers: true
               method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
-      update:
-        method: PUT
-        signature:
-          status:
-            - 200
-            - 404
-        camelName: BlurbPut
-        gatewayMethodName: BlurbPutMethod
-        dashName: blurb-put
+      PUT:
+        name: PUT
+        gateway:
+          name: BlurbPutMethod
         parameters:
           - name: key
             path: true
@@ -205,15 +148,10 @@ resources:
               method.response.header.Access-Control-Allow-Headers: true
               method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
-      delete:
-        method: DELETE
-        signature:
-          status:
-            - 204
-            - 404
-        camelName: BlurbDelete
-        gatewayMethodName: BlurbDeleteMethod
-        dashName: blurb-delete
+      DELETE:
+        name: DELETE
+        gateway:
+          name: BlurbDeleteMethod
         parameters:
           - name: key
             path: true
@@ -258,7 +196,11 @@ resources:
     permissionsPath: /blurbs/*
     pathPart: '{key}'
     parent: blurbs
+    parentID: 'Ref: BlurbsResource'
     name: Blurb
+    gateway:
+      name: BlurbResource
+      resourceID: 'Ref: BlurbResource'
     gatewayResourceName: BlurbResource
     parentResourceName: BlurbsResource
     methodList: 'OPTIONS, GET, PUT, DELETE'
@@ -307,3 +249,47 @@ environmentVariables:
   projectID: fearless-panda-blurb9
   fullName: blurb9-staging
   skyBucket: staging-fearless-panda-blurb9
+rootResource:
+  path: /
+  description: Provides a directory of available resources
+  methods:
+    GET:
+      name: GET
+      gateway:
+        name: DiscoveryGetMethod
+      parameters: []
+      dependencies: []
+      lambda:
+        handler:
+          name: DiscoveryGetLambdaHandler
+          bucket: staging-fearless-panda-blurb9
+        permission:
+          name: DiscoveryGetLambdaPermission
+          path: /*/GET/
+        function:
+          name: blurb9-staging-discovery-get
+      IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: >-
+              'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
+            method.response.header.Access-Control-Allow-Methods: '''OPTIONS, GET'''
+            method.response.header.Access-Control-Allow-Origin: '''*'''
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+  parameters: []
+  permissionsPath: /
+  parent: /
+  pathPart: /
+  parentID: '"Fn::GetAtt": ["API", "RootResourceId"]'
+  name: Discovery
+  gateway:
+    name: DiscoveryResource
+    resourceID: '"Fn::GetAtt": ["API", "RootResourceId"]'
+  gatewayResourceName: DiscoveryResource
+  parentResourceName: /Resource
+  methodList: 'OPTIONS, GET'
