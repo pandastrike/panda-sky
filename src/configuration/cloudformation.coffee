@@ -14,6 +14,8 @@ Templater = require "../templater"
 
 AWSTemplateFormatVersion = "2010-09-09"
 
+skyRoot = resolve __dirname, "..", ".."
+
 skyMixinsPath = resolve __dirname, "..", "..", "mixins"
 
 
@@ -48,21 +50,24 @@ apiConfig = async (dir, globals) ->
   mungedConfig = merge api, globals
   yield preprocessors.api mungedConfig
 
+templatePath = (file) ->
+  resolve skyRoot, "templates", file
+
 renderAPI = async (dir, globals) ->
   H = require "handlebars"
   mungedConfig = yield apiConfig dir, globals
   # TODO: factor this out into something saner
-  H.registerPartial 'resource', yield read resolve "templates", "resource.yaml"
-  H.registerPartial 'method', yield read resolve "templates", "method.yaml"
-  H.registerPartial 'options', yield read resolve "templates", "options.yaml"
-  H.registerPartial 'model', yield read resolve "templates", "model.yaml"
-  H.registerPartial 'cloudfront', yield read resolve "templates", "cloudfront.yaml"
-  H.registerPartial 'route53', yield read resolve "templates", "route53.yaml"
-  H.registerPartial 'deployment', yield read resolve "templates", "deployment.yaml"
-  H.registerPartial 'iamrole', yield read resolve "templates", "iamrole.yaml"
+  H.registerPartial 'resource', yield read templatePath "resource.yaml"
+  H.registerPartial 'method', yield read templatePath "method.yaml"
+  H.registerPartial 'options', yield read templatePath "options.yaml"
+  H.registerPartial 'model', yield read templatePath "model.yaml"
+  H.registerPartial 'cloudfront', yield read templatePath "cloudfront.yaml"
+  H.registerPartial 'route53', yield read templatePath "route53.yaml"
+  H.registerPartial 'deployment', yield read templatePath "deployment.yaml"
+  H.registerPartial 'iamrole', yield read templatePath "iamrole.yaml"
 
-  templater = yield Templater.read (resolve "templates", "api.yaml"),
-    (resolve "templates", "api.schema.yaml")
+  templater = yield Templater.read (templatePath "api.yaml"),
+    (templatePath "api.schema.yaml")
 
   mungedConfig.skyResources = mungedConfig.resources
   yaml templater.render mungedConfig
