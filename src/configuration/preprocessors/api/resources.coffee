@@ -17,7 +17,7 @@ module.exports = (description) ->
     resources[key] =
       path: p
       description: "Implict resource created for template."
-      actions: {}
+      methods: {}
 
   # Helper to recursively traverse a path to make sure a nested resources
   # antecedeants exist.  Add them if they do not.

@@ -85,7 +85,7 @@ LambdaRole:
           "method.response.header.Access-Control-Allow-Methods": true
           "method.response.header.Access-Control-Allow-Origin": true
 
-{{#each actions}}
+{{#each methods}}
 {{gatewayMethodName}}:
   {{#unless ../rootResource}}
   {{#if dependencies}}
@@ -255,7 +255,7 @@ LambdaRole:
 Deployment:
   DependsOn:
   {{#each resources}}
-  {{#each actions}}
+  {{#each methods}}
   - {{gatewayMethodName}}
   {{/each}}
   - {{name}}OptionsMethod

@@ -32,7 +32,7 @@
     "commander": "^2.9.0",
     "fairmont": "^1.1.6",
     "js-yaml": "^3.6.1",
-    "jsck": "^0.3.0",
+    "jsck": "0.3.1",
     "key-forge": "^1.0.0-beta-01",
     "mime": "^1.3.4",
     "panda-9000": "^2.0.0-alpha-02",
