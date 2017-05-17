@@ -3,7 +3,10 @@ title: Panda Sky API Description
 
 type: object
 required:
+  #- name
+  #- version
   - resources
+  - schema
 properties:
   name:
     type: string
@@ -14,17 +17,16 @@ properties:
       A dictionary of Resource descriptions, keyed by the logical name of the resource.
     type: object
     additionalProperties: {$ref: "#/definitions/resource"}
-  schema:
+  schemas:
     type: object
-    # FIXME: apparently a bug in JSCK
-    #additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
+    additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
 
 definitions:
   resource:
     type: object
     required:
       - path
-      - actions
+      - methods
     properties:
       path:
         description: >
@@ -39,35 +41,130 @@ definitions:
         description: >
           A limited JSON Schema to describe and constrain the acceptable values
           of query parameters.
-        $ref: "http://json-schema.org/draft-04/schema#"
         # we don't actually want to allow the full JSON Schema featureset here.
         # I have a schema for limiting to things desired for query params
         # somewhere in Patchboard.
-      actions:
+      methods:
+        description: >
+          A dictionary of Resource Method descriptions, keyed by the HTTP
+          method name (GET, PUT, etc.).
         type: object
-        additionalProperties: {$ref: "#/definitions/action"}
+        additionalProperties: {$ref: "#/definitions/method"}
 
-  action:
+  method:
     type: object
     required:
-      - method
-      - signature
+      - signatures
     properties:
-      method:
-        type: string
-      signature: {$ref: "#/definitions/signature"}
+      pragma:
+        description: >
+          Place to record configurations unrelated to HTTP concerns.
+          For example, integration details specific to a particular backend service.
+        type: object
+      signatures:
+        description: >
+          A dictionary of "request signatures" to provide more granular dispatching
+          than merely to a "resource method handler".
+          Keys are arbitrary, but will usually represent the logical name of a
+          request handling function.
+        type: object
+        required:
+          - request
+          - response
+        properties:
+          request: {$ref: "#/definitions/request"}
+          response: {$ref: "#/definitions/response"}
 
-  signature:
+  request:
+    description: >
+      Describes the elements of an HTTP request
     type: object
     properties:
-      request:
-        type: string
-      response:
-        type: string
+      authorization:
+        type: array
+        items:
+          description: The name of an authorization scheme
+          type: string
+      mediatype:
+        type: array
+        items:
+          type: string
+
+  response:
+    type: object
+    required:
+      - status
+    properties:
       status:
-        type: [array, integer]
+        description: An array of the status codes that indicate success.
+        type: array
         items:
           type: integer
           minimum: 200
           maximum: 599
+      mediatype:
+        type: array
+        items:
+          type: string
 
+examples:
+  -
+    name: Blurb9 API
+    version: 0.1.0
+    schemas:
+      blurb:
+        mediaType: "application/vnd.blurb9.blurb+json;version=1"
+        type: object
+        properties:
+          content:
+            type: string
+          expiration:
+            type: string
+            format: date-time
+        
+    resources:
+      blurbs:
+        path: /blurbs
+        description: "Virtual collection of blurbs"
+        methods:
+          POST:
+            pragma:
+              integration:
+                timeout: 10 # seconds
+            signatures:
+              create:
+                request:
+                  authorization:
+                    - PandaGuard
+                  mediatype:
+                    - "application/vnd.blurb9.blurb+json;version=1"
+                response:
+                  status: [201]
+                  mediatype:
+                    - "application/json"
+                    - "text/html"
+
+      public_blurbs:
+        description: "Publicly viewable blurbs"
+        path: /public_blurbs
+        query:
+          required: []
+          minProperties: 1
+          properties:
+            title:
+              type: string
+            content:
+              type: string
+              maxLength: 32
+            tag:
+              type: string
+        methods:
+          GET:
+            signatures:
+              search:
+                request: {}
+                response:
+                  status: [200]
+                  mediatype:
+                    - "application/vnd.blurb9.blurb_list+json;version=1"
+                    - "application/vnd.blurb9.blurb_list+json;version=2"
