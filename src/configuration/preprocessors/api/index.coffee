@@ -2,7 +2,7 @@
 extractParameters = require "./parameters"
 extractCFr = require "./cfr"
 extractResources = require "./resources"
-extractActions = require "./actions"
+extractMethods = require "./methods"
 addResponses = require "./responses"
 selectRuntime = require "./runtime"
 addVariables = require "./variables"
@@ -25,7 +25,7 @@ module.exports = async (config) ->
   config = yield extractResources config
 
   # Compute the formatted template names for API action defintions.
-  config = yield extractActions config
+  config = yield extractMethods config
 
   # Add the possible HTTP responses to every API action specification.
   config = yield addResponses config
