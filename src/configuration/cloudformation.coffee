@@ -51,6 +51,7 @@ apiConfig = async (dir, globals) ->
 renderAPI = async (dir, globals) ->
   H = require "handlebars"
   mungedConfig = yield apiConfig dir, globals
+  # TODO: factor this out into something saner
   H.registerPartial 'resource', yield read resolve "templates", "resource.yaml"
   H.registerPartial 'method', yield read resolve "templates", "method.yaml"
   H.registerPartial 'options', yield read resolve "templates", "options.yaml"
@@ -63,7 +64,6 @@ renderAPI = async (dir, globals) ->
   templater = yield Templater.read (resolve "templates", "api.yaml"),
     (resolve "templates", "api.schema.yaml")
 
-  template = yield read resolve "templates", "api.yaml"
   mungedConfig.skyResources = mungedConfig.resources
   yaml templater.render mungedConfig
   

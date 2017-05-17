@@ -4,10 +4,9 @@ resources:
     description: Virtual collection of blurbs
     methods:
       POST:
-        method: POST
-        camelName: BlurbsPost
-        gatewayMethodName: BlurbsPostMethod
-        dashName: blurbs-post
+        name: POST
+        gateway:
+          name: BlurbsPostMethod
         parameters: []
         requestModel: Blurb
         dependencies:
@@ -64,10 +63,9 @@ resources:
     description: Individual blurbs
     methods:
       GET:
-        method: GET
-        camelName: BlurbGet
-        gatewayMethodName: BlurbGetMethod
-        dashName: blurb-get
+        name: GET
+        gateway:
+          name: BlurbGetMethod
         parameters:
           - name: key
             path: true
@@ -109,10 +107,9 @@ resources:
               method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
       PUT:
-        method: PUT
-        camelName: BlurbPut
-        gatewayMethodName: BlurbPutMethod
-        dashName: blurb-put
+        name: PUT
+        gateway:
+          name: BlurbPutMethod
         parameters:
           - name: key
             path: true
@@ -152,10 +149,9 @@ resources:
               method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
       DELETE:
-        method: DELETE
-        camelName: BlurbDelete
-        gatewayMethodName: BlurbDeleteMethod
-        dashName: blurb-delete
+        name: DELETE
+        gateway:
+          name: BlurbDeleteMethod
         parameters:
           - name: key
             path: true
@@ -258,10 +254,9 @@ rootResource:
   description: Provides a directory of available resources
   methods:
     GET:
-      method: GET
-      camelName: DiscoveryGet
-      gatewayMethodName: DiscoveryGetMethod
-      dashName: discovery-get
+      name: GET
+      gateway:
+        name: DiscoveryGetMethod
       parameters: []
       dependencies: []
       lambda:
@@ -298,4 +293,3 @@ rootResource:
   gatewayResourceName: DiscoveryResource
   parentResourceName: /Resource
   methodList: 'OPTIONS, GET'
-rootResourceKey: discovery

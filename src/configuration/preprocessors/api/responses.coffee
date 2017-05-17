@@ -12,18 +12,18 @@ module.exports = (description) ->
     addDefault = (status) ->
       response =
         StatusCode: status
-        ResponseParameters:
-          "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          "method.response.header.Access-Control-Allow-Methods": "'#{methodList}'"
-          "method.response.header.Access-Control-Allow-Origin": "'*'"
+        headers:
+          "Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          "Access-Control-Allow-Methods": "'#{methodList}'"
+          "Access-Control-Allow-Origin": "'*'"
 
       if method.signatures.accept?
-        response.ResponseParameters["method.response.header.Content-Type"] = "'#{method.signatures.accept}'"
+        response.headers["Content-Type"] = "'#{method.signatures.accept}'"
 
         # FIXME: the following is very hackish, formalize our integration
         # response mapping template
         if method.signatures.accept == "text/html"
-          # ammend response object w/ response template (velocity code)
+          # amend response object w/ response template (velocity code)
           response.ResponseTemplates =
             "text/html": """#set($inputRoot = $input.path('$'))
               $inputRoot.body"""
@@ -35,10 +35,11 @@ module.exports = (description) ->
         out.push(
           StatusCode: code
           SelectionPattern: possibleResponses[code]
-          ResponseParameters:
-            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            "method.response.header.Access-Control-Allow-Methods": "'#{methodList}'"
-            "method.response.header.Access-Control-Allow-Origin": "'*'"
+          headers:
+            "Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            "Access-Control-Allow-Methods": "'#{methodList}'"
+            "Access-Control-Allow-Origin": "'*'"
+
         )
       out
 
@@ -56,13 +57,14 @@ module.exports = (description) ->
     addDefault = (status) ->
       response =
         StatusCode: status
-        ResponseParameters:
-          "method.response.header.Access-Control-Allow-Headers": true
-          "method.response.header.Access-Control-Allow-Methods": true
-          "method.response.header.Access-Control-Allow-Origin": true
+        headers:
+          "Access-Control-Allow-Headers": true
+          "Access-Control-Allow-Methods": true
+          "Access-Control-Allow-Origin": true
 
+      # FIXME: We're going to be using a different property for this.
       if method.signatures.accept?
-        response.ResponseParameters["method.response.header.Content-Type"] = true
+        response.headers["Content-Type"] = true
       return response
 
     addOthers = (statuses) ->
@@ -70,10 +72,10 @@ module.exports = (description) ->
       for code in statuses
         out.push(
           StatusCode: code
-          ResponseParameters:
-            "method.response.header.Access-Control-Allow-Headers": true
-            "method.response.header.Access-Control-Allow-Methods": true
-            "method.response.header.Access-Control-Allow-Origin": true
+          headers:
+            "Access-Control-Allow-Headers": true
+            "Access-Control-Allow-Methods": true
+            "Access-Control-Allow-Origin": true
         )
       out
 

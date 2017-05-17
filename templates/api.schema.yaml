@@ -4,7 +4,7 @@ description: Config for generating a Panda Sky CloudFormation template
 
 type: object
 required:
-  - smurf
+  - name
   - env
   - projectID
   - policyName
@@ -31,7 +31,28 @@ properties:
     type: object
 
 definitions:
+  refOrFn:
+    description: Verbatim YAML that defines either a 'Ref' or a 'Fn::GetAtt'
+    type: string
   resource:
     type: object
+    properties:
+      parentID: {$ref: "#/definitions/refOrFn"}
+      gateway:
+        type: object
+        required:
+          - name
+          - resourceID
+        properties:
+          name:
+            type: string
+          resourceID: {$ref: "#/definitions/refOrFn"}
   method:
     type: object
+    required:
+      - name
+      - gateway
+      - lambda
+      - IntegrationResponses
+      - MethodResponses
+
