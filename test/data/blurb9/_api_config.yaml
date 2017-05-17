@@ -1,55 +1,12 @@
 resources:
-  discovery:
-    path: /
-    description: Provides a directory of available resources
-    methods:
-      GET:
-        method: GET
-        camelName: DiscoveryGet
-        gatewayMethodName: DiscoveryGetMethod
-        dashName: discovery-get
-        parameters: []
-        dependencies: []
-        lambda:
-          handler:
-            name: DiscoveryGetLambdaHandler
-            bucket: staging-fearless-panda-blurb9
-          permission:
-            name: DiscoveryGetLambdaPermission
-            path: /*/GET/
-          function:
-            name: blurb9-staging-discovery-get
-        IntegrationResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: >-
-                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-              method.response.header.Access-Control-Allow-Methods: '''OPTIONS, GET'''
-              method.response.header.Access-Control-Allow-Origin: '''*'''
-        MethodResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: true
-              method.response.header.Access-Control-Allow-Methods: true
-              method.response.header.Access-Control-Allow-Origin: true
-    parameters: []
-    permissionsPath: /
-    parent: /
-    pathPart: /
-    name: Discovery
-    gatewayResourceName: DiscoveryResource
-    parentResourceName: /Resource
-    rootResource: true
-    methodList: 'OPTIONS, GET'
   blurbs:
     path: blurbs
     description: Virtual collection of blurbs
     methods:
       POST:
-        method: POST
-        camelName: BlurbsPost
-        gatewayMethodName: BlurbsPostMethod
-        dashName: blurbs-post
+        name: POST
+        gateway:
+          name: BlurbsPostMethod
         parameters: []
         requestModel: Blurb
         dependencies:
@@ -93,7 +50,11 @@ resources:
     permissionsPath: /blurbs
     pathPart: blurbs
     parent: /
+    parentID: '"Fn::GetAtt": ["API", "RootResourceId"]'
     name: Blurbs
+    gateway:
+      name: BlurbsResource
+      resourceID: 'Ref: BlurbsResource'
     gatewayResourceName: BlurbsResource
     parentResourceName: /Resource
     methodList: 'OPTIONS, POST'
@@ -102,10 +63,9 @@ resources:
     description: Individual blurbs
     methods:
       GET:
-        method: GET
-        camelName: BlurbGet
-        gatewayMethodName: BlurbGetMethod
-        dashName: blurb-get
+        name: GET
+        gateway:
+          name: BlurbGetMethod
         parameters:
           - name: key
             path: true
@@ -147,10 +107,9 @@ resources:
               method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
       PUT:
-        method: PUT
-        camelName: BlurbPut
-        gatewayMethodName: BlurbPutMethod
-        dashName: blurb-put
+        name: PUT
+        gateway:
+          name: BlurbPutMethod
         parameters:
           - name: key
             path: true
@@ -190,10 +149,9 @@ resources:
               method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
       DELETE:
-        method: DELETE
-        camelName: BlurbDelete
-        gatewayMethodName: BlurbDeleteMethod
-        dashName: blurb-delete
+        name: DELETE
+        gateway:
+          name: BlurbDeleteMethod
         parameters:
           - name: key
             path: true
@@ -238,7 +196,11 @@ resources:
     permissionsPath: /blurbs/*
     pathPart: '{key}'
     parent: blurbs
+    parentID: 'Ref: BlurbsResource'
     name: Blurb
+    gateway:
+      name: BlurbResource
+      resourceID: 'Ref: BlurbResource'
     gatewayResourceName: BlurbResource
     parentResourceName: BlurbsResource
     methodList: 'OPTIONS, GET, PUT, DELETE'
@@ -287,3 +249,47 @@ environmentVariables:
   projectID: fearless-panda-blurb9
   fullName: blurb9-staging
   skyBucket: staging-fearless-panda-blurb9
+rootResource:
+  path: /
+  description: Provides a directory of available resources
+  methods:
+    GET:
+      name: GET
+      gateway:
+        name: DiscoveryGetMethod
+      parameters: []
+      dependencies: []
+      lambda:
+        handler:
+          name: DiscoveryGetLambdaHandler
+          bucket: staging-fearless-panda-blurb9
+        permission:
+          name: DiscoveryGetLambdaPermission
+          path: /*/GET/
+        function:
+          name: blurb9-staging-discovery-get
+      IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: >-
+              'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
+            method.response.header.Access-Control-Allow-Methods: '''OPTIONS, GET'''
+            method.response.header.Access-Control-Allow-Origin: '''*'''
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+  parameters: []
+  permissionsPath: /
+  parent: /
+  pathPart: /
+  parentID: '"Fn::GetAtt": ["API", "RootResourceId"]'
+  name: Discovery
+  gateway:
+    name: DiscoveryResource
+    resourceID: '"Fn::GetAtt": ["API", "RootResourceId"]'
+  gatewayResourceName: DiscoveryResource
+  parentResourceName: /Resource
+  methodList: 'OPTIONS, GET'

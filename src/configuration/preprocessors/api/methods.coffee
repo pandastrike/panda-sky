@@ -29,14 +29,15 @@ module.exports = (description) ->
       result.push "#{capitalize(response.resource)}Model"
     result
 
-  for r, resource of resources
+  for resourceName, resource of resources
     methods = ["OPTIONS"]
-    for key, method of resource.methods
-      methods.push key
-      method.method = key
-      method.camelName = makeCamelName r, key
-      method.gatewayMethodName = "#{method.camelName}Method"
-      method.dashName = makeDashName r, key
+    for methodName, method of resource.methods
+      methods.push methodName
+      method.name = methodName
+      camelized = makeCamelName resourceName, methodName
+      dashed = makeDashName resourceName, methodName
+      method.gateway =
+        name: "#{camelized}Method"
 
       method.parameters = resource.parameters
       if method.signatures.request?.resource?
@@ -44,15 +45,14 @@ module.exports = (description) ->
       method.dependencies = dependencies method.signatures
       method.lambda =
         handler:
-          name: "#{method.camelName}LambdaHandler"
+          name: "#{camelized}LambdaHandler"
           bucket: description.environmentVariables.skyBucket
         permission:
-          name: "#{method.camelName}LambdaPermission"
-          path: "/*/#{key}#{resource.permissionsPath}"
+          name: "#{camelized}LambdaPermission"
+          path: "/*/#{methodName}#{resource.permissionsPath}"
         "function":
-          name: "#{appName}-#{env}-#{method.dashName}"
+          name: "#{appName}-#{env}-#{toLower resourceName}-#{toLower method.name}"
 
-    resources[r].methodList = toUpper methods.join ", "
+    resource.methodList = toUpper methods.join ", "
 
-  description.resources = resources
   description

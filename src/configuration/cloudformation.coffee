@@ -10,6 +10,7 @@
 _render = require "panda-template"
 preprocessors = require "./preprocessors"
 API = require "../api"
+Templater = require "../templater"
 
 AWSTemplateFormatVersion = "2010-09-09"
 
@@ -50,6 +51,7 @@ apiConfig = async (dir, globals) ->
 renderAPI = async (dir, globals) ->
   H = require "handlebars"
   mungedConfig = yield apiConfig dir, globals
+  # TODO: factor this out into something saner
   H.registerPartial 'resource', yield read resolve "templates", "resource.yaml"
   H.registerPartial 'method', yield read resolve "templates", "method.yaml"
   H.registerPartial 'options', yield read resolve "templates", "options.yaml"
@@ -59,9 +61,11 @@ renderAPI = async (dir, globals) ->
   H.registerPartial 'deployment', yield read resolve "templates", "deployment.yaml"
   H.registerPartial 'iamrole', yield read resolve "templates", "iamrole.yaml"
 
-  template = yield read resolve "templates", "api.yaml"
+  templater = yield Templater.read (resolve "templates", "api.yaml"),
+    (resolve "templates", "api.schema.yaml")
+
   mungedConfig.skyResources = mungedConfig.resources
-  yaml _render template, mungedConfig
+  yaml templater.render mungedConfig
   
 
 renderMixin = async (dir, name, globals) ->

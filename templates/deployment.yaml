@@ -2,13 +2,13 @@
   DependsOn:
 
   {{#each rootResource.methods}}
-  - {{gatewayMethodName}}
+  - {{gateway.name}}
   {{/each}}
   - {{rootResource.name}}OptionsMethod
 
   {{#each skyResources}}
   {{#each methods}}
-  - {{gatewayMethodName}}
+  - {{gateway.name}}
   {{/each}}
   - {{name}}OptionsMethod
   {{/each}}
