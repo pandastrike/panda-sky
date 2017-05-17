@@ -4,13 +4,13 @@
 # acceptable to Gateway.  In the case of nested resources or those with path
 # parameters, each antecedeant must be present, even if not defined explictly.
 # Implicit, "virtual" collections are added here.
-module.exports = (description) ->
-  {resources} = description
+module.exports = (config) ->
+  {resources} = config
   counter = 0 # keeps resource names unique #TODO: Do better
 
   # Helper to add a virtual, antecedeant resource to the resources dictionary.
-  # The method makes implicit resources from the user's API description explicit
-  # for the purposes of the CloudFormation template.
+  # The method makes implicit resources from the user's API description
+  # explicit for the purposes of the CloudFormation template.
   addVirtualResource = (p) ->
     key = "virtual#{counter}"
     counter++
@@ -36,7 +36,8 @@ module.exports = (description) ->
     p = p.slice(0, -1) if last(p) == "/"
     p
 
-  # Helper to return the key of a resource in the main dictionary given its url path.
+  # Helper to return the key of a resource in the main dictionary given its url
+  # path.
   getKey = (path) ->
     for k, v of resources
       return k if v.path == path
@@ -64,7 +65,8 @@ module.exports = (description) ->
 
   # Iterate over the full resource dictionary and add computed fields.
 
-  # Grants endpoint access to Lambda. Adds the path with glob characters replacing path parameters.
+  # Grants endpoint access to Lambda. Adds the path with glob characters
+  # replacing path parameters.
   for r, resource of resources
     p = resource.path.replace /\{.*\}/g, "*"
     if p == "/"
@@ -78,21 +80,37 @@ module.exports = (description) ->
     parts = p.split "/"
 
     if p == "/"
-      resources[r].parent = "/"
-      resources[r].pathPart = "/"
+      resource.parent = "/"
+      resource.pathPart = "/"
     else
-      resources[r].pathPart = last parts
+      resource.pathPart = last parts
       if parts.length == 1
-        resources[r].parent = "/"
+        resource.parent = "/"
       else
-        resources[r].parent = getKey( parts.slice(0,-1).join("/") )
+        resource.parent = getKey( parts.slice(0,-1).join("/") )
+
+    if resource.parent == "/"
+      resource.parentID = '"Fn::GetAtt": ["API", "RootResourceId"]'
+    else
+      resource.parentID = "Ref: #{capitalize resource.parent}Resource"
+
 
   for name, resource of resources
     resource.name = capitalize name
+    resource.gateway =
+      name:
+        "#{capitalize(name)}Resource"
     resource.gatewayResourceName = "#{capitalize(name)}Resource"
     resource.parentResourceName = "#{capitalize(resource.parent)}Resource"
     if resource.path == "/"
-      resource.rootResource = true
+      # We'll remove this resource from the main dictionary at the end of
+      # processing, because we need to handle it separately in the
+      # CloudFormation template
+      config.rootResource = resource
+      config.rootResourceKey = name
+      resource.gateway.resourceID = '"Fn::GetAtt": ["API", "RootResourceId"]'
+    else
+      resource.gateway.resourceID = "Ref: #{resource.gateway.name}"
 
-  description.resources = resources
-  description
+  config.resources = resources
+  config

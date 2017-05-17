@@ -1,0 +1,9 @@
+{{title}}Model:
+  Type: "AWS::ApiGateway::Model"
+  Properties:
+    ContentType: "application/json"
+    Description: TBD
+    Name: {{title}}
+    RestApiId:
+      Ref: API
+    Schema: '{{json this}}'

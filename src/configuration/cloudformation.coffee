@@ -48,8 +48,19 @@ apiConfig = async (dir, globals) ->
   yield preprocessors.api mungedConfig
 
 renderAPI = async (dir, globals) ->
+  H = require "handlebars"
   mungedConfig = yield apiConfig dir, globals
-  template = yield read resolve skyMixinsPath, "api.yaml"
+  H.registerPartial 'resource', yield read resolve "templates", "resource.yaml"
+  H.registerPartial 'method', yield read resolve "templates", "method.yaml"
+  H.registerPartial 'options', yield read resolve "templates", "options.yaml"
+  H.registerPartial 'model', yield read resolve "templates", "model.yaml"
+  H.registerPartial 'cloudfront', yield read resolve "templates", "cloudfront.yaml"
+  H.registerPartial 'route53', yield read resolve "templates", "route53.yaml"
+  H.registerPartial 'deployment', yield read resolve "templates", "deployment.yaml"
+  H.registerPartial 'iamrole', yield read resolve "templates", "iamrole.yaml"
+
+  template = yield read resolve "templates", "api.yaml"
+  mungedConfig.skyResources = mungedConfig.resources
   yaml _render template, mungedConfig
   
 
