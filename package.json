@@ -10,6 +10,8 @@
     "bin",
     "init",
     "lib",
+    "schema",
+    "src",
     "mixins",
     "LICENSE"
   ],
