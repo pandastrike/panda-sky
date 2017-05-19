@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 
-require("../lib/cli");
+require("coffeescript").register();
+require("../src/cli");
