@@ -20,6 +20,10 @@ module.exports = class Templater
     @validator = new JSCK.draft4 @schema
 
   render: (config) ->
+    @validate config
+    pandatemplate @template, config
+
+  validate: (config) ->
     {valid, errors} = @validator.validate config
     if not valid
       if @schema.title?
@@ -29,8 +33,7 @@ module.exports = class Templater
       error = new Error message
       error.errors = errors
       throw error
-
-    pandatemplate @template, config
+    config
 
 
 
