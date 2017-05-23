@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "1.0.0-beta-17",
+  "version": "1.0.0-beta-19",
   "description": "Quicky publish severless applications in the cloud",
   "main": "./index.js",
   "bin": {
@@ -13,6 +13,7 @@
     "templates",
     "src",
     "mixins",
+    "schema",
     "LICENSE"
   ],
   "scripts": {
