@@ -1,3 +1,4 @@
+YAML = require "js-yaml"
 assert = require "assert"
 {describe} = require "amen"
 
@@ -17,9 +18,13 @@ describe "CloudFormation template generation", ({describe, test}) ->
     knowngood = yaml yield read "test/data/blurb9/_cloudformation.yaml"
     config = yield configuration.readApp appRoot
     globals = merge config, {env}
-    #api_config = yield cloudformation.apiDescription appRoot,  globals
-    #write "test/data/blurb9/_api_config.yaml", yaml JSON.parse JSON.stringify api_config
-    generated = yield cloudformation.renderTemplate appRoot,  globals
-    write "test/data/blurb9/_generated.yaml", yaml generated
+    try
+      generated = yield cloudformation.renderTemplate appRoot,  globals
+    catch e
+      if e.errors
+        console.error YAML.dump {errors: e.errors}
+      throw e
+
+    write "test/data/blurb9/_cloudformation.generated.yaml", yaml generated
     assert.deepEqual generated, knowngood
 

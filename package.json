@@ -2,21 +2,21 @@
   "name": "panda-sky",
   "version": "1.0.0-beta-19",
   "description": "Quicky publish severless applications in the cloud",
-  "main": "lib/sky-helpers/index.js",
+  "main": "./index.js",
   "bin": {
     "sky": "./bin/sky"
   },
   "files": [
     "bin",
     "init",
-    "lib",
+    "schema",
+    "templates",
+    "src",
     "mixins",
     "schema",
     "LICENSE"
   ],
   "scripts": {
-    "prepublish": "coffee -o lib/ -c src/",
-    "watch": "coffee -o lib/ -cw src/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -30,10 +30,12 @@
   "dependencies": {
     "auth-header": "^0.3.1",
     "aws-sdk": "^2.3.18",
+    "coffeescript": "^1.12.6",
     "commander": "^2.9.0",
     "fairmont": "^1.1.6",
+    "handlebars": "^4.0.10",
     "js-yaml": "^3.6.1",
-    "jsck": "^0.3.0",
+    "jsck": "0.3.1",
     "key-forge": "^1.0.0-beta-01",
     "mime": "^1.3.4",
     "panda-9000": "^2.0.0-alpha-02",
