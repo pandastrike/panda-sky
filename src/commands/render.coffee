@@ -1,5 +1,6 @@
 YAML = require "js-yaml"
 {yaml, json} = require "panda-serialize"
+{define} = require "panda-9000"
 {async, merge} = require "fairmont"
 
 {bellChar} = require "../utils"

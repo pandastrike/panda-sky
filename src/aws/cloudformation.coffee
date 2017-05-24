@@ -118,4 +118,12 @@ module.exports = async (env, config) ->
     postDelete = async -> yield src.destroy()
 
 
-    {publish, delete: destroy, publishWait, deleteWait, postPublish, postDelete}
+    {
+      publish
+      delete: destroy
+      publishWait
+      deleteWait
+      postPublish
+      postDelete
+      getApiUrl
+    }

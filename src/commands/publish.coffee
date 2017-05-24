@@ -4,7 +4,7 @@
 {bellChar} = require "../utils"
 configuration = require "../configuration"
 
-define "publish", async (env) ->
+module.exports = async (env) ->
   try
     appRoot = process.cwd()
     config = yield configuration.compile(appRoot, env)
@@ -18,4 +18,6 @@ define "publish", async (env) ->
     console.log "Done"
   catch e
     console.error e.stack
-  console.log bellChar
+  stack
+
+define "publish", module.exports
