@@ -120,6 +120,8 @@
       {{/eachProperty}}
   {{#if timeout}}
     Timeout: {{timeout}}
+  {{else}}
+    Timeout: 15
   {{/if}}
     Code:
       S3Bucket: {{handler.bucket}}
