@@ -5,6 +5,7 @@
 # structure things.
 dispatch = (handlers) ->
   (request, context, callback) ->
+    console.log "Dispatching to '#{context.functionName}' handler"
     handler = handlers[context.functionName]
     unless typeof handler is 'function'
       console.error "Failed to execute: " + context.functionName
