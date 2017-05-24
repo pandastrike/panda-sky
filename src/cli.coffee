@@ -30,7 +30,7 @@ call ->
   program
     .command('publish [env]')
     .description('deploy API, Lambdas to AWS infrastructure')
-    .option '-o, --output [output]', 'foobar'
+    .option '-o, --output [output]', 'Path to write API config file'
     .action (env, options) ->
       call ->
         stack = yield publish env
