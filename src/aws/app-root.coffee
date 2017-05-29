@@ -70,7 +70,7 @@ module.exports = async (env, config) ->
         template
 
       hard = (template) ->
-        retain = ["API", "LambdaRole", "CFRDistro", "DNSRecords"]
+        retain = ["API", "LambdaRole" ]
         R = template.Resources
         delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
         template.Resources = R

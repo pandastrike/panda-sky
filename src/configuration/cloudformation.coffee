@@ -1,9 +1,8 @@
-#===============================================================================
 # CFo Template Configuration
 # Pull in the main API definition and assorted mixins to generate a
 # CloudFormation template.  Each mixin's template is merged into a large CFo
 # template that is attached to the main configuration object.
-#===============================================================================
+
 {resolve, basename} = require "path"
 {async, read, merge, readdir, isFile, last, exists} = require "fairmont"
 {yaml} = require "panda-serialize"
