@@ -14,13 +14,11 @@ module.exports = async (env, config, name) ->
     catch e
       switch e.statusCode
         when 301
-          console.error "The bucket is in a different region than the client " +
+          throw new Error "The bucket is in a different region than the client " +
             "is currently configured to target. Correct the region in your " +
             "sky.yaml file."
-          throw new Error()
         when 403
-          console.error "You are not authorized to modify this bucket."
-          throw e
+          throw new Error "You are not authorized to modify this bucket."
         when 404
           exists = false
         else
@@ -33,8 +31,7 @@ module.exports = async (env, config, name) ->
       yield s3.createBucket {Bucket: name}
       yield sleep 15000
     catch e
-      console.error "Failed to establish bucket.", e
-      throw new Error()
+      throw new "Failed to establish bucket. #{e}"
 
   # Upsert an object to the bucket.
   putObject = async (key, data, filetype) ->
@@ -72,18 +69,15 @@ module.exports = async (env, config, name) ->
     catch e
       switch e.statusCode
         when 301
-          console.error "The bucket is in a different region than the client " +
+          throw new Error "The bucket is in a different region than the client " +
             "is currently configured to target. Correct the region in your " +
             "sky.yaml file."
-          throw new Error()
         when 403
-          console.error "You are not authorized to modify this S3 bucket: #{name}"
-          throw e
+          throw new Error "You are not authorized to modify this S3 bucket: #{name}"
         when 404
           return false
         else
-          console.error "Unexpected reply from AWS", e
-          throw e
+          throw new Error  "Unexpected reply from AWS: #{e}"
 
   deleteObject = async (key) ->
     params =

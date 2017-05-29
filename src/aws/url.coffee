@@ -27,7 +27,6 @@ module.exports = ->
       # Return the fully qualified version of the root
       fullyQualify terms.join(".")
     catch e
-      console.error "Failed to parse root url", e
-      throw new Error()
+      throw new Error "Failed to parse root url: #{e}"
 
   {fullyQualify, regularlyQualify, root}

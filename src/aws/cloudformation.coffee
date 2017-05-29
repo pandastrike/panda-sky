@@ -86,9 +86,8 @@ module.exports = async (env, config) ->
           when "CREATE_COMPLETE", "UPDATE_COMPLETE"
             return true
           else
-            console.error "Stack creation failed. Aborting.", StackStatus,
-              StackStatusReason
-            throw new Error()
+            error = new Error "Stack creation failed. #{StackStatus} #{StackStatusReason}"
+            throw error
 
 
     # Confirm the stack is fully and properly deleted.
