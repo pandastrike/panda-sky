@@ -70,7 +70,7 @@ module.exports = async (env, config) ->
         template
 
       hard = (template) ->
-        retain = ["API", "LambdaRole", "CFRDistro", "DNSRecords"]
+        retain = ["API", "LambdaRole" ]
         R = template.Resources
         delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
         template.Resources = R
@@ -87,10 +87,12 @@ module.exports = async (env, config) ->
       t = JSON.parse config.aws.cfoTemplate
       t2 = JSON.parse config.aws.cfoTemplate
       t3 = JSON.parse config.aws.cfoTemplate
+      console.error "Uploading hard, soft, etc. templates to s3"
       yield bucket.putObject "template.yaml", (yaml t), "text/yaml"
       yield bucket.putObject "empty-template.yaml", (yaml _empty t), "text/yaml"
       yield bucket.putObject "hard-template.yaml", (yaml hard t2), "text/yaml"
       yield bucket.putObject "soft-template.yaml", (yaml soft t3), "text/yaml"
+      console.error "Finished template uploads"
 
 
 
@@ -100,11 +102,12 @@ module.exports = async (env, config) ->
   # archive), the API description, and associated metadata.
   prepare = async ->
     # Determine whether an update is required or if the deployment is up-to-date.
+    console.error "Fetching metadata"
     app = yield metadata.fetch()
 
     # If this is a fresh deploy.
     if !app
-      console.log "No deployment detected. Preparing Panda Sky infrastructure."
+      console.error "No deployment detected. Preparing Panda Sky infrastructure."
       yield bucket.establish()
       yield api.update()
       yield skyConfig.update()
@@ -114,15 +117,19 @@ module.exports = async (env, config) ->
 
     # Compare what's in the local repository to the hashes stored in the bucket
     updates = []
-    console.log "updating template"
+    console.error "updating templates in S3"
     yield template.update()
+    console.error "check for current app-ness"
     if !(yield skyConfig.isCurrent app)
+      console.error "sky config update"
       yield skyConfig.update()
       updates.push "All"
     if !(yield api.isCurrent app)
+      console.error "api update"
       yield api.update()
       updates.push "GW"
     if !(yield handlers.isCurrent app)
+      console.error "handlers update"
       yield handlers.update()
       updates.push "Lambda"
 
