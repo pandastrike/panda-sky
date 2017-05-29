@@ -1,9 +1,8 @@
-#===============================================================================
 # Panda Sky Mixin: S3
 # This mixin allocates the requested S3 buckets into your CFo stack. Buckets
 # are retained after stack deletion, so here we scan for them in S3 before
 # adding them to the new CFo template.
-#===============================================================================
+
 {async, plainText, camelCase, capitalize, empty} = require "fairmont"
 module.exports = async (description) ->
   {s3} = yield require("../../aws")(description.region)
