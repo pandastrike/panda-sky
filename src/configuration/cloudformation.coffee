@@ -4,7 +4,7 @@
 # template that is attached to the main configuration object.
 
 {resolve, basename} = require "path"
-{async, read, merge, readdir, isFile, last, exists} = require "fairmont"
+{glob, async, read, merge, readdir, isFile, last, exists} = require "fairmont"
 {yaml} = require "panda-serialize"
 _render = require "panda-template"
 preprocessors = require "./preprocessors"
@@ -97,7 +97,7 @@ listMixins = async (appRoot) ->
   mixins = []
 
   if yield exists mixinPath
-    files = yield readdir mixinPath
+    files = yield glob "*.yaml", mixinPath
     for file in files when isFile file
       mixins.push basename file, ".yaml"
   mixins
