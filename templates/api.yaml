@@ -1,7 +1,6 @@
 # This is a templatized verion of a CFo template for Amazon API Gateway with
 # Lambda backends as the handlers.  This template forms the core of every
 # Panda Sky app deployment, with mixins adding resources to the description.
-#===============================================================================
 
 # IAM (Identity and Access Management)
 {{> iamrole rolename="LambdaRole"}}

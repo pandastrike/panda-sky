@@ -23,8 +23,7 @@ readApp = async (appRoot) ->
   try
     config = yaml yield read resolve appRoot, "sky.yaml"
   catch e
-    console.error "There was a problem reading this project's configuration.", e.message
-    throw e
+    throw new Error "There was a problem reading this project's configuration: #{e}"
   config
 
 

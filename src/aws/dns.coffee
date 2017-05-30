@@ -60,7 +60,7 @@ module.exports = async (config) ->
 
   # Wait for DNS records to come into effect.
   sync = async (id) ->
-    console.log "Waiting for DNS records to synchronize."
+    console.error "Waiting for DNS records to synchronize."
     while true
       data = yield route53.getChange {Id: id}
       if data.ChangeInfo.Status == "INSYNC"
@@ -78,23 +78,23 @@ module.exports = async (config) ->
 
   # Point all hostnames to the CFr distribution. Build up
   set = async ({Distribution}) ->
-    console.log "Setting DNS records."
+    console.error "Setting DNS records."
     if id = yield getHostedZoneID()
       records = (yield route53.listResourceRecordSets {HostedZoneId: id}).ResourceRecordSets
       if changes = reconcileAdditions records, Distribution.DomainName
         yield implement id, changes
-      console.log "DNS records up to date."
+      console.error "DNS records up to date."
     else
       throw new Error "No Hosted Zone for #{root config.aws.hostnames[0]}."
 
   # Remove all DNS records of the hostnames, if they exist.
   destroy = async ({Distribution}) ->
-    console.log "Deleting DNS records."
+    console.error "Deleting DNS records."
     if id = yield getHostedZoneID()
       records = (yield route53.listResourceRecordSets {HostedZoneId: id}).ResourceRecordSets
       if changes = reconcileDeletions records, Distribution.DomainName
         yield implement id, changes
-      console.log "DNS records up to date."
+      console.error "DNS records up to date."
     else
       console.warn "No Hosted Zone for #{root config.aws.hostnames[0]}."
 
