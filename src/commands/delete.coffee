@@ -10,12 +10,12 @@ define "delete", async (env) ->
     config = yield configuration.compile(appRoot, env)
     stack = yield require("../aws/cloudformation")(env, config)
 
-    console.log "Deleting API"
+    console.error "Deleting API"
     id = yield stack.delete()
-    console.log "Waiting to Confirm Deletion"
+    console.error "Waiting to Confirm Deletion"
     yield stack.deleteWait id
     yield stack.postDelete()
-    console.log "Done"
+    console.error "Done"
   catch e
-    console.log e.stack
-  console.log bellChar
+    console.error e.stack
+  console.error bellChar

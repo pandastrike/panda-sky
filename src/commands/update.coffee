@@ -27,4 +27,4 @@ define "update", async (env) ->
 
   catch e
     console.error e.stack
-  console.log bellChar
+  console.error bellChar
