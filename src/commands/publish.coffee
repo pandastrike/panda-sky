@@ -7,17 +7,21 @@ configuration = require "../configuration"
 module.exports = async (env) ->
   try
     appRoot = process.cwd()
+    console.error "compiling configuration"
     config = yield configuration.compile(appRoot, env)
+    console.error "generating 'stack'"
     stack = yield require("../aws/cloudformation")(env, config)
 
+    console.error "stack.publish()"
     id = yield stack.publish()
     if id
-      console.log "Waiting for deployment to be ready."
+      console.error "Waiting for deployment to be ready."
       yield stack.publishWait id
     yield stack.postPublish()
-    console.log "Done"
+    console.error "Done"
   catch e
     console.error e.stack
+  console.error bellChar
   stack
 
 define "publish", module.exports

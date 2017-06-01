@@ -30,12 +30,12 @@ module.exports = async ->
     try
       arn = yield match name, yield getCertList()
     catch e
-      console.error "Unexpected response while searching SSL certs.", e
+      e.description = "Unexpected response while searching SSL certs."
       throw new Error()
 
     if !arn
-      console.error "You do not have an active certificate for", wild name
-      throw new Error()
+      e.description = "You do not have an active certificate for #{wild name}"
+      throw e
     else
       arn
 

@@ -35,38 +35,45 @@ module.exports = async (env, config) ->
     update = async (updates) ->
       # Because of GW quirk, all API resources have to be wiped out before
       # making edits to child resources. Updating is a two-step process.
-      console.log "Existing stack detected. Updating."
+      console.error "Existing stack detected. Updating."
 
       # Step 1: Destroy guts of Stack
       if "All" in updates
+        console.error "update with empty template"
         updateWith = "empty" # destroys entire stack
       else if "GW" in updates
+        console.error "update with hard template"
         updateWith = "hard"  # destroys most of stack
       else
+        console.error "update with soft template"
         updateWith = "soft" # targets only Lamba handlers
 
       yield cfo.updateStack stackConfig updateWith
+      console.error "publishWait"
       yield publishWait name
 
       # Step 2: Apply the full, updated Stack. Put it all back.
+      console.error "update with full template"
       yield cfo.updateStack stackConfig "full"
 
     # Create a new stack from scrath with the template.
     create = async ->
-      console.log "Creating fresh stack."
+      console.error "Creating fresh stack."
       yield cfo.createStack stackConfig "full"
 
     publish = async ->
-      console.log "Scanning AWS for current deploy."
+      console.error "Scanning AWS for current deploy."
       needsDeploy = yield src.prepare()  # Prep the app's core bucket
       if !needsDeploy
-        console.log "#{name} is up to date."
+        console.error "#{name} is up to date."
         return false
 
       # If the stack already exists, update instead of create.
       if {StackId} = yield getStack name
+        console.error "Stack needs update"
         yield update needsDeploy
       else
+        console.error "Stack needs create"
         {StackId} = yield create()
       StackId
 
@@ -86,9 +93,8 @@ module.exports = async (env, config) ->
           when "CREATE_COMPLETE", "UPDATE_COMPLETE"
             return true
           else
-            console.error "Stack creation failed. Aborting.", StackStatus,
-              StackStatusReason
-            throw new Error()
+            error = new Error "Stack creation failed. #{StackStatus} #{StackStatusReason}"
+            throw error
 
 
     # Confirm the stack is fully and properly deleted.
@@ -110,8 +116,8 @@ module.exports = async (env, config) ->
     postPublish = async ->
       yield src.syncMetadata()
       if !config.aws.environments[env].cache
-        console.log "Your API is online and ready at the following endpoint:"
-        console.log "  #{yield getApiUrl()}"
+        console.error "Your API is online and ready at the following endpoint:"
+        console.error "  #{yield getApiUrl()}"
 
 
     # Handle stuff that happens after we've confirmed the stack deleted.
