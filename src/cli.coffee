@@ -1,11 +1,14 @@
 {join} = require "path"
 program = require "commander"
-{call, read, collect, project, empty} = require "fairmont"
+{call, read, write, collect, project, empty} = require "fairmont"
 
 require "./index"
 {run} = require "panda-9000"
+{yaml} = require "panda-serialize"
 
+{bellChar} = require "./utils"
 render = require "./commands/render"
+publish = require "./commands/publish"
 
 call ->
 
@@ -27,7 +30,14 @@ call ->
   program
     .command('publish [env]')
     .description('deploy API, Lambdas to AWS infrastructure')
-    .action((env)-> run "publish", [env])
+    .option '-o, --output [output]', 'Path to write API config file'
+    .action (env, options) ->
+      call ->
+        stack = yield publish env
+        if options.output?
+          config = url: yield stack.getApiUrl()
+          yield write options.output, (yaml config)
+        console.log bellChar
 
   program
     .command('delete [env]')
