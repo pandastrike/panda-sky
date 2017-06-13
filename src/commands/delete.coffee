@@ -6,9 +6,9 @@ configuration = require "../configuration"
 
 define "delete", async (env) ->
   try
-    appRoot = process.cwd()
+    appRoot = "api"
     config = yield configuration.compile(appRoot, env)
-    stack = yield require("../aws/cloudformation")(env, config)
+    stack = yield require("../aws/cloudformation")(appRoot, env, config)
 
     console.error "Deleting API"
     id = yield stack.delete()

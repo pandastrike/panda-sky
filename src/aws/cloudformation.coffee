@@ -1,8 +1,8 @@
 {async, first, sleep} = require "fairmont"
 
-module.exports = async (env, config) ->
+module.exports = async (appRoot, env, config) ->
     {cfo} = yield require("./index")(config.aws.region)
-    src = yield require("./app-root")(env, config)
+    src = yield require("./app-root")(appRoot, env, config)
     name = "#{config.name}-#{env}"
 
     stackConfig = (type) ->

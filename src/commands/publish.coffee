@@ -4,13 +4,13 @@
 {bellChar} = require "../utils"
 configuration = require "../configuration"
 
-define "publish", async (env) ->
+module.exports = async (env) ->
   try
-    appRoot = process.cwd()
+    appRoot = "api"
     console.error "compiling configuration"
     config = yield configuration.compile(appRoot, env)
     console.error "generating 'stack'"
-    stack = yield require("../aws/cloudformation")(env, config)
+    stack = yield require("../aws/cloudformation")(appRoot, env, config)
 
     console.error "stack.publish()"
     id = yield stack.publish()
@@ -22,3 +22,5 @@ define "publish", async (env) ->
   catch e
     console.error e.stack
   console.error bellChar
+
+define "publish", module.exports

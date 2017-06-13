@@ -4,16 +4,16 @@
 {yaml} = require "panda-serialize"
 {resolve, join} = require "path"
 
-module.exports = async (env, config) ->
+module.exports = async (appRoot, env, config) ->
   name = "#{env}-#{config.projectID}"
   bucket = yield require("./s3")(env, config, name)
   lambda = yield require("./lambda")(config)
 
-  pkg = join process.cwd(), "deploy", "package.zip"
-  apiDef = join process.cwd(), "api.yaml"
-  skyDef = join process.cwd(), "sky.yaml"
+  pkg = join appRoot, "deploy", "package.zip"
+  apiDef = join appRoot, "api.yaml"
+  skyDef = join appRoot, "sky.yaml"
 
-  throw new Error("Unable to find deploy/package.zip") if !(yield exists pkg)
+  throw new Error("Unable to find #{appRoot}/deploy/package.zip") if !(yield exists pkg)
   throw new Error("Unable to find api.yaml") if !(yield exists apiDef)
   throw new Error("Unable to find sky.yaml") if !(yield exists skyDef)
 

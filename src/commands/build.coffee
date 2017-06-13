@@ -1,6 +1,11 @@
 {writeFileSync} = require "fs"
-path = require "path"
-{go, tee, pull, values, async, lift, shell, exists, isDirectory} = require "fairmont"
+{resolve} = require "path"
+{
+  go, tee, pull, values,
+  async, lift,
+  shell, exists, isDirectory
+} = require "fairmont"
+
 {define, write} = require "panda-9000"
 rmrf = lift require "rimraf"
 
@@ -15,20 +20,25 @@ chdir = (dir) ->
   console.error "cd #{dir}"
   process.chdir dir
 
-define "build", async ->
+module.exports = async ->
   try
-    yield rmrf "deploy"
-    yield safe_mkdir "deploy"
+    apiDir = resolve "api"
+    deployDir = resolve apiDir, "deploy"
+    yield rmrf deployDir
+    yield safe_mkdir deployDir
 
     cwd = process.cwd()
-    if !(yield isDirectory "api")
+
+    if !(yield isDirectory apiDir)
       console.error "No api directory found"
       process.exit(1)
-    chdir "api"
+    chdir apiDir
     if !(yield exists "package.json")
-      console.error "This api directory does not yet have a package.json. \nRun 'npm
-        init' to initialize the project \nand then make sure all dependencies
-        are listed."
+      console.error """
+      This api directory does not yet have a package.json.
+      Run 'npm init' to initialize the project
+      and then make sure all dependencies are listed.
+      """
       process.exit(1)
 
     # Applications are responsible for their own coffeescript compilation.
@@ -38,8 +48,11 @@ define "build", async ->
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.
     # TODO: Investigate using `npm pack` with bundledDependencies.
     yield shellv "cp -r node_modules/ lib/node_modules/" if yield exists "node_modules"
-    yield shellv "zip -qr ../deploy/package.zip lib"
+    yield shellv "zip -qr #{deployDir}/package.zip lib"
+
     chdir cwd
 
   catch e
     console.error e.stack
+
+define "build", module.exports
