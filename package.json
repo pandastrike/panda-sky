@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Quicky publish severless applications in the cloud",
   "main": "./index.js",
   "bin": {

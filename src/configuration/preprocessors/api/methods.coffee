@@ -33,7 +33,7 @@ module.exports = (description) ->
     methods = ["OPTIONS"]
     for methodName, method of resource.methods
       methods.push methodName
-      method.name = methodName
+      method.name = toUpper methodName
       camelized = makeCamelName resourceName, methodName
       dashed = makeDashName resourceName, methodName
       method.gateway =
@@ -49,7 +49,7 @@ module.exports = (description) ->
           bucket: description.environmentVariables.skyBucket
         permission:
           name: "#{camelized}LambdaPermission"
-          path: "/*/#{methodName}#{resource.permissionsPath}"
+          path: "/*/#{toUpper methodName}#{resource.permissionsPath}"
         "function":
           name: "#{appName}-#{env}-#{toLower resourceName}-#{toLower method.name}"
 

@@ -14,3 +14,8 @@ aws:
       cache:
         expires: 1800
         priceClass: 100
+
+# Optional, but lets you track things in billing.
+tags:
+  - Key: stack
+    Value: serverless

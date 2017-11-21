@@ -36,7 +36,7 @@ define "init", async ->
       projectID: yield randomWords 6
 
     # Drop in the file stubs.
-    src = (file) -> join( __dirname, ".../init/#{file}")
+    src = (file) -> join( __dirname, "../../init/#{file}")
     target = (file) -> join process.cwd(), file
 
     render = async (src, target) ->
@@ -53,6 +53,9 @@ define "init", async ->
     # Drop in a handler stub.
     yield safe_mkdir target "src"
     yield render (src "sky.js"), (target "src/sky.js")
+
+    # Drop in web assets.
+    yield safe_cp (src "assets"), (target "src/assets")
 
     console.error "Panda Sky project initialized."
   catch e

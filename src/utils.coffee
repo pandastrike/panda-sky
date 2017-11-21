@@ -1,4 +1,4 @@
-{async, isMatch, shell, exists, mkdir} = require "fairmont"
+{async, isMatch, shell, exists, mkdir, isDirectory} = require "fairmont"
 
 module.exports =
 
@@ -19,6 +19,9 @@ module.exports =
       console.error "Warning: #{target} exists. Skipping."
       return
 
-    yield shell "cp #{original} #{target}"
+    if yield isDirectory original
+      yield shell "cp -R #{original} #{target}"
+    else
+      yield shell "cp #{original} #{target}"
 
   bellChar: '\u0007'

@@ -6,38 +6,38 @@ resources:
     path: /
     description: Provides a directory of available resources
 
-    actions:
+    methods:
 
       get:
-        method: GET
-        signature:
-          status: 200
+        signatures:
+          request: {}
+          response:
+            status: [200]
 
   greeting:
 
-    path: "greeting/{name}"
+    path: "/greeting/{name}"
     description: Demo resource to test Panda Sky deployment.  Returns a greeting
       for {name}.
 
-    actions:
+    methods:
 
       get:
-        method: GET
-        signature:
-          status: 200
-          accept: text/html 
+        signatures:
+          request: {}
+          response:
+            status: [200]
 
-# Define JSON schemas the API uses to validate requests.
-schema:
+  home:
+    path: "/home/{name}"
+    description: Demo resource to test Panda Sky deployment.  Returns HTML template rendered using {name}. Demonstrates the usage of mediatypes in Sky API defintions.
 
-  example:
-    $schema: |-
-      http://json-schema.org/draft-04/schema
-    title: example
-    type: object
-    properties:
-      name:
-        type: string
-      age:
-        type: integer
-        minimum: 1
+    methods:
+
+      get:
+        signatures:
+          request: {}
+          response:
+            status: [200]
+            mediatype:
+              - "text/html"
