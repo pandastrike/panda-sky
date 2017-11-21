@@ -6,7 +6,7 @@ required:
   #- name
   #- version
   - resources
-  - schema
+  #- schema
 properties:
   name:
     type: string
@@ -17,7 +17,7 @@ properties:
       A dictionary of Resource descriptions, keyed by the logical name of the resource.
     type: object
     additionalProperties: {$ref: "#/definitions/resource"}
-  schemas:
+  schema:
     type: object
     additionalProperties: {$ref: "http://json-schema.org/draft-04/schema#"}
 
@@ -121,7 +121,7 @@ examples:
           expiration:
             type: string
             format: date-time
-        
+
     resources:
       blurbs:
         path: /blurbs

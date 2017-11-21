@@ -36,7 +36,7 @@ define "init", async ->
       projectID: yield randomWords 6
 
     # Drop in the file stubs.
-    src = (file) -> join( __dirname, ".../init/#{file}")
+    src = (file) -> join( __dirname, "../../init/#{file}")
     target = (file) -> join process.cwd(), file
 
     render = async (src, target) ->

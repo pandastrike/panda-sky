@@ -15,8 +15,6 @@ module.exports = class API
   constructor: (description) ->
     {valid, errors} = validator.validate description
     if not valid
-      error = new Error "Invalid Panda Sky API Description"
-      error.errors = errors
-      throw error
+      console.error errors
+      throw new Error "Invalid Panda Sky API Description"      
     {@resources, @schema, @variables} = description
-

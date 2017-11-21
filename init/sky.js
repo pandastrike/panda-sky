@@ -22,10 +22,10 @@ API[`${fullName}-discovery-get`] = async( function*(data, context, callback) {
 
 API[`${fullName}-greeting-get`] = async( function*(data, context, callback) {
   var message, name;
-  name = data.name || "World";
+  name = data.url.path.name || "World";
   message = `<h1>Hello, ${name}!</h1>`;
   message += "<p>Seeing this page indicates a successful deployment of your test API with Panda Sky!</p>";
-  return callback(null, {body: message});
+  return callback(null, message);
 });
 
 exports.handler = function (event, context, callback) {

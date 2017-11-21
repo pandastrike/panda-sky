@@ -34,8 +34,7 @@ module.exports = async ->
       throw new Error()
 
     if !arn
-      e.description = "You do not have an active certificate for #{wild name}"
-      throw e
+      throw new Error "You do not have an active certificate for #{wild name}"
     else
       arn
 
