@@ -54,6 +54,9 @@ define "init", async ->
     yield safe_mkdir target "src"
     yield render (src "sky.js"), (target "src/sky.js")
 
+    # Drop in web assets.
+    yield safe_cp (src "assets"), (target "src/assets")
+
     console.error "Panda Sky project initialized."
   catch e
     console.error e.stack

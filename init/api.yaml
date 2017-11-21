@@ -27,5 +27,17 @@ resources:
           request: {}
           response:
             status: [200]
+
+  home:
+    path: "/home/{name}"
+    description: Demo resource to test Panda Sky deployment.  Returns HTML template rendered using {name}. Demonstrates the usage of mediatypes in Sky API defintions.
+
+    methods:
+
+      get:
+        signatures:
+          request: {}
+          response:
+            status: [200]
             mediatype:
               - "text/html"
