@@ -1,4 +1,4 @@
-module.exports = (name) -> """
+render = (name) -> """
 <body>
   <main><section>
     <h1>Hello, #{name}!</h1>
@@ -21,3 +21,5 @@ module.exports = (name) -> """
 </body>
 </html>
 """
+
+export default render
