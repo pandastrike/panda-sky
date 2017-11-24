@@ -85,6 +85,6 @@ module.exports = (name) -> """
       color: inherit;
     }
   </style>
-  <title>#{if name then name + " -" || ""}Panda Sky Demo</title>
+  <title>#{if name then name + " - " || ""}Panda Sky Demo</title>
 </head>
 """
