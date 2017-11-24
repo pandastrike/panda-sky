@@ -1,4 +1,4 @@
-module.exports = (name) -> """
+render = (name) -> """
 <!DOCTYPE html>
 <html>
 <head>
@@ -88,3 +88,5 @@ module.exports = (name) -> """
   <title>#{if name then name + " - " || ""}Panda Sky Demo</title>
 </head>
 """
+
+export default render

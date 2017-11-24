@@ -14,7 +14,7 @@ define "init", async ->
     interview.setup()
     questions = [
       name: "ps"
-      description: "Add panda-sky as a dependency to package.json? [Y/n]"
+      description: "Add panda-sky-helpers as a dependency to package.json? [Y/n]"
       default: "Y"
     ,
       name: "yaml"
@@ -27,7 +27,7 @@ define "init", async ->
 
     if answers.fairmont || answers.yaml
       console.error "\n Adding module(s). One moment..."
-      yield shell "npm install panda-sky --save" if answers.ps
+      yield shell "npm install panda-sky-helpers --save" if answers.ps
       yield shell "npm install js-yaml --save" if answers.yaml
 
 
@@ -52,7 +52,8 @@ define "init", async ->
 
     # Drop in a handler stub.
     yield safe_mkdir target "src"
-    yield render (src "sky.js"), (target "src/sky.js")
+    yield safe_cp (src "sky.coffee"), (target "src/sky.coffee")
+    yield safe_cp (src "home.get.coffee"), (target "src/home.get.coffee")
 
     # Drop in web assets.
     yield safe_cp (src "assets"), (target "src/assets")
