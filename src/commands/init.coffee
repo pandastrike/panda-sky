@@ -50,13 +50,8 @@ define "init", async ->
     # Drop in a Panda Sky configuration stub.
     yield render (src "sky.yaml"), (target "sky.yaml")
 
-    # Drop in a handler stub.
-    yield safe_mkdir target "src"
-    yield safe_cp (src "sky.coffee"), (target "src/sky.coffee")
-    yield safe_cp (src "home.get.coffee"), (target "src/home.get.coffee")
-
-    # Drop in web assets.
-    yield safe_cp (src "assets"), (target "src/assets")
+    # Drop in a dispatcher stub and corresponding API handlers.
+    yield safe_cp (src "api"), (target "src/")
 
     console.error "Panda Sky project initialized."
   catch e
