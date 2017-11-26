@@ -1,9 +1,13 @@
 JSCK = require "jsck"
 {async, read, merge } = require "fairmont"
 {yaml} = require "panda-serialize"
-pandatemplate = require "panda-template"
+pandaTemplate = require("panda-template").default
 
 module.exports = class Templater
+  constructor: (@template, @schema) ->
+    @validator = new JSCK.draft4 @schema
+    @T = new pandaTemplate()
+
   @read: async (templatePath, schemaPath) ->
     template = yield read templatePath
     if schemaPath
@@ -16,12 +20,13 @@ module.exports = class Templater
 
     new @ template, schema
 
-  constructor: (@template, @schema) ->
-    @validator = new JSCK.draft4 @schema
+  registerPartial: (name, template) ->
+    console.error name, template
+    @T.registerPartial name, template
 
   render: (config) ->
     @validate config
-    pandatemplate @template, config
+    @T.render @template, config
 
   validate: (config) ->
     {valid, errors} = @validator.validate config
@@ -34,9 +39,3 @@ module.exports = class Templater
       error.errors = errors
       throw error
     config
-
-
-
-
-#template = yield read resolve "templates", "api.yaml"
-#yaml _render template, mungedConfig

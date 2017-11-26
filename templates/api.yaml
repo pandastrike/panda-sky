@@ -44,7 +44,7 @@ API:
 
 # CloudFront Distribution
 {{#if aws.cloudfront}}
-{{> cloudfront distro="CFRDistro"}}
+{{> domain distro="CFRDistro"}}
 {{/if}}
 
 # DNS

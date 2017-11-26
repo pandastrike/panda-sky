@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "./index.js",
   "bin": {
@@ -43,7 +43,7 @@
     "mime": "1.5.0",
     "panda-9000": "3.0.0-alpha-02",
     "panda-serialize": "0.2.0",
-    "panda-template": "0.3.0",
+    "panda-template": "file:../panda-template",
     "prompt": "1.0.0",
     "rimraf": "2.6.2",
     "standard-error": "1.1.0"
