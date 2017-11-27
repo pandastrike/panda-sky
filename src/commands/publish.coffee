@@ -10,7 +10,7 @@ module.exports = async (env) ->
     console.error "Compiling Configuration for Publish"
     config = yield configuration.compile(appRoot, env)
     stack = yield require("../aws/cloudformation")(env, config)
-    process.exit()
+
     console.error "Publishing..."
     id = yield stack.publish()
     if id

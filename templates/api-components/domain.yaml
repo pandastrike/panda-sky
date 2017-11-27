@@ -1,68 +1,36 @@
-{{distro}}:
-  DependsOn:
-    - Deployment
-  Type: "AWS::CloudFront::Distribution"
+APICustomDomain:
+  Type: "AWS::ApiGateway::DomainName"
   Properties:
-    DistributionConfig:
-      Comment: "Origin is API Gateway deployment {{name}}-{{env}} -
+    CertificateArn: {{aws.customDomain.CertificateArn}}
+    DomainName: {{aws.customDomain.DomainName}}
+    EndpointConfiguration:
+      Types:
+        - Edge
+
+APIBasePathMapping:
+  Type: "AWS::ApiGateway::BasePathMapping"
+  Properties:
+    DomainName:
+      Ref: APICustomDomain
+    RestApiId:
+      Ref: API
+
+DNSRecords:
+  DependsOn:
+    - APICustomDomain
+  Type: "AWS::Route53::RecordSetGroup"
+  Properties:
+      Comment: "API Gateway deployment for {{name}}-{{env}} -
         Setup by Panda Sky."
-      Enabled: true
-      PriceClass: {{aws.cloudfront.priceClass}}
-      DefaultRootObject: ""
-
-      Aliases:
-      {{#each aws.cloudfront.aliases}}
-        - {{this}}
-      {{/each}}
-
-      Origins:
-        - Id: {{aws.cloudfront.originID}}
-          DomainName:
-            "Fn::Join":
-              - "."
-              -
-                - {"Ref": "API"}
-                - "execute-api"
-                - {"Ref": "AWS::Region"}
-                - "amazonaws.com"
-          OriginPath: "/{{env}}"
-          CustomOriginConfig:
-            HTTPPort: 80
-            HTTPSPort: 443
-            OriginProtocolPolicy: "https-only"
-            OriginSSLProtocols: [ "SSLv3", "TLSv1" ]
-
-      ViewerCertificate:
-        AcmCertificateArn: {{aws.cloudfront.cert}}
-        MinimumProtocolVersion: 'TLSv1'
-        SslSupportMethod: 'sni-only'
-
-
-      DefaultCacheBehavior:
-        TargetOriginId: {{aws.cloudfront.originID}}
-        ForwardedValues:
-          QueryString: true
-          Cookies:
-            Forward: all
-          Headers:
-            - Accept
-            - Authorization
-            - "Content-Type"
-        DefaultTTL: 0
-        MinTTL: 0
-        MaxTTL: {{aws.cloudfront.maxTTL}}
-        TrustedSigners: []
-        ViewerProtocolPolicy: "redirect-to-https"
-        AllowedMethods:
-          - GET
-          - HEAD
-          - OPTIONS
-          - PUT
-          - PATCH
-          - POST
-          - DELETE
-        CachedMethods:
-          - GET
-          - HEAD
-          - OPTIONS
-        Compress: false
+      HostedZoneName: {{aws.customDomain.route53.domain}}
+      RecordSets:
+        {{#each aws.customDomain.route53.hostnames}}
+        - Name: {{.}}
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2  # CloudFront's HostedZoneId
+            DNSName:
+              "Fn::GetAtt":
+                - APICustomDomain
+                - DistributionDomainName
+        {{/each}}

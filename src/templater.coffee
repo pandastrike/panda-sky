@@ -21,7 +21,6 @@ module.exports = class Templater
     new @ template, schema
 
   registerPartial: (name, template) ->
-    console.error name, template
     @T.registerPartial name, template
 
   render: (config) ->

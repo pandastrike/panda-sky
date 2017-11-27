@@ -1,6 +1,6 @@
 {async} = require "fairmont"
 extractParameters = require "./parameters"
-extractCFr = require "./cfr"
+extractDomain = require "./customDomain"
 extractResources = require "./resources"
 extractMethods = require "./methods"
 addResponses = require "./responses"
@@ -18,8 +18,8 @@ module.exports = async (config) ->
   # Add environment varialbles that are injected into every Lambda.
   config = yield addVariables config
 
-  # Extract CloudFront configuration
-  config = yield extractCFr config
+  # Extract custom domain configuration
+  config = yield extractDomain config
 
   # Build up resource array that includes virtual resources needed by Gateway.
   config = yield extractResources config
