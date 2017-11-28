@@ -1,20 +1,9 @@
-{async, first, sleep} = require "fairmont"
+{async, first, sleep, min} = require "fairmont"
 
 module.exports = async (env, config) ->
     {cfo} = yield require("./index")(config.aws.region)
     src = yield require("./app-root")(env, config)
     name = "#{config.name}-#{env}"
-
-    stackConfig = (type) ->
-      t = "template.yaml" if type == "full"
-      t = "soft-template.yaml" if type == "soft"
-      t = "hard-template.yaml" if type == "hard"
-      t = "empty-template.yaml" if type == "empty"
-
-      StackName: name
-      TemplateURL: "http://#{env}-#{config.projectID}.s3.amazonaws.com/#{t}"
-      Capabilities: ["CAPABILITY_IAM"]
-      Tags: config.tags
 
     getStack = async (id) ->
       try
@@ -33,47 +22,34 @@ module.exports = async (env, config) ->
 
     # Update an existing stack with a new template.
     update = async (updates) ->
+      console.error "-- Update required."
       # Because of GW quirk, all API resources have to be wiped out before
       # making edits to child resources. Updating is a two-step process.
-      console.error "Existing stack detected. Updating."
-
       # Step 1: Destroy guts of Stack
-      if "All" in updates
-        console.error "update with empty template"
-        updateWith = "empty" # destroys entire stack
-      else if "GW" in updates
-        console.error "update with hard template"
-        updateWith = "hard"  # destroys most of stack
-      else
-        console.error "update with soft template"
-        updateWith = "soft" # targets only Lamba handlers
-
-      yield cfo.updateStack stackConfig updateWith
-      console.error "publishWait"
+      console.error "-- Removing obsolete resources."
+      yield cfo.updateStack src.stackConfig min updates
       yield publishWait name
 
       # Step 2: Apply the full, updated Stack. Put it all back.
-      console.error "update with full template"
-      yield cfo.updateStack stackConfig "full"
+      console.error "-- Waiting for publish to complete."
+      yield cfo.updateStack src.stackConfig "full"
 
     # Create a new stack from scrath with the template.
     create = async ->
-      console.error "Creating fresh stack."
-      yield cfo.createStack stackConfig "full"
+      console.error "-- Waiting for publish to complete."
+      yield cfo.createStack src.stackConfig "full"
 
     publish = async ->
-      console.error "Scanning AWS for current deploy."
-      needsDeploy = yield src.prepare()  # Prep the app's core bucket
-      if !needsDeploy
+      console.error "-- Scanning AWS for current deploy."
+      updates = yield src.scanDeployment()  # Prep the app's core bucket
+      if !updates
         console.error "#{name} is up to date."
         return false
 
       # If the stack already exists, update instead of create.
       if {StackId} = yield getStack name
-        console.error "Stack needs update"
-        yield update needsDeploy
+        yield update updates
       else
-        console.error "Stack needs create"
         {StackId} = yield create()
       StackId
 

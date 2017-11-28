@@ -1,10 +1,11 @@
 # This module supports out-of-CFo preparation and modification to our app's
 # API Gateway and all critical support services, lambdas, S3, CFr, etc.
-{async, read, md5, empty, exists} = require "fairmont"
+{async, read, md5, empty, exists, cat, length, keys} = require "fairmont"
 {yaml} = require "panda-serialize"
 {resolve, join} = require "path"
 
 module.exports = async (env, config) ->
+  stackName = "#{config.name}-#{env}"
   name = "#{env}-#{config.projectID}"
   bucket = yield require("./s3")(env, config, name)
   lambda = yield require("./lambda")(config)
@@ -56,58 +57,59 @@ module.exports = async (env, config) ->
       yield bucket.putObject(".sky", (yaml data), "text/yaml")
 
 
+  resources =
+    0: ["API", "LambdaRole"]
+    1: ["DNSRecords"]
+
   template =
     update: async ->
       # Sky stores the CloudFormation template that describes the infrastructure
-      # stack. For updates to Gateway with nested methods/resources, Sky needs
-      # to make intermediate templates that deletes all methods and then puts
-      # everything back with updates.
-      _empty = (template) ->
-        retain = ["API"]
+      # stack. For some updates, Sky needs to make intermediate templates that # deletes some resources and then puts back updated versions of all.
+      # Assign tiers to resources so we can specify how bare the intermediate
+      # template needs to be.
+      tiers = keys resources
+
+      intermediate = (tier, template) ->
+        retain = cat (r for k, r of resources when k <= tier)...
         R = template.Resources
         delete R[k] for k, v of R when !(k in retain)
         template.Resources = R
         template
 
-      hard = (template) ->
-        retain = ["API", "LambdaRole", "CFRDistro", "DNSRecords"]
-        R = template.Resources
-        delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
-        template.Resources = R
-        template
+      t = full: JSON.parse config.aws.cfoTemplate
+      t[x] = JSON.parse config.aws.cfoTemplate for x in tiers
 
-      soft = (template) ->
-        retain = ["API", "LambdaRole", "Deployment", "CFRDistro", "DNSRecords"]
-        R = template.Resources
-        delete R[k] for k, v of R when !(k in retain) && !k.match(/^Mixin/)
-        R.Deployment.DependsOn = []
-        template.Resources = R
-        template
+      write = async (name, file) ->
+        yield bucket.putObject name, (yaml file), "text/yaml"
 
-      t = JSON.parse config.aws.cfoTemplate
-      t2 = JSON.parse config.aws.cfoTemplate
-      t3 = JSON.parse config.aws.cfoTemplate
-      console.error "Uploading hard, soft, etc. templates to s3"
-      yield bucket.putObject "template.yaml", (yaml t), "text/yaml"
-      yield bucket.putObject "empty-template.yaml", (yaml _empty t), "text/yaml"
-      yield bucket.putObject "hard-template.yaml", (yaml hard t2), "text/yaml"
-      yield bucket.putObject "soft-template.yaml", (yaml soft t3), "text/yaml"
-      console.error "Finished template uploads"
+      yield write "template.yaml", t.full
+      yield write "template-#{x}.yaml", (intermediate x, t[x]) for x in tiers
+
+  stackConfig = (tier) ->
+    if tier == "full"
+      t = "template.yaml"
+    else
+      t = "template-#{tier}.yaml"
+
+    StackName: stackName
+    TemplateURL: "http://#{env}-#{config.projectID}.s3.amazonaws.com/#{t}"
+    Capabilities: ["CAPABILITY_IAM"]
+    Tags: config.tags
+
 
 
 
   # Create and/or update an S3 bucket for our app's GW deployment.  This bucket
-  # is our Cloud repository for everything we need to run the core of a Mango
+  # is our Cloud repository for everything we need to run the core of a Sky
   # app.  It contains the source code for the GW's lambda handlers (as a zip
   # archive), the API description, and associated metadata.
-  prepare = async ->
+  scanDeployment = async ->
     # Determine whether an update is required or if the deployment is up-to-date.
-    console.error "Fetching metadata"
     app = yield metadata.fetch()
 
     # If this is a fresh deploy.
     if !app
-      console.error "No deployment detected. Preparing Panda Sky infrastructure."
+      console.error "-- No deployment detected. Preparing Panda Sky infrastructure."
       yield bucket.establish()
       yield api.update()
       yield skyConfig.update()
@@ -117,21 +119,17 @@ module.exports = async (env, config) ->
 
     # Compare what's in the local repository to the hashes stored in the bucket
     updates = []
-    console.error "updating templates in S3"
+    console.error "-- Existing deployment detected."
     yield template.update()
-    console.error "check for current app-ness"
     if !(yield skyConfig.isCurrent app)
-      console.error "sky config update"
       yield skyConfig.update()
-      updates.push "All"
+      updates.push 0
     if !(yield api.isCurrent app)
-      console.error "api update"
       yield api.update()
-      updates.push "GW"
+      updates.push 1
     if !(yield handlers.isCurrent app)
-      console.error "handlers update"
       yield handlers.update()
-      updates.push "Lambda"
+      updates.push 1
 
     if empty updates
       return false
@@ -145,14 +143,15 @@ module.exports = async (env, config) ->
 
   # Remove the bucket and all associated
   destroy = async ->
-    yield bucket.deleteObject ".sky"
-    yield bucket.deleteObject "api.yaml"
-    yield bucket.deleteObject "sky.yaml"
-    yield bucket.deleteObject "template.yaml"
-    yield bucket.deleteObject "soft-template.yaml"
-    yield bucket.deleteObject "hard-template.yaml"
-    yield bucket.deleteObject "empty-template.yaml"
-    yield bucket.deleteObject "package.zip"
+    erase = async (name) -> yield bucket.deleteObject name
+    yield erase ".sky"
+    yield erase "api.yaml"
+    yield erase "sky.yaml"
+    yield erase "package.zip"
+
+    yield erase "template.yaml"
+    yield erase "template-#{x}.yaml" for x in keys resources
+
     yield bucket.destroy()
 
   lambdaUpdate = async (names, bucket) ->
@@ -163,4 +162,4 @@ module.exports = async (env, config) ->
     yield Promise.all(republish())
 
   # Return exposed functions.
-  {destroy, lambdaUpdate, prepare, syncMetadata}
+  {destroy, lambdaUpdate, scanDeployment, syncMetadata, stackConfig}
