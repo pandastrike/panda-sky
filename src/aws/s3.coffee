@@ -88,8 +88,31 @@ module.exports = async (env, config, name) ->
     catch e
       console.warn "Failed to delete #{key}", e
 
+  # Recursive method to grab all of the object headers in an S3 bucket
+  listObjects = async (objects={}, marker) ->
+    catList = (current, newContents) ->
+      current.push obj.Key for obj in newContents
+      current
+
+    params =
+      Bucket: name
+      Delimiter: '#'
+      MaxKeys: 1000
+
+    params.Marker = marker if marker
+
+    try
+      data = yield s3.listObjects params
+      if data.IsTruncated
+        objects = catList objects, data.Contents
+        yield listObjects objects, data.NextMarker
+      else
+        catList objects, data.Contents
+    catch e
+      console.warn "Failed to fetch list of objects from S3 bucket #{name}.", e
+
   destroy = async -> yield s3.deleteBucket Bucket: name
 
 
   # Return exposed functions.
-  {destroy, deleteObject, establish, getObject, putObject}
+  {destroy, deleteObject, establish, getObject, putObject, listObjects}

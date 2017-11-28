@@ -1,8 +1,11 @@
 {async, first, sleep, min} = require "fairmont"
+SkyStack = require "./sky"
 
 module.exports = async (env, config) ->
     {cfo} = yield require("./index")(config.aws.region)
-    src = yield require("./app-root")(env, config)
+    sky = yield SkyStack env, config
+    console.log JSON.stringify(sky, null, 2)
+    process.exit()
     name = "#{config.name}-#{env}"
 
     getStack = async (id) ->
@@ -21,34 +24,34 @@ module.exports = async (env, config) ->
       "https://#{apiID}.execute-api.#{config.aws.region}.amazonaws.com/#{env}"
 
     # Update an existing stack with a new template.
-    update = async (updates) ->
+    update = async (dirtyTier) ->
       console.error "-- Update required."
       # Because of GW quirk, all API resources have to be wiped out before
       # making edits to child resources. Updating is a two-step process.
       # Step 1: Destroy guts of Stack
       console.error "-- Removing obsolete resources."
-      yield cfo.updateStack src.stackConfig min updates
+      yield cfo.updateStack sky.stack.makeConfig dirtyTier
       yield publishWait name
 
       # Step 2: Apply the full, updated Stack. Put it all back.
       console.error "-- Waiting for publish to complete."
-      yield cfo.updateStack src.stackConfig "full"
+      yield cfo.updateStack sky.stack.makeConfig "full"
 
     # Create a new stack from scrath with the template.
     create = async ->
       console.error "-- Waiting for publish to complete."
-      yield cfo.createStack src.stackConfig "full"
+      yield cfo.createStack sky.stack.makeConfig "full"
 
     publish = async ->
       console.error "-- Scanning AWS for current deploy."
-      updates = yield src.scanDeployment()  # Prep the app's core bucket
-      if !updates
+      dirtyTier = yield sky.stack.scan()  # Prep the app's core bucket
+      if update == -1
         console.error "#{name} is up to date."
         return false
 
       # If the stack already exists, update instead of create.
       if {StackId} = yield getStack name
-        yield update updates
+        yield update dirtyTier
       else
         {StackId} = yield create()
       StackId
