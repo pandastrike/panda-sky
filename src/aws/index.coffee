@@ -41,6 +41,7 @@ module.exports = async (region) ->
 
   # Module's we'd like to invoke from AWS are listed and lifted here.
   acm = liftModule new AWS.ACM()
+  agw = liftModule new AWS.APIGateway()
   gw = liftModule new AWS.APIGateway()
   cfo = liftModule new AWS.CloudFormation()
   cfr = liftModule new AWS.CloudFront()
@@ -48,4 +49,4 @@ module.exports = async (region) ->
   route53 = liftModule new AWS.Route53()
   s3 = liftModule new AWS.S3()
 
-  {acm, gw, cfo, cfr, lambda, route53, s3}
+  {acm, agw, gw, cfo, cfr, lambda, route53, s3}

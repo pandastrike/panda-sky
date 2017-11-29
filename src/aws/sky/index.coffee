@@ -7,7 +7,7 @@
 {async, exists} = require "fairmont"
 {join} = require "path"
 
-lambda = require "./lambda"
+lambdas = require "./lambdas"
 meta = require "./meta"
 resources = require "./resource-tiers"
 stack = require "./stack"
@@ -18,23 +18,24 @@ module.exports = async (env, config) ->
   s.config = config
   s.stackName = "#{config.name}-#{env}"
   s.srcName = "#{env}-#{config.projectID}"
-  s.cfo = yield require("../cloudformation")(env, config)
-  s.bucket = yield require("../s3")(env, config, s.srcName)
-  s.lambda = yield require("../lambda")(config)
   s.pkg = join process.cwd(), "deploy", "package.zip"
   s.apiDef = join process.cwd(), "api.yaml"
   s.skyDef = join process.cwd(), "sky.yaml"
   s.resources = resources
+  s.cfo = yield require("../cloudformation")(env, config)
+  s.bucket = yield require("../s3")(env, config, s.srcName)
+  s.lambda = yield require("../lambda")(config)
+  #s.agw = yield require("../apigateway")(env, config, s)
 
   throw new Error("Unable to find deploy/package.zip") if !(yield exists s.pkg)
   throw new Error("Unable to find api.yaml") if !(yield exists s.apiDef)
   throw new Error("Unable to find sky.yaml") if !(yield exists s.skyDef)
 
-  s.lambda = lambda s
+  s.lambdas = lambdas s
   s.meta = meta s
   s.stack = stack s
 
   cfo: s.cfo
-  lambda: s.lambda
+  lambdas: s.lambdas
   meta: s.meta
   stack: s.stack
