@@ -9,16 +9,15 @@ module.exports = async (env) ->
     appRoot = process.cwd()
     console.error "Compiling Configuration for Publish"
     config = yield configuration.compile(appRoot, env)
-    stack = yield require("../aws/cloudformation")(env, config)
+    sky = yield require("../aws/sky")(env, config)
 
     console.error "Publishing..."
-    id = yield stack.publish()
-    if id
-      yield stack.publishWait id
-    yield stack.postPublish()
+    isPublishing = yield sky.stack.publish()
+    yield sky.cfo.publishWait() if isPublishing
+    yield sky.stack.postPublish()
     console.error "Done.\n\n"
   catch e
     console.error "Publish Failure:"
     console.error e.stack
   console.error bellChar
-  stack
+  sky.cfo

@@ -8,14 +8,18 @@ define "delete", async (env) ->
   try
     appRoot = process.cwd()
     config = yield configuration.compile(appRoot, env)
-    stack = yield require("../aws/cloudformation")(env, config)
+    sky = yield require("../aws/sky")(env, config)
 
-    console.error "Deleting API"
-    id = yield stack.delete()
-    console.error "Waiting to Confirm Deletion"
-    yield stack.deleteWait id
-    yield stack.postDelete()
-    console.error "Done"
+    console.error "Deleting Sky deployment..."
+    isDeleting = yield sky.cfo.delete()
+    if isDeleting
+      console.error "-- Waiting for deletion to complete."
+      yield sky.cfo.deleteWait()
+    else
+      console.error "WARNING: No Sky stack detected. Now checking for metadata."
+
+    yield sky.stack.postDelete()
+    console.error "Done.\n\n"
   catch e
     console.error e.stack
   console.error bellChar

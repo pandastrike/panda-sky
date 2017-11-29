@@ -12,6 +12,14 @@ publish = require "./commands/publish"
 
 call ->
 
+  noEnv = (env) ->
+    if !env
+      console.error "ERROR: You must supply an environment name for this subcommand."
+      program.help()
+      true
+    else
+      false
+
   {version} = JSON.parse yield read join __dirname, "..", "package.json"
 
   program
@@ -32,6 +40,7 @@ call ->
     .description('deploy API, Lambdas to AWS infrastructure')
     .option '-o, --output [output]', 'Path to write API config file'
     .action (env, options) ->
+      return if noEnv env
       call ->
         stack = yield publish env
         if options.output?
@@ -42,21 +51,27 @@ call ->
   program
     .command('delete [env]')
     .description('deploy API, Lambdas to AWS infrastructure')
-    .action((env)-> run "delete", [env])
+    .action (env) ->
+      return if noEnv env
+      run "delete", [env]
 
   program
     .command('render [env]')
     .description('render the CloudFormation template to STDOUT')
-    .action (env) -> render(env)
+    .action (env) ->
+      return if noEnv env
+      render(env)
 
   program
   .command('update [env]')
   .description('Update *only* the Lambda code for an environment')
-  .action((env)-> run "update", [env])
+  .action (env) ->
+    return if noEnv env
+    run "update", [env]
 
   program
     .command('*')
-    .action(-> program.help())
+    .action -> program.help()
 
   # Begin execution.
   program.parse process.argv

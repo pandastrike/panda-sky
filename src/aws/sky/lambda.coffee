@@ -1,7 +1,7 @@
 {async} = require "fairmont"
 
 module.exports = (s) ->
-  lambdaUpdate = async (names, bucket) ->
+  update: async (names, bucket) ->
     republish = ->
       s.lambda.update(name, bucket, "package.zip") for name in names
 

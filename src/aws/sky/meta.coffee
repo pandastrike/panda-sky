@@ -1,7 +1,7 @@
 {async, md5, read, keys, cat, empty, min} = require "fairmont"
+{yaml} = require "panda-serialize"
 
 module.exports = (s) ->
-
   handlers =
     isCurrent: async (remote) ->
       local = md5 yield read(s.pkg, "buffer")
@@ -31,9 +31,9 @@ module.exports = (s) ->
   # if we successfully complete a publish.
   current =
     fetch: async ->
-      if data = yield s.bucket.getObject ".sky"
-        yaml data
-      else
+      try
+        yaml yield s.bucket.getObject ".sky"
+      catch e
         false
 
     update: async ->
@@ -56,7 +56,7 @@ module.exports = (s) ->
     # stack. For some updates, Sky needs to make intermediate templates that # deletes some resources and then puts back updated versions of all.
     # Assign tiers to resources so we can specify how bare the intermediate
     # template needs to be.
-    generateIntermediates: async ->
+    update: async ->
       tiers = keys s.resources
 
       intermediate = (tier, template) ->
@@ -66,8 +66,8 @@ module.exports = (s) ->
         template.Resources = R
         template
 
-      t = full: JSON.parse config.aws.cfoTemplate
-      t[x] = JSON.parse config.aws.cfoTemplate for x in tiers
+      t = full: JSON.parse s.config.aws.cfoTemplate
+      t[x] = JSON.parse s.config.aws.cfoTemplate for x in tiers
 
       write = async (name, file) ->
         yield s.bucket.putObject name, (yaml file), "text/yaml"
@@ -86,9 +86,13 @@ module.exports = (s) ->
     yield update()
 
   destroy = async ->
-    erase = async (name) -> yield s.bucket.deleteObject name
-    yield erase object for object in yield s.bucket.listObjects()
-    yield s.bucket.destroy()
+    if yield s.bucket.exists()
+      console.error "-- Deleting deployment metadata."
+      erase = async (name) -> yield s.bucket.deleteObject name
+      yield erase object for object in yield s.bucket.listObjects()
+      yield s.bucket.destroy()
+    else
+      console.error "WARNING: No Sky metadata detected for this deployment."
 
   {
     handlers

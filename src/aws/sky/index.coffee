@@ -18,6 +18,7 @@ module.exports = async (env, config) ->
   s.config = config
   s.stackName = "#{config.name}-#{env}"
   s.srcName = "#{env}-#{config.projectID}"
+  s.cfo = yield require("../cloudformation")(env, config)
   s.bucket = yield require("../s3")(env, config, s.srcName)
   s.lambda = yield require("../lambda")(config)
   s.pkg = join process.cwd(), "deploy", "package.zip"
@@ -29,6 +30,11 @@ module.exports = async (env, config) ->
   throw new Error("Unable to find api.yaml") if !(yield exists s.apiDef)
   throw new Error("Unable to find sky.yaml") if !(yield exists s.skyDef)
 
-  lambda: lambda s
-  meta: meta s
-  stack = stack s
+  s.lambda = lambda s
+  s.meta = meta s
+  s.stack = stack s
+
+  cfo: s.cfo
+  lambda: s.lambda
+  meta: s.meta
+  stack: s.stack
