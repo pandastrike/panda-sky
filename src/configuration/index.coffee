@@ -1,11 +1,11 @@
 {resolve} = require "path"
+JSCK = require "jsck"
 {async, read, merge, keys} = require "fairmont"
 {yaml} = require "panda-serialize"
 cloudformation = require("./cloudformation")
 
 compile = async (appRoot, env) ->
-  config = yield readApp appRoot
-  checkEnv env, config
+  config = yield readApp appRoot, env
 
   # Setup the custom url config based on the selected environment.
   config = require("./url")(config, env)
@@ -22,7 +22,22 @@ compile = async (appRoot, env) ->
 
 readApp = async (appRoot) ->
   try
+    schema = yaml yield read resolve resolve __dirname, "..", "..",
+      "schema", "sky", "description.yaml"
+    {validate} = new JSCK.draft4 schema
+
     config = yaml yield read resolve appRoot, "sky.yaml"
+    {valid, errors} = validate config
+    if !valid
+      console.error """
+      ERROR: The configuration in sky.yaml has a problem.  Please correct
+        before continuing.  This operation will now discontinue.
+      """
+      console.error errors
+      process.exit()
+    else
+      checkEnv env, config
+      config
   catch e
     throw new Error "There was a problem reading this project's configuration: #{e}"
   config

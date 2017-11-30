@@ -26,6 +26,19 @@ module.exports = (s) ->
     update: async -> yield s.bucket.putObject "sky.yaml", s.skyDef
     tier: 0
 
+  domains =
+    fetch: async ->
+      try
+        yaml yield s.bucket.getObject "domains.yaml"
+      catch e
+        false
+
+    update: async ->
+      data =
+        domains: s.config.aws.hostnames
+
+      yield s.bucket.putObject("domains.yaml", (yaml data), "text/yaml")
+
   # .sky holds the app's tracking metadata, ie hashes of API and handler defs.
   # this is how we determine what's currently deployed.  It's only updated
   # if we successfully complete a publish.

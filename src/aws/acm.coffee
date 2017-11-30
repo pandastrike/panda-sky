@@ -1,7 +1,9 @@
 {async, collect, where, empty} = require "fairmont"
 
 module.exports = async ->
-  # TODO: Consider how to handle multiple region cert placement.
+  # TODO: Consider how to handle multiple region cert placement.  For now, AWS
+  #  has a preference for these certs to reside in us-east-1, so we should
+  #  direct developers to always place their certs there.
   {acm} = yield require("./index")("us-east-1")
   {root, regularlyQualify} = do require "./url"
 
@@ -28,14 +30,9 @@ module.exports = async ->
 
   fetch = async (name) ->
     try
-      arn = yield match name, yield getCertList()
+      yield match name, yield getCertList()
     catch e
-      e.description = "Unexpected response while searching SSL certs."
+      console.error "Unexpected response while searching TLS certs."
       throw new Error()
-
-    if !arn
-      throw new Error "You do not have an active certificate for #{wild name}"
-    else
-      arn
 
   {fetch}

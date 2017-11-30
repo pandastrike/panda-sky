@@ -7,8 +7,10 @@ require "./index"
 {yaml} = require "panda-serialize"
 
 {bellChar} = require "./utils"
+help = require "./commands/help"
 render = require "./commands/render"
 publish = require "./commands/publish"
+domain = require "./commands/domain"
 
 call ->
 
@@ -70,8 +72,23 @@ call ->
     run "update", [env]
 
   program
+  .command('domain [subcommand] [env]')
+  .action (subcommand, env) ->
+    if domain[subcommand]
+      return if noEnv env
+      domain[subcommand] env
+    else
+      console.error "ERROR: unrecognized subcommand of sky domain."
+      program.help()
+
+  program
     .command('*')
     .action -> program.help()
+
+  # TODO: This should be more detailed, customized for each subcommand, and
+  # automatially extended with new commands and flags.  For now, this will
+  # need to do.
+  program.help = -> console.error help
 
   # Begin execution.
   program.parse process.argv

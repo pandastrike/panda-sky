@@ -1,7 +1,8 @@
 {async, empty} = require "fairmont"
+scan = require "./scan"
 
 module.exports = (s) ->
-  {scan} = require("./scan")(s)
+  scan = scan s
 
   # Write out a CloudFormation description configuration on demand.
   config = (tier) ->

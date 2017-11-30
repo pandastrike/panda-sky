@@ -1,0 +1,111 @@
+type: object
+additionalProperties: false
+required: [ name, projectID, aws ]
+properties:
+  name:
+    description: >
+      Name for your project.  This will appear in all the
+      environment names when you deploy CloudFormation stacks.
+    type: string
+
+  description:
+    description: Optional description for your project's purpose.
+    type: string
+
+  projectID:
+    description: >
+      A unique ID tied to your project across Cloud resources.  When a globally
+      unique name is required, such as the S3 bucket used to orchestrate your
+      deployment, this ID is part of the name.  This is generated for you
+      when you use 'sky init', or you may provide your own.
+    type: string
+
+  tags:
+    description: >
+      Optional tags attached to your deployed resources when possible to make
+      it easier to track and monitor. These are applied to all environments.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required: [ Key, Value ]
+      properties:
+        Key:
+          description: >
+            Name of tag. This is an arbitrary string you provide to track
+            resource groupings of interest.
+          type: string
+        Value:
+          description: >
+            The value that goes with the matching tag type. This is an
+            aribitrary string you provide to track resource groupings of
+            interest.
+          type: string
+
+
+  aws:
+    description: >
+      This is a high level description of the requested Cloud resources from AWS
+      that Sky uses when constructing your severless deployments.  The top level
+      features global configuration, a dictionary of environments allows you
+      to hold the configuration for multiple, related deployments
+      simulatenously.
+    type: object
+    additionalProperties: false
+    required: [ region, runtime, environments ]
+    properties:
+      domain:
+        description: >
+          The base domain for any custom hostname you wish to publish.  All
+          environment hostnames will be published as subdomains to this.  You must have a public hostedzone previously setup in AWS matching the
+          provided domain to successfully publish.
+        type: array
+        minItems: 1
+        maxItems: 1
+        uniqueItems: true
+
+      region:
+        description: >
+          The home AWS Region of your Cloud resources, when they are
+          region-specific. ACM certificates are currently always be accessed
+          from AWS Region us-east-1 (N. Virginia), regardless of the value set
+          here.
+        type: string
+        enum:
+          - us-east-1
+          - us-west-1
+          - us-west-2
+          - eu-west-1
+          - eu-central-1
+          - ap-southeast-1
+          - ap-northeast-1
+          - ap-southeast-2
+          - ap-northeast-2
+          - sa-east-1
+
+      runtime:
+        description: >
+          The Lambda runtime environment used to run your code that backs the
+          API Gateway.
+        type: string
+        enum:
+          - nodejs6.10
+          - nodejs4.3
+
+      environments:
+        description:
+          An environment is a collection of Cloud resources that are allocated
+          on your behalf as a distinct serverless Sky deployment.
+          For example, perhaps you wish to test changes at a secondary hostname
+          without disrupting production deployments. Organizing configuration
+          for those two cases into separate environments allows you to publish
+          from the commandline by just invoking the name, not adjusting
+          configuration each time.
+
+          environments is a dictionary. The keys are the name of the given
+          environment, and its value is the definition.
+        type: object
+        minProperties: 1
+        additionalProperties: {$ref: "#/definitions/environment"}

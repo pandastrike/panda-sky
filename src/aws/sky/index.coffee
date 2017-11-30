@@ -7,6 +7,7 @@
 {async, exists} = require "fairmont"
 {join} = require "path"
 
+domain = require "./domain"
 lambdas = require "./lambdas"
 meta = require "./meta"
 resources = require "./resource-tiers"
@@ -17,7 +18,7 @@ module.exports = async (env, config) ->
   s.env = env
   s.config = config
   s.stackName = "#{config.name}-#{env}"
-  s.srcName = "#{env}-#{config.projectID}"
+  s.srcName = "#{config.name}-#{env}-#{config.projectID}"
   s.pkg = join process.cwd(), "deploy", "package.zip"
   s.apiDef = join process.cwd(), "api.yaml"
   s.skyDef = join process.cwd(), "sky.yaml"
@@ -34,12 +35,14 @@ module.exports = async (env, config) ->
   s.lambda = yield require("../lambda")(config)
 
   # Stack sub-resources
+  s.domain = domain s
   s.lambdas = lambdas s
   s.meta = meta s
   s.stack = stack s
 
   # Exposed Sky Stack properties.
   cfo: s.cfo
+  domain: s.domain
   lambdas: s.lambdas
   meta: s.meta
   stack: s.stack

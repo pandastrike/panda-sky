@@ -1,0 +1,87 @@
+environment:
+  description: >
+    A collection of Cloud resources allocated on your behalf to deploy the
+    serverless Sky stack.
+  type: object
+  additionalProperties: false
+  properties:
+    hostnames:
+      description: >
+        Name under which sky creates subdomains and publishes your API.
+      type: array
+        minItems: 1
+        maxItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          minLength: 1
+
+    cache:
+      description: >
+        Optional configuration for CloudFront to provide caching on the AWS
+        global CDN infrastructure, including support for SSL.
+      type: object
+      additionalProperties: false
+      properties:
+        httpVersion:
+          description:
+            Determines the network protocol to serve content to clients. HTTP/2
+            is newer and more awesome, so when this value is omitted, Sky
+            deafults to that protocol.
+          type: string
+          enum: [ "http1.1", "http2" ]
+
+        protocol:
+          description: >
+            Sets the TLS protocol version to use when serving your API over
+            HTTPS. Higher versions are not supported by older clients, but they
+            leverage more robust cryptography and signalling. When this is omitted, Sky defaults to vTLSv1.2_2018.
+          type: string
+          enum: [ "SSLv3", TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018" ]
+
+        expires:
+          description: >
+            The maximum amount of time, in seconds, that an entity stays
+            cached in the edge server before additional requests are forwarded
+            to your Gateway API to check for updates.  When this value is omitted, Sky defaults to 60 seconds.  Setting this value to 0 gives
+            you a custom domain with HTTPS, but no caching.  This is a promising
+            configuraiton option for staging environments.
+          type: integer
+          minimum: 0
+          maximum: 3153600000
+
+        priceClass:
+          description: >
+            Sets the extent to which content is cached on CloudFront edge
+            servers.  By limiting to edge servers in cheaper locations
+            throughout the world, you can lower your expenses at the cost of
+            less coverage.  See https://aws.amazon.com/cloudfront/pricing/ for
+            a current description of what comes with each price class.
+
+            When this value is omitted, Sky defaults to 100, which is cheapest,
+            but comes with the smallest coverage area.
+          anyOf:
+            - type: string
+              enum: [ "100", "200", "All"]
+            - type: integer
+              multipleOf: 100
+              minimum: 100
+              maximum: 200
+
+        headers:
+          description: >
+            This sets the list of headers forwarded and cached by the CloudFront
+            distribution. Omitting this field will cause Sky to forward and
+            cache the default headers.
+
+            The default headers are: Accept, Accept-Charset, Accept-Datetime,
+            Accept-Language, Access-Control-Request-Headers,
+            Access-Control-Request-Method, Authorization, Host, Origin, Referer
+
+            You may specify a wildcard, which forwards all headers. But in this
+            case, CloudFront cannot leverage caching nor accept additional, specific headers to cache.
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
