@@ -22,19 +22,23 @@ module.exports = async (env, config) ->
   s.apiDef = join process.cwd(), "api.yaml"
   s.skyDef = join process.cwd(), "sky.yaml"
   s.resources = resources
-  s.cfo = yield require("../cloudformation")(env, config)
-  s.bucket = yield require("../s3")(env, config, s.srcName)
-  s.lambda = yield require("../lambda")(config)
-  #s.agw = yield require("../apigateway")(env, config, s)
 
+  # Confirm it's safe to proceed with the Sky Stack instanciation.
   throw new Error("Unable to find deploy/package.zip") if !(yield exists s.pkg)
   throw new Error("Unable to find api.yaml") if !(yield exists s.apiDef)
   throw new Error("Unable to find sky.yaml") if !(yield exists s.skyDef)
 
+  # Wrappers around the AWS service APIs
+  s.cfo = yield require("../cloudformation")(env, config)
+  s.bucket = yield require("../s3")(env, config, s.srcName)
+  s.lambda = yield require("../lambda")(config)
+
+  # Stack sub-resources
   s.lambdas = lambdas s
   s.meta = meta s
   s.stack = stack s
 
+  # Exposed Sky Stack properties.
   cfo: s.cfo
   lambdas: s.lambdas
   meta: s.meta

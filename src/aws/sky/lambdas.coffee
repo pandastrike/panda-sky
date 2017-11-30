@@ -10,7 +10,6 @@ module.exports = (s) ->
 
     yield s.meta.handlers.update()
     yield Promise.all republish()
-    #yield s.agw.invalidate()
 
   # Get names of all Lambdas
   list = async ->

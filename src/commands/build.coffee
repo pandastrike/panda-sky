@@ -33,6 +33,7 @@ define "build", ["survey"], async ->
           pull
           tee write target
         ]
+      pull
     ]
 
     # Run npm install for the developer.

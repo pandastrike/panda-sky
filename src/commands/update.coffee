@@ -29,12 +29,12 @@ define "update", ["survey"], async (env) ->
           pull
           tee write target
         ]
+      pull
     ]
 
     # Push code into pre-existing Zip archive.
-    #yield shell "zip -qr #{pkg} lib -x *node_modules*"
+    yield shell "zip -qr #{pkg} lib -x *node_modules*"
 
-    process.exit()
     # Update Sky metadata with new Zip acrhive, and republish all lambdas.
     yield sky.lambdas.update()
 
