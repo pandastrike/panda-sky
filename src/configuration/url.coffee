@@ -15,7 +15,7 @@ module.exports = (config, env) ->
   config
 
 # Accept the cache configuraiton and fill in any default values.
-applyDefaultCacheConfig = (config) ->
+applyDefaultCacheConfig = (config={}) ->
   config.httpVersion ||= "http2"
   config.protocol ||= "TLSv1.2_2018"
   config.expires ||= 60

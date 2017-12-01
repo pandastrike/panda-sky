@@ -1,9 +1,8 @@
 {async, first, sleep, min} = require "fairmont"
 SkyStack = require "./sky"
 
-module.exports = async (env, config) ->
+module.exports = async (env, config, name) ->
     {cfo} = yield require("./index")(config.aws.region)
-    name = "#{config.name}-#{env}"
 
     get = async ->
       try

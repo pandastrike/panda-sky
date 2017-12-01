@@ -20,14 +20,16 @@ compile = async (appRoot, env) ->
 
   config
 
-readApp = async (appRoot) ->
+readApp = async (appRoot, env) ->
   try
     schema = yaml yield read resolve resolve __dirname, "..", "..",
       "schema", "sky", "description.yaml"
-    {validate} = new JSCK.draft4 schema
+    schema.definitions = yaml yield read resolve __dirname, "..", "..",
+      "schema", "sky", "definitions.yaml"
 
+    jsck = new JSCK.draft4 schema
     config = yaml yield read resolve appRoot, "sky.yaml"
-    {valid, errors} = validate config
+    {valid, errors} = jsck.validate config
     if !valid
       console.error """
       ERROR: The configuration in sky.yaml has a problem.  Please correct
@@ -39,6 +41,7 @@ readApp = async (appRoot) ->
       checkEnv env, config
       config
   catch e
+    console.log e
     throw new Error "There was a problem reading this project's configuration: #{e}"
   config
 

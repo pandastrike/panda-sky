@@ -8,7 +8,7 @@ module.exports = async (env) ->
     appRoot = process.cwd()
     console.error "Compiling configuration for API custom domain."
     config = yield configuration.compile(appRoot, env)
-    sky = yield require("../aws/sky")(env, config)
+    sky = yield require("../../aws/sky")(env, config)
 
     yield sky.domain.prePublish()
     console.error "\nPublishing..."

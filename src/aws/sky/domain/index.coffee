@@ -4,20 +4,20 @@
 # certificate.  This sub-module corrdinates their deployment, tear-down, and
 # record-keeping within the Sky orchestration bucket.
 
-destroy = require "./delete"
-invalidate = require "./invalidate"
+#Destroy = require "./delete"
+#Invalidate = require "./invalidate"
 Publish = require "./publish"
 
 module.exports = (s) ->
-  {prePublish, publish} = publish s
-  {preInvalidate, invalidate} = invalidate s
-  {preDestroy, destroy} = destroy s
+  {prePublish, publish} = Publish s
+  # {preInvalidate, invalidate} = Invalidate s
+  # {preDestroy, destroy} = Destroy s
 
   {
-    delete: destroy
-    preDelete: preDestroy
-    preInvalidate
-    invalidate
+    # delete: destroy
+    # preDelete: preDestroy
+    # preInvalidate
+    # invalidate
     prePublish
     publish
   }

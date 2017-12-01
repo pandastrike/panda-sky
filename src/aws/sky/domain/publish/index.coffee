@@ -1,11 +1,11 @@
 {async} = require "fairmont"
 
-Scan = require "./scan"
+scan = require "./scan"
 Confirm = require "./confirm"
 Rollover = require "./rollover"
 
 module.exports = (s) ->
-  {isViable} = Scan s
+  {isViable} = scan s
   confirm = Confirm s
   {rollover, needsRollover} = Rollover s
 
@@ -18,6 +18,7 @@ module.exports = (s) ->
 
   # This is the main domain publishing engine.
   publish = async ->
+    process.exit()
     # Deploy the CloudFront distribution
     console.error "-- Issuing edge cache deployment."
     yield s.cfr.deploy()

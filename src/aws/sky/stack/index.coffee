@@ -2,7 +2,7 @@
 scan = require "./scan"
 
 module.exports = (s) ->
-  scan = scan s
+  {scan} = scan s
 
   # Write out a CloudFormation description configuration on demand.
   config = (tier) ->
@@ -12,7 +12,7 @@ module.exports = (s) ->
       t = "template-#{tier}.yaml"
 
     StackName: s.stackName
-    TemplateURL: "http://#{s.env}-#{s.config.projectID}.s3.amazonaws.com/#{t}"
+    TemplateURL: "http://#{s.srcName}.s3.amazonaws.com/#{t}"
     Capabilities: ["CAPABILITY_IAM"]
     Tags: s.config.tags
 

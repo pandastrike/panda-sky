@@ -1,12 +1,12 @@
+{async} = require "fairmont"
 module.exports = (s) ->
   needsRollover: async ->
-    yield "hello"
-    # Lookup current in bucket and dig out current domain deployments
-    # Is there a current domain?
-      # does the hostname differ from our desired hostname?
-        # return true
-    # else
-      # return false
+    domains = yield s.meta.domains.fetch()
+    if domains
+      if domains != s.config.aws.domain[0]
+        true
+    else
+      false
 
   rollover: async ->
     yield console.error "Graceful rollover is still WIP."

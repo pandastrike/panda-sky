@@ -5,8 +5,8 @@
 # we use to track the stack's metadata, and direct access to the deployment's
 # handlers for fast-updates directly to the Lambdas.
 {async, exists} = require "fairmont"
-{join} = require "path"
 
+variables = require "./variables"
 domain = require "./domain"
 lambdas = require "./lambdas"
 meta = require "./meta"
@@ -14,14 +14,7 @@ resources = require "./resource-tiers"
 stack = require "./stack"
 
 module.exports = async (env, config) ->
-  s = {}
-  s.env = env
-  s.config = config
-  s.stackName = "#{config.name}-#{env}"
-  s.srcName = "#{config.name}-#{env}-#{config.projectID}"
-  s.pkg = join process.cwd(), "deploy", "package.zip"
-  s.apiDef = join process.cwd(), "api.yaml"
-  s.skyDef = join process.cwd(), "sky.yaml"
+  s = variables env, config
   s.resources = resources
 
   # Confirm it's safe to proceed with the Sky Stack instanciation.
@@ -30,9 +23,11 @@ module.exports = async (env, config) ->
   throw new Error("Unable to find sky.yaml") if !(yield exists s.skyDef)
 
   # Wrappers around the AWS service APIs
-  s.cfo = yield require("../cloudformation")(env, config)
+  s.acm = yield require("../acm")
+  s.cfo = yield require("../cloudformation")(env, config, s.stackName)
   s.bucket = yield require("../s3")(env, config, s.srcName)
   s.lambda = yield require("../lambda")(config)
+  s.route53 = yield require("../route53")(config)
 
   # Stack sub-resources
   s.domain = domain s
@@ -46,3 +41,4 @@ module.exports = async (env, config) ->
   lambdas: s.lambdas
   meta: s.meta
   stack: s.stack
+  srcName: s.srcName

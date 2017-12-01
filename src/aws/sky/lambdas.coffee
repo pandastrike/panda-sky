@@ -17,7 +17,7 @@ module.exports = (s) ->
     lambdas = []
     for r, resource of api.resources
       for m, method of resource.methods
-        lambdas.push "#{s.config.name}-#{s.env}-#{r}-#{toLower m}"
+        lambdas.push "#{s.stackName}-#{r}-#{toLower m}"
     lambdas
 
   fail = ->

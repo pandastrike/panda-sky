@@ -2,7 +2,7 @@
 
 module.exports = async (config) ->
   {route53} = yield require("./index")(config.aws.region)
-  {root, fullyQualify} = do require "./url"
+  {root, fullyQualify} = require "./url"
 
 
   # Determine if the user owns the requested URL as a public hosted zone
@@ -98,4 +98,4 @@ module.exports = async (config) ->
     else
       console.warn "No Hosted Zone for #{root config.aws.hostnames[0]}."
 
-  {set, destroy}
+  {set, destroy, getHostedZoneID}
