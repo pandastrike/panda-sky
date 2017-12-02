@@ -24,6 +24,6 @@ module.exports = (s) ->
 
     # Update the corresponding DNS records.
     console.error "-- Issuing DNS record update..."
-    yield s.route53.update()
+    yield s.route53.publish()
 
   {prePublish, publish}

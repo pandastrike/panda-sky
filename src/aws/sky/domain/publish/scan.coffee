@@ -1,17 +1,20 @@
 # A scan of the current domain configuration and available AWS resources is
 # needed to confirm that Sky can accomplish the requested operation.
-{async, empty} = require "fairmont"
+{async} = require "fairmont"
 
 module.exports = (s) ->
   isViable = async ->
+    name = s.config.aws.hostnames[0]
+    domain = s.config.aws.domain[0]
+
     # Check to make sure a hostname is specified
-    fail hostnameMSG if empty s.config.aws.hostnames
+    fail hostnameMSG if !name
 
     # Check to make sure a public hosted zone exists to support that hostname
-    fail domainMSG if !yield s.route53.getHostedZoneID()
+    fail domainMSG if !yield s.route53.getHostedZoneID name
 
     # Check to make sure we have the ACM cert for that domain
-    fail ACMMSG if !yield s.acm.fetch s.config.aws.domain[0]
+    fail ACMMSG if !yield s.acm.fetch domain
 
     # Check to make sure we have deployment for this hostname
     fail deploymentMSG if !yield s.meta.current.fetch()

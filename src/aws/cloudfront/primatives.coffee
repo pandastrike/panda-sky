@@ -8,7 +8,7 @@ module.exports = (cfr, config) ->
     data = yield cfr.listDistributions params
     current = cat current, data.DistributionList.Items
     if data.IsTruncated
-      _list current, data.DistributionList.Marker
+      yield _list current, data.DistributionList.Marker
     else
       current
 
