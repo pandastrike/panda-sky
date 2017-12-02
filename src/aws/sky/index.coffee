@@ -25,9 +25,10 @@ module.exports = async (env, config) ->
   # Wrappers around the AWS service APIs
   s.acm = yield require("../acm")
   s.cfo = yield require("../cloudformation")(env, config, s.stackName)
+  s.cfr = yield require("../cloudfront")(s)
   s.bucket = yield require("../s3")(env, config, s.srcName)
   s.lambda = yield require("../lambda")(config)
-  s.route53 = yield require("../route53")(config)
+  s.route53 = yield require("../route53")(s)
 
   # Stack sub-resources
   s.domain = domain s

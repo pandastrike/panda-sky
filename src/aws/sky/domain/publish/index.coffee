@@ -18,17 +18,12 @@ module.exports = (s) ->
 
   # This is the main domain publishing engine.
   publish = async ->
-    process.exit()
     # Deploy the CloudFront distribution
-    console.error "-- Issuing edge cache deployment."
-    yield s.cfr.deploy()
-    console.error "-- Waiting for deployment to complete."
-    yield s.cfr.deployWait()
+    console.error "-- Issuing edge cache deployment..."
+    yield s.cfr.publish()
 
     # Update the corresponding DNS records.
-    console.error "-- Issuing DNS record update."
+    console.error "-- Issuing DNS record update..."
     yield s.route53.update()
-    console.error "-- Waiting for DNS records to synchronize."
-    yield s.route53.deployWait()
 
   {prePublish, publish}

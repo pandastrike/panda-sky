@@ -6,9 +6,10 @@ Primatives = require "./primatives"
 
 module.exports = async (sky) ->
   {env} = sky
-  {cfr} = yield AWS config.aws.region
+  {cfr} = yield AWS sky.config.aws.region
   config = Config sky
-  {_create, _delete, _disable, _list, _update, _wait} = Primatives cfr, config
+  {_create, _delete, _disable, _invalidate,
+    _list, _update, _wait} = Primatives cfr, config
 
   # Search the developer's current distributions for the target.
   get = async (name) ->
@@ -53,6 +54,11 @@ module.exports = async (sky) ->
     else
       console.error "WARNING: #{name} distribution not found. Nothing to delete, moving on."
 
+  # Invalidate the cache on this distribution.
+  invalidate = async (name) ->
+    distro = yield get name
+    yield _invalidate distro
 
 
-  {get, needsUpdate, publish, delete: destroy}
+
+  {get, needsUpdate, publish, delete: destroy, invalidate}
