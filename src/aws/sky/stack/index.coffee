@@ -32,7 +32,7 @@ module.exports = (s) ->
 
   # Handle stuff that happens after we've confirmed the stack deployed.
   postPublish = async ->
-    yield s.meta.current.update()
+    yield s.meta.current.update yield s.cfo.getApiUrl()
     if !s.config.aws.environments[s.env].cache
       console.error "Your API is online and ready at the following endpoint:"
       console.error "  #{yield s.cfo.getApiUrl()}"

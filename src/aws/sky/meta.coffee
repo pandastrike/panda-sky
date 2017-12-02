@@ -74,11 +74,12 @@ module.exports = (s) ->
       catch e
         false
 
-    update: async ->
+    update: async (endpoint) ->
       data =
         api: md5 yield read s.apiDef
         handlers: md5 yield read(s.pkg, "buffer")
         sky: md5 yield read s.skyDef
+        endpoint: endpoint
 
       yield s.bucket.putObject(".sky", (yaml data), "text/yaml")
 

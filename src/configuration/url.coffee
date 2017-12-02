@@ -20,9 +20,25 @@ applyDefaultCacheConfig = (config={}) ->
   config.protocol ||= "TLSv1.2_2018"
   config.expires ||= 60
   config.priceClass ||= 100
-  config.headers ||= defaultHeaders
+  config.headers = setHeaders config.headers
 
   config
+
+setHeaders = (headers) ->
+  if !headers
+    defaultHeaders
+  else if "*" in headers && headers.length > 1
+    console.error """
+      ERROR: Incorrect header cache specificaton.  Wildcard cannot be used with
+      other named headers.  Please adjust the cache configuration for this
+      environment within sky.yaml and try again.
+
+      This process will discontinue.
+      Done.
+    """
+    process.exit()
+  else
+    headers
 
 defaultHeaders = [
   "Accept",

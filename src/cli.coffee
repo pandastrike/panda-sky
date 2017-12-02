@@ -4,7 +4,6 @@ program = require "commander"
 
 require "./index"
 {run} = require "panda-9000"
-{yaml} = require "panda-serialize"
 
 {bellChar} = require "./utils"
 help = require "./commands/help"
@@ -43,12 +42,7 @@ call ->
     .option '-o, --output [output]', 'Path to write API config file'
     .action (env, options) ->
       return if noEnv env
-      call ->
-        stack = yield publish env
-        if options.output?
-          config = url: yield stack.getApiUrl()
-          yield write options.output, (yaml config)
-        console.log bellChar
+      publish env, options
 
   program
     .command('delete [env]')

@@ -2,17 +2,17 @@
 {regularlyQualify} = require "../url"
 AWS = require "../index"
 Config = require "./config"
+Primatives = require "./primatives"
 
-module.exports = async (env, config) ->
+module.exports = async (sky) ->
+  {env} = sky
   {cfr} = yield AWS config.aws.region
-  {makeConfig} = Config config.cache
-
-  build = async (name) ->
-
+  config = Config sky
+  {_create, _delete, _disable, _list, _update, _wait} = Primatives cfr, config
 
   # Search the developer's current distributions for the target.
   get = async (name) ->
-    list = (yield cfr.listDistributions {}).DistributionList.Items
+    list = yield _list()
     pattern =
       Aliases:
         Quantity: 1,
@@ -24,40 +24,35 @@ module.exports = async (env, config) ->
     else
       yield cfr.getDistribution Id: matches[0].Id
 
-  create = async (name) ->
-    params = DistributionConfig: yield makeConfig name
-    yield cfr.createDistribution params
+  # CloudFront configurations are complex and filled with optional fields. To
+  # determine if two are the same, we apply a build transformation on the
+  # original. If the transformation result is identical, then no update.
+  needsUpdate = async (name) ->
+    currentConfig = yield get name
+    newConfig = yield config.build name, Object.assign({}, current)
+    !config.equal currentConfig, newConfig
 
-  update = async (ETag, Distribution) ->
-    params =
-      Id: Distribution.Id
-      IfMatch: ETag
-      DistributionConfig: Distribution.DistributionConfig
-    yield cfr.updateDistribution params
+  # Determine if create or update is needed.  Do that.
+  publish = async ->
+    name = sky.config.aws.hostnames[0]
+    distro = yield get name
+    if distro
+      yield config.build name, distro.DistributionConfig
+      yield _update distro
+    else
+      distro = yield _create name
+    yield _wait distro
+
+  # Disable and then delete the distribution.
+  destroy = async (name) ->
+    distro = yield get name
+    if distro
+      yield _disable distro
+      yield _wait distro
+      yield _delete distro
+    else
+      console.error "WARNING: #{name} distribution not found. Nothing to delete, moving on."
 
 
-    # Arrays need not be congruent, but merely a permutation of a given set.
-    # This recursive helper smooths out arrays within nested objects so that we
-    # can safely apply a deepEqual to compare current and new configurations.
-    deepSort = (o) ->
-      if Array.isArray o
-        o.sort()
-      else if typeof o == "object"
-        n = {}
-        n[k] = deepSort v for k,v of o
-        n
-      else
-        o
 
-    # Compare the current configuration we fetched from AWS to our desired end
-    # state.  Because the configuration is complex and filled with optional fields,
-    # we designate the desired configuration as a transformation on the current.
-    # If this causes changes, then we need to issue a time consuming update.
-    needsUpdate = async (name, {ETag, Distribution}) ->
-      current = deepSort Distribution.DistributionConfig
-      newconfig = deepSort yield makeConfig name, Object.assign({}, current)
-
-      if deepEqual current, newconfig
-        false
-      else
-        true
+  {get, needsUpdate, publish, delete: destroy}

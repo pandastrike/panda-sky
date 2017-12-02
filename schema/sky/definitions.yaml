@@ -72,16 +72,20 @@ environment:
           description: >
             This sets the list of headers forwarded and cached by the CloudFront
             distribution. Omitting this field will cause Sky to forward and
-            cache the default headers.
+            cache the *default* headers.
 
-            The default headers are: Accept, Accept-Charset, Accept-Datetime,
+            The *default* headers are: Accept, Accept-Charset, Accept-Datetime,
             Accept-Language, Access-Control-Request-Headers,
             Access-Control-Request-Method, Authorization, Host, Origin, Referer
 
-            You may specify a wildcard, which forwards all headers. But in this
-            case, CloudFront cannot leverage caching nor accept additional, specific headers to cache.
+            You may specify an empty array, [].  In this case Sky will set no
+            headers.  This will forward the default headers, BUT NOT CACHE
+            BASED ON THEM.
+
+            You may specify a wildcard, [*], which forwards ALL headers.
+            But in this case, CloudFront cannot leverage caching nor accept
+            additional, specific headers to cache.
           type: array
-          minItems: 1
           items:
             type: string
             minLength: 1
