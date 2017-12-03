@@ -7,17 +7,19 @@
 #Destroy = require "./delete"
 #Invalidate = require "./invalidate"
 Publish = require "./publish"
+Destroy = require "./delete"
+Invalidate = require "./invalidate"
 
 module.exports = (s) ->
   {prePublish, publish} = Publish s
-  # {preInvalidate, invalidate} = Invalidate s
-  # {preDestroy, destroy} = Destroy s
+  {preInvalidate, invalidate} = Invalidate s
+  {preDestroy, destroy} = Destroy s
 
   {
-    # delete: destroy
-    # preDelete: preDestroy
-    # preInvalidate
-    # invalidate
+    delete: destroy
+    preDelete: preDestroy
+    preInvalidate
+    invalidate
     prePublish
     publish
   }

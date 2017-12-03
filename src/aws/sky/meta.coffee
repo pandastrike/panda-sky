@@ -1,4 +1,4 @@
-{async, md5, read, keys, cat, empty, min} = require "fairmont"
+{async, md5, read, keys, cat, empty, min, remove} = require "fairmont"
 {yaml} = require "panda-serialize"
 
 module.exports = (s) ->
@@ -10,19 +10,6 @@ module.exports = (s) ->
     update: async -> yield s.bucket.putObject "api.yaml", s.apiDef
     tier: 1
 
-  domains =
-    fetch: async ->
-      try
-        yaml yield s.bucket.getObject "domains.yaml"
-      catch e
-        false
-
-    update: async ->
-      data =
-        domains: s.config.aws.hostnames
-
-      yield s.bucket.putObject("domains.yaml", (yaml data), "text/yaml")
-
   handlers =
     isCurrent: async (remote) ->
       local = md5 yield read(s.pkg, "buffer")
@@ -31,7 +18,6 @@ module.exports = (s) ->
     update: async -> yield s.bucket.putObject "package.zip", s.pkg
     tier: 1
 
-
   skyConfig =
     isCurrent: async (remote) ->
       local = md5 yield read s.skyDef
@@ -39,6 +25,28 @@ module.exports = (s) ->
 
     update: async -> yield s.bucket.putObject "sky.yaml", s.skyDef
     tier: 0
+
+  hostnames = do ->
+    fetch = async ->
+      try
+        yaml yield s.bucket.getObject "hostnames.yaml"
+      catch e
+        false
+
+    add = async (name) ->
+      if current = yield fetch()
+        data = hostnames: current.domains.push name
+      else
+        data = hostnames: [name]
+
+      yield s.bucket.putObject("hostnames.yaml", (yaml data), "text/yaml")
+
+    _remove = async (name) ->
+      if current = yield fetch()
+        data = hostnames: remove current.domains, name
+        yield s.bucket.putObject("hostnames.yaml", (yaml data), "text/yaml")
+
+    {fetch, add, remove: _remove}
 
   template =
     # Sky stores the CloudFormation template that describes the infrastructure

@@ -67,10 +67,12 @@ call ->
 
   program
   .command('domain [subcommand] [env]')
-  .action (subcommand, env) ->
+  .option '--hard', 'In domain publish, use hard rollover for replacements.'
+  .option '--yes', "Always answer warning prompts with yes. Use with caution."
+  .action (subcommand, env, options) ->
     if domain[subcommand]
       return if noEnv env
-      domain[subcommand] env
+      domain[subcommand] env, options
     else
       console.error "ERROR: unrecognized subcommand of sky domain."
       program.help()

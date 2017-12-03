@@ -16,22 +16,24 @@ module.exports = async (sky) ->
     result = collect where {Name: name}, records
     if empty result then false else result[0]
 
-  needsUpdate = async (name, target) ->
-    if {Type, AliasTarget} = yield get name
-      if Type == "A" && deepEqual AliasTarget, _target target
-        false
-    else
-      true
+  needsUpdate = async ({Type, AliasTarget}, target) ->
+    Type != "A" || !deepEqual AliasTarget, _target target
 
+  # Create or update the DNS record.
   publish = async (name, target) ->
-    if yield needsUpdate name, target
+    record = yield get name
+    if !record || yield needsUpdate record, target
       id = yield _upsert name, target
       yield _wait id
 
+  # Delete the DNS record if it exists and is what we expect.
   destroy = async (name, target) ->
-    if !yield needsUpdate name, target
-      id = yield _delete name, target
-      yield _wait id
+    if yield getHostedZoneID name && record = yield get name
+      if !yield needsUpdate record, target
+        id = yield _delete name, target
+        yield _wait id
+    else
+      console.error "WARNING: No DNS record found for #{name}. Skipping."
 
 
   {delete: destroy, get, getHostedZoneID, publish}

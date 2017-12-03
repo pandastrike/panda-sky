@@ -1,11 +1,11 @@
 # A scan of the current domain configuration and available AWS resources is
 # needed to confirm that Sky can accomplish the requested operation.
 {async} = require "fairmont"
+{regularlyQualify, root} = require "../../../url"
 
 module.exports = (s) ->
-  isViable = async ->
-    name = s.config.aws.hostnames[0]
-    domain = s.config.aws.domain[0]
+  isViable = async (name) ->
+    domain = regularlyQualify root name
 
     # Check to make sure a hostname is specified
     fail hostnameMSG if !name
@@ -37,8 +37,8 @@ module.exports = (s) ->
 
   domainMSG = """
   ERROR: The public hosted zone for  #{s.config.aws.domain} is not detected
-    within your AWS account.  In Route53, please setup a public hosted zone using
-    your desired domain and try again.
+    within your AWS account.  In Route53, please setup a public hosted zone
+    using your desired domain and try again.
   """
 
   ACMMSG = """
@@ -52,10 +52,10 @@ module.exports = (s) ->
 
   deploymentMSG = """
   ERROR: There is no Sky deployment detected for this environment.  Sky Custom
-    domains use AWS CloudFront to provide functionality, and they require a source
-    URL.  Sky calculates that for you, but it must have a confirmed Sky deployment
-    so it may target Gateway URL for you.  Please use "sky publish #{s.env}" to
-    create a Sky deployment and try again.
+    domains use AWS CloudFront to provide functionality, and they require a
+    source URL.  Sky calculates that for you, but it must have a confirmed Sky
+    deployment so it may target Gateway URL for you.  Please use "sky publish
+    #{s.env}" to create a Sky deployment and try again.
   """
 
   {isViable}

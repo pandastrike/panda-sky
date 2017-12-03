@@ -3,21 +3,18 @@
 {bellChar} = require "../../utils"
 configuration = require "../../configuration"
 
-module.exports = async (env) ->
-  yield env
-  # try
-  #   appRoot = process.cwd()
-  #   console.error "Compiling configuration for API custom domain."
-  #   config = yield configuration.compile(appRoot, env)
-  #   sky = yield require("../aws/sky")(env, config)
-  #
-  #   console.error "Publishing..."
-  #   isPublishing = yield sky.stack.publish()
-  #   yield sky.cfo.publishWait() if isPublishing
-  #   yield sky.stack.postPublish()
-  #   console.error "Done.\n\n"
-  # catch e
-  #   console.error "Publish failure:"
-  #   console.error e.stack
-  # console.error bellChar
-  # sky.cfo
+module.exports = async (env, options) ->
+  try
+    appRoot = process.cwd()
+    console.error "Compiling configuration for API custom domain."
+    config = yield configuration.compile(appRoot, env)
+    sky = yield require("../../aws/sky")(env, config)
+
+    yield sky.domain.preInvalidate sky.config.aws.hostnames[0], options
+    yield sky.domain.invalidate sky.config.aws.hostnames[0]
+    console.error "Done.\n\n"
+  catch e
+    console.error "Invalidation failure:"
+    console.error e.stack
+  console.error bellChar
+  sky.cfo

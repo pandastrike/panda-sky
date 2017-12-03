@@ -34,8 +34,7 @@ module.exports = async (sky) ->
     !config.equal currentConfig, newConfig
 
   # Determine if create or update is needed.  Do that.
-  publish = async ->
-    name = sky.config.aws.hostnames[0]
+  publish = async (name) ->
     distro = yield get name
     if distro
       yield config.build name, distro.DistributionConfig
