@@ -31,20 +31,17 @@ module.exports = (s) ->
       try
         yaml yield s.bucket.getObject "hostnames.yaml"
       catch e
-        false
+        []
 
     add = async (name) ->
-      if current = yield fetch()
-        data = hostnames: current.hostnames.push name
-      else
-        data = hostnames: [name]
-
+      data = yield fetch()
+      data.push name
       yield s.bucket.putObject("hostnames.yaml", (yaml data), "text/yaml")
 
     _remove = async (name) ->
-      if current = yield fetch()
-        data = hostnames: remove current.hostnames, name
-        yield s.bucket.putObject("hostnames.yaml", (yaml data), "text/yaml")
+      data = yield fetch()
+      data = remove data, name
+      yield s.bucket.putObject("hostnames.yaml", (yaml data), "text/yaml")
 
     {fetch, add, remove: _remove}
 

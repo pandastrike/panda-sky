@@ -3,14 +3,14 @@ interview = require "../../../../interview"
 
 module.exports = (s) ->
   needsRollover: async (name) ->
-    {hostnames} = yield s.meta.hostnames.fetch()
-    if hostnames && !empty hostnames && name not in hostnames
+    hostnames = yield s.meta.hostnames.fetch()
+    if !empty hostnames && name not in hostnames
       true
     else
       false
 
   rollover: async (newName, options) ->
-    oldName = s.meta.hostnames.fetch().hostnames[0]
+    [oldName] = yield s.meta.hostnames.fetch()
     yield confirmRollover newName, oldName, options.hard
     if !options.hard
       # Graceful rollover.

@@ -54,6 +54,7 @@ module.exports = async (sky) ->
       distro
     else
       console.error "WARNING: #{name} distribution not found. Nothing to delete, moving on."
+      false
 
   # Invalidate the cache on this distribution.
   invalidate = async (name) ->

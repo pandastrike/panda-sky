@@ -28,12 +28,17 @@ module.exports = async (sky) ->
 
   # Delete the DNS record if it exists and is what we expect.
   destroy = async (name, target) ->
-    if yield getHostedZoneID name && record = yield get name
-      if !yield needsUpdate record, target
-        id = yield _delete name, target
-        yield _wait id
-    else
-      console.error "WARNING: No DNS record found for #{name}. Skipping."
+    # Check for hosted zone.  We don't require in pre-delete check.
+    skip = -> console.error """
+      WARNING: No DNS record found for #{name}. Skipping deletion.
+    """
+    return skip() !yield getHostedZoneID name
+    record = yield get name
+    return skip() if !record
+    return skip() if !yield needsUpdate record, target
+
+    id = yield _delete name, target
+    yield _wait id
 
 
   {delete: destroy, get, getHostedZoneID, publish}
