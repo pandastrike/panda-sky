@@ -13,11 +13,11 @@ Invalidate = require "./invalidate"
 module.exports = (s) ->
   {prePublish, publish} = Publish s
   {preInvalidate, invalidate} = Invalidate s
-  {preDestroy, destroy} = Destroy s
+  {preDelete, destroy} = Destroy s
 
   {
     delete: destroy
-    preDelete: preDestroy
+    preDelete
     preInvalidate
     invalidate
     prePublish

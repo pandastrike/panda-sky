@@ -17,4 +17,4 @@ module.exports = do ->
 
   # Compare two normalized CloudFront distribution configurations.
   (currentConfig, newConfig) ->
-    deepEqual deepSort(currentConfig), deepSort(newconfig)
+    deepEqual deepSort(currentConfig), deepSort(newConfig)

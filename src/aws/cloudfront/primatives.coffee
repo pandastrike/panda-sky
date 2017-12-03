@@ -1,4 +1,4 @@
-{async, cat, sleep} = require "fairmont"
+{async, cat, sleep, merge} = require "fairmont"
 {randomKey} = require "key-forge"
 
 module.exports = (cfr, config) ->
@@ -12,15 +12,21 @@ module.exports = (cfr, config) ->
     else
       current
 
+  # AWS places the distribution object along with other top-level fields.
+  _extract = (data) ->
+    {Distribution} = data
+    merge Distribution, {ETag: data.ETag}
+
   _create = async (name) ->
-    yield cfr.createDistribution DistributionConfig: yield config.build name
+    params = DistributionConfig: yield config.build name
+    _extract yield cfr.createDistribution params
 
   _update = async ({Id, ETag, DistributionConfig}) ->
     params =
       Id: Id
       IfMatch: ETag
       DistributionConfig: DistributionConfig
-    yield cfr.updateDistribution params
+    _extract yield cfr.updateDistribution params
 
   _disable = async (Distribution) ->
     Distribution.DistributionConfig.Enabled = false
@@ -30,7 +36,7 @@ module.exports = (cfr, config) ->
     params =
       Id: Id
       IfMatch: ETag
-    yield cfr.deleteDistribution params
+    _extract yield cfr.deleteDistribution params
 
   _wait = async ({Id}) ->
     while true
@@ -53,4 +59,4 @@ module.exports = (cfr, config) ->
 
 
 
-  {_create, _delete, _disable, _invalidate, _list, _update, _wait}
+  {_create, _delete, _disable, _extract, _invalidate, _list, _update, _wait}
