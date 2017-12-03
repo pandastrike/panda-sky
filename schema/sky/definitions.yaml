@@ -76,7 +76,13 @@ environment:
 
             The *default* headers are: Accept, Accept-Charset, Accept-Datetime,
             Accept-Language, Access-Control-Request-Headers,
-            Access-Control-Request-Method, Authorization, Host, Origin, Referer
+            Access-Control-Request-Method, Authorization, Origin, Referer
+
+            Host is notably absent from those default headers.  When using
+            Server Name Indentification in CloudFront, Gateway relies on that
+            by default to verify the connection.  The usage of the Host header
+            causes Gateway to throw a 403 response, baring special
+            configuration.
 
             You may specify an empty array, [].  In this case Sky will set no
             headers.  This will forward the default headers, BUT NOT CACHE

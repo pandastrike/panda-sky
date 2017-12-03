@@ -20,11 +20,11 @@ module.exports = (s) ->
   publish = async (name) ->
     # Deploy the CloudFront distribution
     console.error "-- Issuing edge cache deployment..."
-    yield s.cfr.publish name
+    {DomainName} = yield s.cfr.publish name
 
     # Update the corresponding DNS records.
     console.error "-- Issuing DNS record update..."
-    yield s.route53.publish name
+    yield s.route53.publish name, DomainName
 
     # Add this hostname to the environment's Sky Bucket.
     yield s.meta.hostnames.add name

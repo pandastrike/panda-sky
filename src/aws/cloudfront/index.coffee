@@ -42,6 +42,7 @@ module.exports = async (sky) ->
     else
       distro = yield _create name
     yield _wait distro
+    distro
 
   # Disable and then delete the distribution.
   destroy = async (name) ->
@@ -50,6 +51,7 @@ module.exports = async (sky) ->
       yield _disable distro
       yield _wait distro
       yield _delete distro
+      distro
     else
       console.error "WARNING: #{name} distribution not found. Nothing to delete, moving on."
 

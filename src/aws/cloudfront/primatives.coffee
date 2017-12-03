@@ -1,4 +1,4 @@
-{async, cat} = require "fairmont"
+{async, cat, sleep} = require "fairmont"
 {randomKey} = require "key-forge"
 
 module.exports = (cfr, config) ->

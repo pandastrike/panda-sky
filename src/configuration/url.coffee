@@ -48,7 +48,6 @@ defaultHeaders = [
   "Access-Control-Request-Headers",
   "Access-Control-Request-Method",
   "Authorization",
-  "Host",
   "Origin",
   "Referer"
 ]

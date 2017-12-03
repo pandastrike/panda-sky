@@ -1,4 +1,4 @@
-{deepEqual} = require "assert"
+{deepEqual, isArray, isObject} = require "fairmont"
 
 module.exports = do ->
   # Within a CloudFront distribution configuration, arrays need not be
@@ -6,9 +6,9 @@ module.exports = do ->
   # normalizes arrays within nested objects so that we can safely apply a
   # deepEqual to compare current and new configurations.
   deepSort = (o) ->
-    if Array.isArray o
+    if isArray o
       o.sort()
-    else if typeof o == "object"
+    else if isObject o
       n = {}
       n[k] = deepSort v for k,v of o
       n

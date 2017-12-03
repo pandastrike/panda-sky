@@ -1,4 +1,4 @@
-{async, cat, collect, where, empty} = require "fairmont"
+{async, cat, collect, where, empty, sleep} = require "fairmont"
 {root, fullyQualify} = require "../url"
 
 module.exports = (route53) ->

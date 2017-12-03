@@ -17,11 +17,11 @@ module.exports = (s) ->
   destroy = async (name) ->
     # Delete the CloudFront distribution
     console.error "-- Issuing edge cache teardown..."
-    yield s.cfr.delete name
+    {DomainName} = yield s.cfr.delete name
 
     # Delete the corresponding DNS records.
     console.error "-- Issuing DNS record removal..."
-    yield s.route53.delete name
+    yield s.route53.delete name, DomainName if DomainName
 
     # Remove this hostname to the environment's Sky Bucket.
     yield s.meta.hostnames.remove name
