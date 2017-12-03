@@ -2,6 +2,7 @@
 # accepts a pre-existing configuration to faciliate a deepEqual comparison for
 # update detection. We take a high-level configuration from the devloper and
 # fill in the gaps with Sky's opinionated defaults.
+{async} = require "fairmont"
 {randomKey} = require "key-forge"
 Helpers = require "./build-helpers"
 

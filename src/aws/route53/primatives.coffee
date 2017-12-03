@@ -4,7 +4,7 @@
 module.exports = (route53) ->
 
   _listHZ = async (current=[], marker) ->
-    params = MaxItems: 100
+    params = MaxItems: "100"
     params.Marker = marker if marker
     data = yield route53.listHostedZones params
     current = cat current, data.HostedZones
@@ -16,7 +16,7 @@ module.exports = (route53) ->
   _listRecords = async (id, current=[], marker) ->
     params =
       HostedZoneId: id
-      MaxItems: 100
+      MaxItems: "100"
     params.StartRecordName = marker if marker
     data = yield route53.listResourceRecordSets params
     current = cat current, data.ResourceRecordSets

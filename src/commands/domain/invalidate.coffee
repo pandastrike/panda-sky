@@ -10,8 +10,8 @@ module.exports = async (env, options) ->
     config = yield configuration.compile(appRoot, env)
     sky = yield require("../../aws/sky")(env, config)
 
-    yield sky.domain.preInvalidate sky.config.aws.hostnames[0], options
-    yield sky.domain.invalidate sky.config.aws.hostnames[0]
+    yield sky.domain.preInvalidate config.aws.hostnames[0], options
+    yield sky.domain.invalidate config.aws.hostnames[0]
     console.error "Done.\n\n"
   catch e
     console.error "Invalidation failure:"

@@ -35,7 +35,7 @@ module.exports = (s) ->
 
     add = async (name) ->
       if current = yield fetch()
-        data = hostnames: current.domains.push name
+        data = hostnames: current.hostnames.push name
       else
         data = hostnames: [name]
 
@@ -43,7 +43,7 @@ module.exports = (s) ->
 
     _remove = async (name) ->
       if current = yield fetch()
-        data = hostnames: remove current.domains, name
+        data = hostnames: remove current.hostnames, name
         yield s.bucket.putObject("hostnames.yaml", (yaml data), "text/yaml")
 
     {fetch, add, remove: _remove}
@@ -121,7 +121,7 @@ module.exports = (s) ->
 
   {
     api
-    domains
+    hostnames
     handlers
     skyConfig
     template

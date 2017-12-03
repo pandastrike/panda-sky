@@ -1,3 +1,4 @@
+{async} = require "fairmont"
 AWS = require "../../index"
 
 module.exports = (sky) ->
@@ -32,4 +33,4 @@ module.exports = (sky) ->
     CertificateSource: 'acm'
 
 
-  {buildOrigins, etViewerCertificate}
+  {buildOrigins, setViewerCertificate}

@@ -6,7 +6,7 @@ Helpers = require "./primatives"
 module.exports = async (sky) ->
   {route53} = yield AWS sky.config.aws.region
   {_delete, _getHostedZoneID, _listRecords, _target,
-   _upsert, _wait} = Helpers sky
+   _upsert, _wait} = Helpers route53
 
   # Determine if the user owns the requested URL as a public hosted zone
   getHostedZoneID = async (name) -> yield _getHostedZoneID name
@@ -16,7 +16,7 @@ module.exports = async (sky) ->
     result = collect where {Name: name}, records
     if empty result then false else result[0]
 
-  needsUpdate = async ({Type, AliasTarget}, target) ->
+  needsUpdate = ({Type, AliasTarget}, target) ->
     Type != "A" || !deepEqual AliasTarget, _target target
 
   # Create or update the DNS record.

@@ -3,7 +3,7 @@
 
 module.exports = (cfr, config) ->
   _list = async (current=[], marker) ->
-    params = MaxItems: 100
+    params = MaxItems: "100"
     params.Marker = marker if marker
     data = yield cfr.listDistributions params
     current = cat current, data.DistributionList.Items
