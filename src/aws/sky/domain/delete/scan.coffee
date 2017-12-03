@@ -4,23 +4,21 @@
 {regularlyQualify, root} = require "../../../url"
 
 module.exports = (s) ->
-  isViable = async (name) ->
-    domain = regularlyQualify root name
-
+  isViable: async (name) ->
     # Check to make sure a hostname is specified
-    fail hostnameMSG if !name
+    fail hostnameMSG s.env if !name
 
     # Check to make sure we have the ACM cert for that domain
-    fail ACMMSG if !yield s.acm.fetch domain
+    fail ACMMSG name if !yield s.acm.fetch name
 
   fail = (msg) ->
     console.error msg
     console.error "This process will now discontinue.\nDone.\n"
     process.exit()
 
-    hostnameMSG = """
-    ERROR: There is no hostname set for this environment, #{s.env}
-      Within your sky.yaml file, there is a stanza aws.environments.#{s.env}
+    hostnameMSG = (env) -> """
+    ERROR: There is no hostname set for this environment, #{env}
+      Within your sky.yaml file, there is a stanza aws.environments.#{env}
       That stanza should include a "cache.hostnames" stanza where you specify
       the name of the custom domain resource you wish to deploy.  Sky does not
       support apex domains, ie: example.com
@@ -28,8 +26,8 @@ module.exports = (s) ->
       Please set the configuration in sky.yaml and try again.
     """
 
-    ACMMSG = """
-    ERROR: The TLS certificate for the domain #{s.config.aws.domain} is not
+    ACMMSG = (name) -> """
+    ERROR: The TLS certificate for the domain #{name} is not
       detected within the "us-east-1" region and/or your AWS account.
 
       Such certificates can be created and maintained for free within the Amazon

@@ -22,7 +22,7 @@ showPrompt = async (description) ->
 
   answers = yield interview.ask questions
   if !answers.confirm
-    console.error "Discontinuing custom domain publish."
+    console.error "Discontinuing custom domain delete."
     console.error "Done."
     process.exit()
 
@@ -40,7 +40,7 @@ msg =
   """
 
   noop: (name) -> """
-    WARNING: You requested an update for the Sky custom domain resource at
+    WARNING: You requested a deletion of the Sky custom domain resource at
 
       - https://#{name}
 

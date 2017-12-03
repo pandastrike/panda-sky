@@ -55,9 +55,9 @@ gracefulConfirm = (newName, oldName) -> """
     NEW
     - https://#{newName}
 
-  The full publish and tear-down cycle will take approximately 60 minutes.
-  Your old endpoint will not be affected until the new one is confirmed to be
-  fully operational.
+  This is a destructive operation.  The full publish and tear-down cycle
+  will take approximately 60 minutes. Your old endpoint will not be affected
+  until the new one is confirmed to be fully operational.
 
 
   Please confirm that you wish to continue. [Y/n]
@@ -74,8 +74,8 @@ hardConfirm = (newName, oldName) -> """
     NEW
     - https://#{newName}
 
-  The change will take approximately 30 minutes, during which both endpoints
-  will be unavailable.
+  This is a destructive operation.  The change will take approximately 30
+  minutes, during which both endpoints may be unavailable.
 
 
   Please confirm that you wish to continue. [Y/n]

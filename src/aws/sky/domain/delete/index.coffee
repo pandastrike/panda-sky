@@ -13,13 +13,13 @@ module.exports = (s) ->
     yield isViable name
     yield confirm name, options
 
-  # This is the main domain publishing engine.
+  # This is the main domain deletion engine.
   destroy = async (name) ->
-    # Deploy the CloudFront distribution
+    # Delete the CloudFront distribution
     console.error "-- Issuing edge cache teardown..."
     yield s.cfr.delete name
 
-    # Update the corresponding DNS records.
+    # Delete the corresponding DNS records.
     console.error "-- Issuing DNS record removal..."
     yield s.route53.delete name
 
