@@ -25,7 +25,7 @@ module.exports = async (sky) ->
     return skip() if !yield _getHostedZoneID name
     record = yield _get name
     return skip() if !record
-    return skip() if !yield _needsUpdate record, target
+    return skip() if yield _needsUpdate record, target
 
     id = yield _delete name, target
     yield _wait id
