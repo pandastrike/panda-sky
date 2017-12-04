@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "./index.js",
   "bin": {
@@ -18,7 +18,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postpublish": "(json -f package.json version | xargs -I version git tag -am version version) && git push --tags"
   },
   "repository": {
     "type": "git",
@@ -74,6 +75,7 @@
   },
   "homepage": "https://github.com/pandastrike/panda-sky#readme",
   "devDependencies": {
-    "amen": "^1.0.6"
+    "amen": "^1.0.6",
+    "json": "^9.0.6"
   }
 }
