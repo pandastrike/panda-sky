@@ -18,7 +18,7 @@ module.exports = (config, env) ->
 applyDefaultCacheConfig = (config={}) ->
   config.httpVersion ||= "http2"
   config.protocol ||= "TLSv1.2_2018"
-  config.expires ||= 60
+  config.expires ||= 0
   config.priceClass ||= 100
   config.headers = setHeaders config.headers
 

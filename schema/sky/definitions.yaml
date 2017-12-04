@@ -43,9 +43,11 @@ environment:
           description: >
             The maximum amount of time, in seconds, that an entity stays
             cached in the edge server before additional requests are forwarded
-            to your Gateway API to check for updates.  When this value is omitted, Sky defaults to 60 seconds.  Setting this value to 0 gives
-            you a custom domain with HTTPS, but no caching.  This is a promising
-            configuraiton option for staging environments.
+            to your Gateway API to check for updates.  When this value is omitted, Sky defaults to 0.
+
+            Setting this value to 0 gives you a custom domain with TLS
+            termination, but no caching. This is a promising configuraiton
+            option for staging environments.
           type: integer
           minimum: 0
           maximum: 3153600000
@@ -81,7 +83,7 @@ environment:
             Host is notably absent from those default headers.  When using
             Server Name Indentification in CloudFront, Gateway relies on that
             by default to verify the connection.  The usage of the Host header
-            causes Gateway to throw a 403 response, baring special
+            causes Gateway to issue a 403 response, baring special
             configuration.
 
             You may specify an empty array, [].  In this case Sky will set no
