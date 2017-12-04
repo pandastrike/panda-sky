@@ -3,17 +3,20 @@ description: Example Project API
 projectID: {{projectID}}
 aws:
   runtime: nodejs6.10
-  domain: example.com
+  domain:
+    - example.com
   region: us-west-2
   environments:
-    staging: {}
+    staging:
+      hostnames:
+        - staging-api
 
     production:
       hostnames:
         - api
       cache:
         expires: 1800
-        priceClass: 100
+        priceClass: All
 
 # Optional, but lets you track things in billing.
 tags:
