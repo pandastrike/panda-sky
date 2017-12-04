@@ -21,9 +21,11 @@ module.exports = (s) ->
 
     # Delete the corresponding DNS records.
     if distro
+      console.error "-- Deleting DNS record."
       yield s.route53.delete name, distro.DomainName
 
-    # Remove this hostname to the environment's Sky Bucket.
+    # Remove this hostname to the environment's Sky Bucket
+    console.error "-- Updating Sky deployment records."
     yield s.meta.hostnames.remove name
 
   {preDelete, destroy}

@@ -23,10 +23,11 @@ module.exports = (s) ->
     {DomainName} = yield s.cfr.publish name
 
     # Update the corresponding DNS records.
-    console.error "-- Issuing DNS record update..."
+    console.error "-- Issuing DNS record update."
     yield s.route53.publish name, DomainName
 
     # Add this hostname to the environment's Sky Bucket.
+    console.error "-- Updating Sky deployment records."
     yield s.meta.hostnames.add name
 
   {prePublish, publish}
