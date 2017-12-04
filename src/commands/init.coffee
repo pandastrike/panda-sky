@@ -1,7 +1,7 @@
 {join} = require "path"
 {define} = require "panda-9000"
 {async, randomWords, read, write, shell} = require "fairmont"
-_render = require "panda-template"
+PandaTemplate = require("panda-template").default
 {safe_cp, safe_mkdir} = require "../utils"
 interview = require "../interview"
 
@@ -37,9 +37,10 @@ define "init", async ->
     src = (file) -> join( __dirname, "../../init/#{file}")
     target = (file) -> join process.cwd(), file
 
+    T = new PandaTemplate()
     render = async (src, target) ->
       template = yield read src
-      output = _render template, config
+      output = T.render template, config
       yield write target, output
 
     # Drop in an API description stub.
