@@ -108,10 +108,8 @@ var {foobar} = process.env;
 Panda Sky comes with helpers to ease development within a Lambda environment:
 ```coffeescript
 # Import Panda Sky Helpers
-{async, response, s3} = require "panda-sky"
+{response, s3} = require "panda-sky-helpers"
 ```
-### async
-`async` is the function from `fairmont`, but it allows end users to pull it in without the whole library.
 
 ### s3
 - `s3` is a wrapper around the AWS SDK library for S3.
@@ -169,32 +167,42 @@ name: greeting
 description: Greeting API
 aws:
   runtime: nodejs6.10
-  domain: greeting.com
+  domain: 
+    - greeting.com
   region: us-west-2
   environments:
 
-    staging: {}
+    staging:
+      hostnames:
+        - staging-api
 
     production:
       hostnames:
         - api
       cache:
         expires: 1800
-        ssl: true
         priceClass: 100
 ```
 
 ### Publish Your API
 
-This will take a while the first time around,
-(Panda Sky is doing a lot of set up for you)
-but after that, it's relatively quick.
+Publish your lambdas and their associated Gateway.
 
-    sky publish production
+    sky publish staging
+    
+### Publish Your Custom Domain
+
+Your environment's custom domain is treated as a
+seperate resource.  Publishing it will take a while
+(~30 minutes), but Sky (and AWS) are doing a
+lot for you.  In addition to a custom domain with
+TLS termination, CloudFront is synchronizing 
+an edge cache among servers deployed across
+the planet.
 
 ### Test It Out
 
-    curl https://greeting.com/greeting/Ace
+    curl https://staging-api.greeting.com/greeting/Ace
     Hello, Ace!
 
 ## Status
