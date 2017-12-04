@@ -1,0 +1,36 @@
+APICustomDomain:
+  Type: "AWS::ApiGateway::DomainName"
+  Properties:
+    CertificateArn: {{aws.customDomain.CertificateArn}}
+    DomainName: {{aws.customDomain.DomainName}}
+    EndpointConfiguration:
+      Types:
+        - Edge
+
+APIBasePathMapping:
+  Type: "AWS::ApiGateway::BasePathMapping"
+  Properties:
+    DomainName:
+      Ref: APICustomDomain
+    RestApiId:
+      Ref: API
+
+DNSRecords:
+  DependsOn:
+    - APICustomDomain
+  Type: "AWS::Route53::RecordSetGroup"
+  Properties:
+      Comment: "API Gateway deployment for {{name}}-{{env}} -
+        Setup by Panda Sky."
+      HostedZoneName: {{aws.customDomain.route53.domain}}
+      RecordSets:
+        {{#each aws.customDomain.route53.hostnames}}
+        - Name: {{.}}
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2  # CloudFront's HostedZoneId
+            DNSName:
+              "Fn::GetAtt":
+                - APICustomDomain
+                - DistributionDomainName
+        {{/each}}

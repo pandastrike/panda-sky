@@ -7,24 +7,20 @@ module.exports = async (env, config, name) ->
   {s3} = yield require("./index")(config.aws.region)
 
 
+  # Does the bucket exist?
+  exists = async ->
+    try
+      yield s3.headBucket Bucket: name
+      true
+    catch e
+      if e.statusCode == 404
+        false
+      else
+        throw e
+
   # Create a new bucket if it does not exist.
   establish = async ->
-    try
-      exists = yield s3.headBucket Bucket: name
-    catch e
-      switch e.statusCode
-        when 301
-          throw new Error "The bucket is in a different region than the client " +
-            "is currently configured to target. Correct the region in your " +
-            "sky.yaml file."
-        when 403
-          throw new Error "You are not authorized to modify this bucket."
-        when 404
-          exists = false
-        else
-          throw e
-
-    return true if exists
+    return true if yield exists()
 
     # Create a new, empty S3 bucket.
     try
@@ -67,17 +63,11 @@ module.exports = async (env, config, name) ->
       data = yield s3.getObject params
       data.Body.toString()
     catch e
-      switch e.statusCode
-        when 301
-          throw new Error "The bucket is in a different region than the client " +
-            "is currently configured to target. Correct the region in your " +
-            "sky.yaml file."
-        when 403
-          throw new Error "You are not authorized to modify this S3 bucket: #{name}"
-        when 404
-          return false
-        else
-          throw new Error  "Unexpected reply from AWS: #{e}"
+      if e.statusCode == 301
+        console.error """
+        The bucket is in a different region than the client is currently configured to target. Correct the region in your sky.yaml file.
+        """
+      throw e
 
   deleteObject = async (key) ->
     params =
@@ -88,8 +78,30 @@ module.exports = async (env, config, name) ->
     catch e
       console.warn "Failed to delete #{key}", e
 
+  # Recursive method to grab all of the object headers in an S3 bucket
+  listObjects = async (objects=[], marker) ->
+    catList = (current, newContents) ->
+      current.push obj.Key for obj in newContents
+      current
+
+    params =
+      Bucket: name
+      Delimiter: '#'
+      MaxKeys: 1000
+
+    params.Marker = marker if marker
+
+    try
+      data = yield s3.listObjects params
+      if data.IsTruncated
+        objects = catList objects, data.Contents
+        yield listObjects objects, data.NextMarker
+      else
+        catList objects, data.Contents
+    catch e
+      console.warn "Failed to fetch list of objects from S3 bucket #{name}.", e
+
   destroy = async -> yield s3.deleteBucket Bucket: name
 
-
   # Return exposed functions.
-  {destroy, deleteObject, establish, getObject, putObject}
+  {destroy, deleteObject, establish, getObject, putObject, listObjects, exists}

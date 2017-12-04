@@ -1,7 +1,7 @@
 # Helper functions to assist with url manipulation for AWS calls.
 {last} = require "fairmont"
 
-module.exports = ->
+module.exports = do ->
   # Enforces "fully qualified" form of hostnames and domains.  Idompotent.
   fullyQualify = (name) -> if last(name) == "." then name else name + "."
 

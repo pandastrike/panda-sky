@@ -1,30 +1,51 @@
 {join} = require "path"
-{define} = require "panda-9000"
-{async, read, toLower} = require "fairmont"
+{define, write} = require "panda-9000"
 {yaml} = require "panda-serialize"
+{async, go, tee, pull, values, shell, exists} = require "fairmont"
 
 {bellChar} = require "../utils"
 configuration = require "../configuration"
+{render} = Asset = require "../asset"
 
-
-define "update", async (env) ->
+define "update", ["survey"], async (env) ->
   try
     appRoot = process.cwd()
     config = yield configuration.compile(appRoot, env)
-    {lambdaUpdate} = yield require("../aws/app-root")(env, config)
-    api = yaml yield read join appRoot, "api.yaml"
-    fullName = "#{config.name}-#{env}"
+    sky = yield require("../aws/sky")(env, config)
 
-    # Get names of all Lambdas
-    lambdas = []
-    for r, resource of api.resources
-      for a, action of resource.actions
-         lambdas.push "#{fullName}-#{r}-#{toLower action.method}"
+    # Push code through asset pipeline.
+    source = "src"
+    target = "lib"
+    pkg = "deploy/package.zip"
 
+    fail() if !yield exists join process.cwd(), pkg
 
-    yield lambdaUpdate lambdas, "#{env}-#{config.projectID}"
+    yield go [
+      Asset.iterator()
+      tee async (formats) ->
+        yield go [
+          values formats
+          tee render
+          pull
+          tee write target
+        ]
+      pull
+    ]
 
+    # Push code into pre-existing Zip archive.
+    yield shell "zip -qr #{pkg} lib -x *node_modules*"
+
+    # Update Sky metadata with new Zip acrhive, and republish all lambdas.
+    yield sky.lambdas.update()
 
   catch e
     console.error e.stack
   console.error bellChar
+
+fail = ->
+  console.error """
+  WARNING: Unable to find project Zip archive.  This suggests that the project has never been through the 'sky build' step.  `sky update` is only meant to be used for pre-existing deployments.
+
+  Done.
+  """
+  process.exit()

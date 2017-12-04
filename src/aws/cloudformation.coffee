@@ -1,24 +1,12 @@
-{async, first, sleep} = require "fairmont"
+{async, first, sleep, min} = require "fairmont"
+SkyStack = require "./sky"
 
-module.exports = async (env, config) ->
+module.exports = async (env, config, name) ->
     {cfo} = yield require("./index")(config.aws.region)
-    src = yield require("./app-root")(env, config)
-    name = "#{config.name}-#{env}"
 
-    stackConfig = (type) ->
-      t = "template.yaml" if type == "full"
-      t = "soft-template.yaml" if type == "soft"
-      t = "hard-template.yaml" if type == "hard"
-      t = "empty-template.yaml" if type == "empty"
-
-      StackName: name
-      TemplateURL: "http://#{env}-#{config.projectID}.s3.amazonaws.com/#{t}"
-      Capabilities: ["CAPABILITY_IAM"]
-      Tags: config.tags
-
-    getStack = async (id) ->
+    get = async ->
       try
-        first (yield cfo.describeStacks({StackName: id})).Stacks
+        first (yield cfo.describeStacks({StackName: name})).Stacks
       catch
         false
 
@@ -32,61 +20,35 @@ module.exports = async (env, config) ->
       "https://#{apiID}.execute-api.#{config.aws.region}.amazonaws.com/#{env}"
 
     # Update an existing stack with a new template.
-    update = async (updates) ->
+    update = async (intermediateTemplate, fullTemplate) ->
+      console.error "-- Update required."
       # Because of GW quirk, all API resources have to be wiped out before
       # making edits to child resources. Updating is a two-step process.
-      console.error "Existing stack detected. Updating."
-
       # Step 1: Destroy guts of Stack
-      if "All" in updates
-        console.error "update with empty template"
-        updateWith = "empty" # destroys entire stack
-      else if "GW" in updates
-        console.error "update with hard template"
-        updateWith = "hard"  # destroys most of stack
-      else
-        console.error "update with soft template"
-        updateWith = "soft" # targets only Lamba handlers
-
-      yield cfo.updateStack stackConfig updateWith
-      console.error "publishWait"
-      yield publishWait name
+      if intermediateTemplate
+        console.error "-- Removing obsolete resources."
+        yield cfo.updateStack intermediateTemplate
+        yield publishWait()
 
       # Step 2: Apply the full, updated Stack. Put it all back.
-      console.error "update with full template"
-      yield cfo.updateStack stackConfig "full"
+      console.error "-- Waiting for publish to complete."
+      yield cfo.updateStack fullTemplate
 
     # Create a new stack from scrath with the template.
-    create = async ->
-      console.error "Creating fresh stack."
-      yield cfo.createStack stackConfig "full"
-
-    publish = async ->
-      console.error "Scanning AWS for current deploy."
-      needsDeploy = yield src.prepare()  # Prep the app's core bucket
-      if !needsDeploy
-        console.error "#{name} is up to date."
-        return false
-
-      # If the stack already exists, update instead of create.
-      if {StackId} = yield getStack name
-        console.error "Stack needs update"
-        yield update needsDeploy
-      else
-        console.error "Stack needs create"
-        {StackId} = yield create()
-      StackId
+    create = async (template) ->
+      console.error "-- Waiting for publish to complete."
+      yield cfo.createStack template
 
     # Delete the application using CloudFormation
     destroy = async ->
-      {StackId} = yield getStack name
+      return false if !yield get()
       yield cfo.deleteStack StackName: name
-      StackId
+      return true
 
     # Confirm the stack is viable and online.
-    publishWait = async (id) ->
+    publishWait = async ->
       while true
-        {StackStatus, StackStatusReason} = yield getStack id
+        {StackStatus, StackStatusReason} = yield get()
         switch StackStatus
           when "CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS", "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS"
             yield sleep 5000
@@ -98,9 +60,9 @@ module.exports = async (env, config) ->
 
 
     # Confirm the stack is fully and properly deleted.
-    deleteWait = async (id) ->
+    deleteWait = async ->
       while true
-        s = yield getStack id
+        s = yield get()
         return true if !s
         switch s.StackStatus
           when "DELETE_IN_PROGRESS"
@@ -112,24 +74,12 @@ module.exports = async (env, config) ->
               s.StackStatusReason
             return false
 
-    # Handle stuff that happens after we've confirmed the stack deployed.
-    postPublish = async ->
-      yield src.syncMetadata()
-      if !config.aws.environments[env].cache
-        console.error "Your API is online and ready at the following endpoint:"
-        console.error "  #{yield getApiUrl()}"
-
-
-    # Handle stuff that happens after we've confirmed the stack deleted.
-    postDelete = async -> yield src.destroy()
-
-
     {
-      publish
+      get
+      getApiUrl
+      create
+      update
       delete: destroy
       publishWait
       deleteWait
-      postPublish
-      postDelete
-      getApiUrl
     }

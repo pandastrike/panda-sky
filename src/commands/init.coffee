@@ -9,8 +9,6 @@ interview = require "../interview"
 define "init", async ->
   try
     # Ask politely to install fairmont and js-yaml
-    # TODO: fold the parts of these that we use in the Lambdas into wrapper
-    #     to be intorduced in beta-02
     interview.setup()
     questions = [
       name: "ps"

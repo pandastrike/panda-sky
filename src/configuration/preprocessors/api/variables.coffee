@@ -6,8 +6,10 @@
 # but we should consider how to encrypt these client side so AWS never sees plaintext.
 
 {merge} = require "fairmont"
+Sky = require "../../../aws/sky/variables"
 module.exports = (config) ->
   {env, aws:{environments}} = config
+  sky = Sky env, config
   {variables} = environments[env]
 
   variables = {} if !variables
@@ -16,7 +18,7 @@ module.exports = (config) ->
     environment: config.env
     projectID: config.projectID
     fullName: "#{config.name}-#{config.env}"
-    skyBucket: "#{config.env}-#{config.projectID}"  # Root bucket used to orchastrate Panda Sky state.
+    skyBucket: sky.srcName  # Root bucket used to orchastrate Panda Sky state.
   }
 
   config.environmentVariables = variables

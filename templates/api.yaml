@@ -41,13 +41,3 @@ API:
 
 # API Gateway Deployment
 {{> deployment deployment="Deployment"}}
-
-# CloudFront Distribution
-{{#if aws.cloudfront}}
-{{> cloudfront distro="CFRDistro"}}
-{{/if}}
-
-# DNS
-{{#if aws.route53}}
-{{> route53 distro="CFRDistro"}}
-{{/if}}

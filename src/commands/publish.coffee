@@ -1,27 +1,31 @@
-{define} = require "panda-9000"
-{async, first, sleep} = require "fairmont"
+{async, write} = require "fairmont"
+{yaml} = require "panda-serialize"
+
 
 {bellChar} = require "../utils"
 configuration = require "../configuration"
 
-module.exports = async (env) ->
+module.exports = async (env, options) ->
   try
     appRoot = process.cwd()
-    console.error "compiling configuration"
+    console.error "Compiling configuration for publish"
     config = yield configuration.compile(appRoot, env)
-    console.error "generating 'stack'"
-    stack = yield require("../aws/cloudformation")(env, config)
+    sky = yield require("../aws/sky")(env, config)
 
-    console.error "stack.publish()"
-    id = yield stack.publish()
-    if id
-      console.error "Waiting for deployment to be ready."
-      yield stack.publishWait id
-    yield stack.postPublish()
-    console.error "Done"
+    console.error "Publishing..."
+    isPublishing = yield sky.stack.publish()
+    yield sky.cfo.publishWait() if isPublishing
+    yield sky.stack.postPublish()
+    yield writeOutput sky if options.output
+    console.error "Done.\n\n"
   catch e
+    console.error "Publish failure:"
     console.error e.stack
   console.error bellChar
-  stack
+  sky.cfo
 
-define "publish", module.exports
+# The developer may use the --output flag to write the API configuration to a
+# file, including the endpoint.
+writeOutput = async (sky) ->
+  config = url: yield sky.cfo.getApiUrl()
+  yield write options.output, (yaml config)
