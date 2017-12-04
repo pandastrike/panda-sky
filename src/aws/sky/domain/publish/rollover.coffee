@@ -4,7 +4,7 @@ interview = require "../../../../interview"
 module.exports = (s) ->
   needsRollover: async (name) ->
     hostnames = yield s.meta.hostnames.fetch()
-    if !empty hostnames && name not in hostnames
+    if !empty(hostnames) && name not in hostnames
       true
     else
       false
