@@ -13,8 +13,11 @@ module.exports = (s) ->
   prePublish = async (name, options) ->
     console.error "-- Scanning AWS for appropriate Cloud resources."
     yield isViable name
-    return yield rollover name, options if yield needsRollover name
+    if yield needsRollover name
+      return yield rollover name, options
     yield confirm name, options
+    console.error "Publishing..."
+    yield publish name
 
   # This is the main domain publishing engine.
   publish = async (name) ->
