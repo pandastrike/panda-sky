@@ -44,7 +44,11 @@ module.exports = (s) ->
       data = yield fetch()
       data = remove data, name
       data = hostnames: data
-      yield s.bucket.putObject("hostnames.yaml", (yaml data), "text/yaml")
+
+      if yield s.bucket.exists()
+        yield s.bucket.putObject("hostnames.yaml", (yaml data), "text/yaml")
+      else
+        console.log "WARNING: No Sky metadata detected for #{s.env}. Skipping."
 
     {fetch, add, remove: _remove}
 
