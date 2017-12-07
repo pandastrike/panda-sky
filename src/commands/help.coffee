@@ -12,11 +12,11 @@ module.exports = """
 
   Commands:
 
-    build                       compile the API, Lambdas, and resources to prepare for publishing.
-    init                        Initiallize a Panda Sky project.
-    publish [options] [env]     deploy API, Lambdas to AWS infrastructure
-    delete [env]                deploy API, Lambdas to AWS infrastructure
-    render [env]                render the CloudFormation template to STDOUT
+    build                       Compile the API, Lambdas, and resources to prepare for publishing.
+    init                        Initialize a Panda Sky project.
+    publish [options] [env]     Deploy API, Lambdas to AWS infrastructure
+    delete [env]                Delete API, Lambdas from AWS infrastructure
+    render [env]                Render the CloudFormation template to STDERR
     update [env]                Update *only* the Lambda code for an environment
     domain [subcommand] [env]   Manage your API's custom domain and edge cache.
       - domain publish [env]      Upserts a CloudFront distribution for your API
