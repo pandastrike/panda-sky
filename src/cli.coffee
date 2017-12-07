@@ -33,12 +33,12 @@ call ->
 
   program
     .command('init')
-    .description('Initiallize a Panda Sky project.')
+    .description('Initialize a Panda Sky project.')
     .action(-> run "init")
 
   program
     .command('publish [env]')
-    .description('deploy API, Lambdas to AWS infrastructure')
+    .description('Deploy API, Lambdas to AWS infrastructure')
     .option '-o, --output [output]', 'Path to write API config file'
     .action (env, options) ->
       return if noEnv env
@@ -46,14 +46,14 @@ call ->
 
   program
     .command('delete [env]')
-    .description('deploy API, Lambdas to AWS infrastructure')
+    .description('Delete API, Lambdas from AWS infrastructure')
     .action (env) ->
       return if noEnv env
       run "delete", [env]
 
   program
     .command('render [env]')
-    .description('render the CloudFormation template to STDOUT')
+    .description('Render the CloudFormation template to STDERR')
     .action (env) ->
       return if noEnv env
       render(env)
