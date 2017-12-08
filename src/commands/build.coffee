@@ -5,12 +5,16 @@ path = require "path"
 rmrf = lift require "rimraf"
 
 {render} = Asset = require "../asset"
-{safe_mkdir} = require "../utils"
+{safe_mkdir, bellChar, outputDuration} = require "../utils"
 
-module.exports = async ->
+START = 0
+module.exports = async (start) ->
+  START = start
   if yield exists ".babelrc"
+    console.error ".babelrc file detected.  Disabling default asset pipeline."
     run "custom-build"
   else
+    console.error "Preparing code..."
     run "build"
 
 define "build", ["survey"], async -> yield build()
@@ -53,5 +57,7 @@ build = async ->
     yield safe_mkdir "deploy"
     yield shell "zip -qr deploy/package.zip lib"
 
+    console.error "Done. (#{outputDuration START})\n\n"
   catch e
     console.error e.stack
+  console.error bellChar

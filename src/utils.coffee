@@ -1,4 +1,6 @@
 {async, isMatch, shell, exists, mkdir, isDirectory} = require "fairmont"
+moment = require "moment"
+require "moment-duration-format"
 
 module.exports =
 
@@ -25,3 +27,12 @@ module.exports =
       yield shell "cp #{original} #{target}"
 
   bellChar: '\u0007'
+
+  outputDuration: (start) ->
+    d = moment.duration(new Date().getTime() - start)
+    if 0 < d.asSeconds() <= 60
+      d.format("s[ s]", 1)
+    else if 60 < d.asSeconds() < 3600
+      d.format("m:ss[ min]", 0)
+    else
+      d.format("h:mm[ hr]", 0)
