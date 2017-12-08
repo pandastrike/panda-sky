@@ -8,6 +8,7 @@ require "./index"
 {bellChar} = require "./utils"
 help = require "./commands/help"
 render = require "./commands/render"
+build = require "./commands/build"
 publish = require "./commands/publish"
 domain = require "./commands/domain"
 
@@ -29,7 +30,7 @@ call ->
   program
     .command('build')
     .description('compile the API, Lambdas, and resources to prepare for publishing.')
-    .action((options) -> run "build")
+    .action (options) -> build()
 
   program
     .command('init')

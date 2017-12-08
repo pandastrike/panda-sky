@@ -1,13 +1,22 @@
 {writeFileSync} = require "fs"
 path = require "path"
 {go, tee, pull, values, async, lift, shell, exists} = require "fairmont"
-{define, write} = require "panda-9000"
+{define, write, run} = require "panda-9000"
 rmrf = lift require "rimraf"
 
 {render} = Asset = require "../asset"
 {safe_mkdir} = require "../utils"
 
-define "build", ["survey"], async ->
+module.exports = async ->
+  if yield exists ".babelrc"
+    run "custom-build"
+  else
+    run "build"
+
+define "build", ["survey"], async -> yield build()
+define "custom-build", ["custom-survey"], async -> yield build()
+
+build = async ->
   try
     source = "src"
     target = "lib"
