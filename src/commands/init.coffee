@@ -1,11 +1,17 @@
 {join} = require "path"
-{define} = require "panda-9000"
-{async, randomWords, read, write, shell} = require "fairmont"
+{define, run} = require "panda-9000"
+{async, randomWords, read, write, shell, exists} = require "fairmont"
 PandaTemplate = require("panda-template").default
-{safe_cp, safe_mkdir} = require "../utils"
+{safe_cp, safe_mkdir, bellChar, outputDuration} = require "../utils"
 interview = require "../interview"
 
 # This sets up an existing directory to hold a Panda Sky project.
+START = 0
+module.exports = (start) ->
+  START = start
+  run "init"
+
+
 define "init", async ->
   try
     # Ask politely to install fairmont and js-yaml
@@ -39,6 +45,9 @@ define "init", async ->
 
     T = new PandaTemplate()
     render = async (src, target) ->
+      if yield exists target
+        console.error "Warning: #{target} exists. Skipping."
+        return
       template = yield read src
       output = T.render template, config
       yield write target, output
@@ -53,5 +62,7 @@ define "init", async ->
     yield safe_cp (src "api"), (target "src/")
 
     console.error "Panda Sky project initialized."
+    console.error "Done. (#{outputDuration START})\n\n"
   catch e
     console.error e.stack
+  console.error bellChar

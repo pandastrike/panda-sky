@@ -1,9 +1,9 @@
 {async} = require "fairmont"
 
-{bellChar} = require "../../utils"
+{bellChar, outputDuration} = require "../../utils"
 configuration = require "../../configuration"
 
-module.exports = async (env, options) ->
+module.exports = async (START, env, options) ->
   try
     appRoot = process.cwd()
     console.error "Compiling configuration for API custom domain."
@@ -13,7 +13,7 @@ module.exports = async (env, options) ->
     yield sky.domain.preDelete config.aws.hostnames[0], options
     console.error "\nDeleting..."
     yield sky.domain.delete config.aws.hostnames[0]
-    console.error "Done.\n\n"
+    console.error "Done. (#{outputDuration START})\n\n"
   catch e
     console.error "Delete failure:"
     console.error e.stack

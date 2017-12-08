@@ -1,9 +1,9 @@
 {async} = require "fairmont"
 
-{bellChar} = require "../../utils"
+{bellChar, outputDuration} = require "../../utils"
 configuration = require "../../configuration"
 
-module.exports = async (env, options) ->
+module.exports = async (START, env, options) ->
   try
     appRoot = process.cwd()
     console.error "Compiling configuration for API custom domain."
@@ -11,7 +11,7 @@ module.exports = async (env, options) ->
     sky = yield require("../../aws/sky")(env, config)
 
     yield sky.domain.prePublish config.aws.hostnames[0], options
-    console.error "Done.\n\n"
+    console.error "Done. (#{outputDuration START})\n\n"
   catch e
     console.error "Publish failure:"
     console.error e.stack

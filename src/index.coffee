@@ -3,6 +3,5 @@ require "./commands/delete"
 require "./commands/init"
 require "./commands/publish"
 require "./commands/survey"
+require "./commands/survey-custom"
 require "./commands/update"
-
-module.exports = (AWS) -> require("./sky-helpers")(AWS)

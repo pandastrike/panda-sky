@@ -7,10 +7,15 @@ require "./index"
 
 {bellChar} = require "./utils"
 help = require "./commands/help"
+init = require "./commands/init"
 render = require "./commands/render"
+build = require "./commands/build"
 publish = require "./commands/publish"
+destroy = require "./commands/delete"
+update = require "./commands/update"
 domain = require "./commands/domain"
 
+START = new Date().getTime()
 call ->
 
   noEnv = (env) ->
@@ -27,52 +32,46 @@ call ->
     .version(version)
 
   program
-    .command('build')
-    .description('compile the API, Lambdas, and resources to prepare for publishing.')
-    .action((options) -> run "build")
+    .command "build"
+    .action (options) -> build START
 
   program
-    .command('init')
-    .description('Initialize a Panda Sky project.')
-    .action(-> run "init")
+    .command "init"
+    .action -> init START
 
   program
-    .command('publish [env]')
-    .description('Deploy API, Lambdas to AWS infrastructure')
+    .command "publish [env]"
     .option '-o, --output [output]', 'Path to write API config file'
     .action (env, options) ->
       return if noEnv env
-      publish env, options
+      publish START, env, options
 
   program
-    .command('delete [env]')
-    .description('Delete API, Lambdas from AWS infrastructure')
+    .command "delete [env]"
     .action (env) ->
       return if noEnv env
-      run "delete", [env]
+      destroy START, env
 
   program
-    .command('render [env]')
-    .description('Render the CloudFormation template to STDERR')
+    .command "render [env]"
     .action (env) ->
       return if noEnv env
-      render(env)
+      render env
 
   program
-  .command('update [env]')
-  .description('Update *only* the Lambda code for an environment')
+  .command "update [env]"
   .action (env) ->
     return if noEnv env
-    run "update", [env]
+    update START, env
 
   program
-  .command('domain [subcommand] [env]')
+  .command "domain [subcommand] [env]"
   .option '--hard', 'In domain publish, use hard rollover for replacements.'
   .option '--yes', "Always answer warning prompts with yes. Use with caution."
   .action (subcommand, env, options) ->
     if domain[subcommand]
       return if noEnv env
-      domain[subcommand] env, options
+      domain[subcommand] START, env, options
     else
       console.error "ERROR: unrecognized subcommand of sky domain."
       program.help()

@@ -1,11 +1,17 @@
 {join} = require "path"
-{define, write} = require "panda-9000"
+{define, write, run} = require "panda-9000"
 {yaml} = require "panda-serialize"
 {async, go, tee, pull, values, shell, exists} = require "fairmont"
 
-{bellChar} = require "../utils"
+{bellChar, outputDuration} = require "../utils"
 configuration = require "../configuration"
 {render} = Asset = require "../asset"
+
+START = 0
+module.exports = (start, env) ->
+  START = start
+  console.error "Updating #{env}..."
+  run "update", [env]
 
 define "update", ["survey"], async (env) ->
   try
@@ -37,7 +43,7 @@ define "update", ["survey"], async (env) ->
 
     # Update Sky metadata with new Zip acrhive, and republish all lambdas.
     yield sky.lambdas.update()
-
+    console.error "Done. (#{outputDuration START})\n\n"
   catch e
     console.error e.stack
   console.error bellChar

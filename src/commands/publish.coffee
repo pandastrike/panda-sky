@@ -2,10 +2,10 @@
 {yaml} = require "panda-serialize"
 
 
-{bellChar} = require "../utils"
+{bellChar, outputDuration} = require "../utils"
 configuration = require "../configuration"
 
-module.exports = async (env, options) ->
+module.exports = async (START, env, options) ->
   try
     appRoot = process.cwd()
     console.error "Compiling configuration for publish"
@@ -17,7 +17,7 @@ module.exports = async (env, options) ->
     yield sky.cfo.publishWait() if isPublishing
     yield sky.stack.postPublish()
     yield writeOutput sky if options.output
-    console.error "Done.\n\n"
+    console.error "Done. (#{outputDuration START})\n\n"
   catch e
     console.error "Publish failure:"
     console.error e.stack

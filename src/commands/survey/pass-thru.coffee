@@ -7,7 +7,7 @@ glob} = require "fairmont"
 {save, render} = Asset = require "../../asset"
 {pathWithUnderscore} = require "../../utils"
 
-formats = w ".html .css .js .xml .json .yaml"
+formats = w ".html .css .xml .json .yaml"
 
 type = Type.define Asset
 
