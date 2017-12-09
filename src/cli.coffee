@@ -37,7 +37,7 @@ call ->
 
   program
     .command "init"
-    .action -> init START
+    .action -> init()
 
   program
     .command "publish [env]"

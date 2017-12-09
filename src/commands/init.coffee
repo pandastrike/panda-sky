@@ -6,10 +6,7 @@ PandaTemplate = require("panda-template").default
 interview = require "../interview"
 
 # This sets up an existing directory to hold a Panda Sky project.
-START = 0
-module.exports = (start) ->
-  START = start
-  run "init"
+module.exports = -> run "init"
 
 
 define "init", async ->
@@ -28,6 +25,7 @@ define "init", async ->
 
     console.error "Press ^C at any time to quit."
     answers = yield interview.ask questions
+    START = new Date().getTime()
 
     if answers.fairmont || answers.yaml
       console.error "\n Adding module(s). One moment..."

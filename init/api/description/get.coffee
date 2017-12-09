@@ -7,7 +7,7 @@ import sky from "panda-sky-helpers"
 
 handler = (request, context) ->
   # Instantiate new s3 helper to target deployment "src" bucket.
-  {get} = s3 "#{env.environment}-#{env.projectID}"
+  {get} = s3 "#{env.fullName}-#{env.projectID}"
   YAML.safeLoad await get "api.yaml"
 
 export default handler

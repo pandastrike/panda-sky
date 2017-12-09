@@ -1,14 +1,17 @@
-{async} = require "fairmont"
+{async, capitalize} = require "fairmont"
 extractParameters = require "./parameters"
 extractResources = require "./resources"
 extractMethods = require "./methods"
 addResponses = require "./responses"
 addVariables = require "./variables"
+policyStatements = require "./policy-statements"
 
 module.exports = async (config) ->
   {name, env} = config
   config.gatewayName = "#{name}-#{env}"
+  config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"
   config.policyName = "#{name}-#{env}"
+  config.policyStatements = policyStatements
 
   # Extract path and querystring parameter configuration
   config = extractParameters config

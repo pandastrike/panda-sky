@@ -111,7 +111,7 @@
 
     Handler: "lib/sky.API"
     Role:
-      "Fn::GetAtt" : ["LambdaRole", "Arn"]
+      "Fn::GetAtt" : ["{{@root.roleName}}", "Arn"]
     Runtime: {{@root.aws.runtime}}
     Environment:
       Variables:
@@ -146,4 +146,3 @@
           - {"Ref": "API"}
           - {{permission.path}}
 {{/with}} # lambda
-

@@ -16,6 +16,3 @@ module.exports = async (env) ->
     console.error e.message
     if e.errors
       console.error YAML.dump {errors: e.errors}
-
-  console.error bellChar
-
