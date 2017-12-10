@@ -29,9 +29,9 @@ mixinUnavailable = (m) ->
 
 
 # Check to make sure the listed mixins are valid.
-fetchMixinNames = (globals) ->
-  {env} = globals
-  {mixins} = globals.aws.environments[env]
+fetchMixinNames = (config) ->
+  {env} = config
+  {mixins} = config.aws.environments[env]
   return false if !mixins
   mixins = keys mixins
 
@@ -44,28 +44,27 @@ fetchMixinPackages = async (mixins) ->
   for m in mixins
     path = resolve process.cwd(), "node_modules", "sky-mixin-#{m}"
     mixinUnavailable m if !yield exists path
-    packages[m] = require(path).default
+    packages[m] = (yield require path).default
   packages
 
 # Gather together all the project's mixin code into one dictionary.
-fetchMixins = async (globals) ->
-  mixins = fetchMixinNames globals
+fetchMixins = async (config) ->
+  mixins = fetchMixinNames config
   return if !mixins
   yield fetchMixinPackages mixins
 
 # Before we can render either the mixins or the Core Sky API, we need to
 # accomdate the changes caused by the mixins.
-reconcileConfigs = (mixins, globals) ->
-  console.log global.policyStatements
-  # Access the policyStatement hook each mixin, and add to the array we haveThe
-  s = globals.policyStatements
-  s = cat s, v.policyStatements for k, v of mixins when v.policyStatements
+reconcileConfigs = (mixins, config) ->
+  # Access the policyStatement hook each mixin, and add to the array.
+  # TODO: Consider policy uniqueness constraint.
+  s = config.policyStatements
+  s = cat s, v.policyStatements for k, v of mixins
+  config.policyStatements = s
+  config
 
-  globals.policyStatements = s
-  globals
+# Mixins have their own configuration schema and templates.  Validation and
+# rendering is handled internally.  Just accept what we get back.
+renderMixin = async (config, mixin) -> yield mixin.render config
 
-# Pull the template and schema from the mixin code.  Validate the configuration
-renderMixins = async (appRoot, globals) ->
-  a = yield 1
-
-module.exports = {fetchMixins, renderMixins, reconcileConfigs}
+module.exports = {fetchMixins, renderMixin, reconcileConfigs}

@@ -28,8 +28,7 @@ renderResources = async (config) ->
 
   resources = []
   resources.push yield renderAPI config
-  #resources.push yield renderMixins appRoot, config
-
+  resources.push yield renderMixin config, m for m in mixins
   merge resources...
 
 # The complete and rendered CloudFormation Description. Object not string.
