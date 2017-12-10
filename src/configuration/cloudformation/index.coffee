@@ -19,20 +19,25 @@ AWSTemplateFormatVersion = "2010-09-09"
 
 # Helpers
 {renderAPI} = require "./api-core"
-#{renderMixins} = require "./mixins" # TODO - handle mixins.
+{fetchMixins, renderMixins, reconcileConfigs} = require "./mixins"
 
 # Finds and renders the API description and all mixins as the Resources.
-renderResources = async (appRoot, globals) ->
+renderResources = async (config) ->
+  mixins = yield fetchMixins config
+  config = reconcileConfigs mixins, config
+
   resources = []
-  resources.push yield renderAPI appRoot, globals
-  #resources.push yield renderMixins appRoot, globals  # TODO - handle mixins.
+  resources.push yield renderAPI config
+  #resources.push yield renderMixins appRoot, config
+
   merge resources...
 
 # The complete and rendered CloudFormation Description. Object not string.
-renderTemplate = async (appRoot, globals) ->
-  Description = globals.description || "#{globals.name} - deployed by Panda Sky"
-  Resources = yield renderResources appRoot, globals
+renderTemplate = async (config) ->
+  Description = config.description || "#{config.name} - deployed by Panda Sky"
+  Resources = yield renderResources config
 
+  # These fields are the high level sections of a CloudFormation pattern.
   return {
     AWSTemplateFormatVersion
     Description

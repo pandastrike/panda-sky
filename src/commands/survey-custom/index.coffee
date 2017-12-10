@@ -30,7 +30,6 @@ Method.define render, (isType type), async ({source, target}) ->
   try
     source.content ?= yield read source.path
 
-    env = join __dirname, "..", "..", "..", "node_modules", "babel-preset-env"
     {code} = babel.transform source.content,
       sourceFileName: source.name + source.extension
       extends: join process.cwd(), ".babelrc"

@@ -2,7 +2,7 @@
 w, include, Type, isType, Method,
 glob} = require "fairmont"
 
-{join} = require "path"
+{resolve} = require "path"
 {define, context} = require "panda-9000"
 babel = require "babel-core"
 
@@ -32,7 +32,7 @@ Method.define render, (isType type), async ({source, target}) ->
   try
     source.content ?= yield read source.path
 
-    env = join __dirname, "..", "..", "..", "node_modules", "babel-preset-env"
+    env = resolve __dirname, "..", "..", "..", "node_modules", "babel-preset-env"
     {code} = babel.transform source.content,
       sourceFileName: source.name + source.extension
       sourceMaps: "inline"

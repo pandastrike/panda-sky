@@ -6,7 +6,7 @@
 # but we should consider how to encrypt these client side so AWS never sees plaintext.
 
 {merge} = require "fairmont"
-Sky = require "../../../aws/sky/variables"
+Sky = require "../../aws/sky/variables"
 module.exports = (config) ->
   {env, aws:{environments}} = config
   sky = Sky env, config

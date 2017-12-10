@@ -1,6 +1,6 @@
 # Accept a configuration for the deployment and come up with tags for every
 # resource we label within the stack.
-module.exports = (config, env) ->
+module.exports = (config) ->
   tags = [
     {
       Key: "project"
@@ -12,7 +12,7 @@ module.exports = (config, env) ->
     }
     {
       Key: "environment"
-      Value: env
+      Value: config.env
     }
   ]
 

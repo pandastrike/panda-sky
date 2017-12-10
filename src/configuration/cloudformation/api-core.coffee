@@ -7,9 +7,7 @@
 {yaml} = require "panda-serialize"
 
 # Helper Classes
-API = require "../../api"
 Templater = require "../../templater"
-preprocessors = require "../preprocessors"
 
 # Paths
 skyRoot = resolve __dirname, "..", "..", ".."
@@ -20,17 +18,7 @@ registerAPIComponentTemplates = async (T) ->
   for c in components when parse(c).ext == ".yaml"
     T.registerPartial(parse(c).name, yield read c)
 
-getAPIDescription = async (root, globals) ->
-  try
-    api = yield API.read resolve root, "api.yaml"
-    yield preprocessors.api merge api, globals
-  catch e
-    console.error "Unable to read API description."
-    console.error e
-    process.exit()
-
-renderAPI = async (root, globals) ->
-  config = yield getAPIDescription root, globals
+renderAPI = async (config) ->
   templater = yield Templater.read (tPath "api.yaml"), (tPath "api.schema.yaml")
   yield registerAPIComponentTemplates templater
 

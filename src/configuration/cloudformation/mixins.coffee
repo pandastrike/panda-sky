@@ -1,47 +1,71 @@
-# TODO - This is the code that was previously used to pull in mixins.  But we
-# only had basic support for S3.  We'll come back here when we hammer out the
-# mixin model.
+{resolve} = require "path"
+{async, keys, exists, cat} = require "fairmont"
+allowedMixins = ["s3"] # "dynamodb", "sqs", "elastic", "cognito"]
 
-mixinNames = yield listMixins appRoot
-for name in mixinNames
-  resources.push yield renderMixin appRoot, name, globals
-# Each mixin template may define a number of CloudFormation Resources. We
-# merge them in a blind manner, so it is possible for one mixin to clobber a
-# Resource key supplied by a predecessor. Predictability depends on the order
-# of results returned by `fairmont.readdir`.
-merge resources...
+mixinInvalid = (env, m) ->
+  console.error """
+  ERROR: Invalid mixin:
+    Environment: #{env}
+    Mixin: #{m}
 
-renderMixin = async (dir, name, globals) ->
+  Please correct your sky.yaml configuration before continuing.
+  This process will now discontinue.
+  Done.
+  """
+  process.exit -1
 
-  # TODO: template = getMixinTemplate(name)
-  template = yield read resolve skyMixinsPath, "#{name}.yaml"
+mixinUnavailable = (m) ->
+  console.error """
+  ERROR: Mixin not found in project directory: #{m}
 
-  # FIXME: This is a good indication that the Sky API description
-  # isn't the same kind of mixin as the other mixins.
-  dataPath = if name == "api" then "api" else "mixins/#{name}"
+  Please install the mixin with the command
 
-  # acquire the parameters for this particular mixin from the app files
-  mixinConfig = yaml yield read resolve dir, "#{dataPath}.yaml"
+      npm install sky-mixin-#{m} --save
 
-  # FIXME: should globals be winning over mixin-specific params?
-  mungedConfig = merge mixinConfig, globals
-
-  preprocessor = preprocessors[name]
-  mungedConfig = yield preprocessor mungedConfig
-  yaml _render template, mungedConfig
+  This process will now discontinue.
+  Done.
+  """
+  process.exit -1
 
 
-listMixins = async (appRoot) ->
-  mixinPath = resolve appRoot, "mixins"
-  mixins = []
+# Check to make sure the listed mixins are valid.
+fetchMixinNames = (globals) ->
+  {env} = globals
+  {mixins} = globals.aws.environments[env]
+  return false if !mixins
+  mixins = keys mixins
 
-  if yield exists mixinPath
-    files = yield readdir mixinPath
-    for file in files when isFile file
-      mixins.push basename file, ".yaml"
+  mixinInvalid env, m for m in mixins when m not in allowedMixins
   mixins
 
-renderMixins = (appRoot, globals) ->
+# Collect all the mixin packages.
+fetchMixinPackages = async (mixins) ->
+  packages = {}
+  for m in mixins
+    path = resolve process.cwd(), "node_modules", "sky-mixin-#{m}"
+    mixinUnavailable m if !yield exists path
+    packages[m] = require(path).default
+  packages
 
+# Gather together all the project's mixin code into one dictionary.
+fetchMixins = async (globals) ->
+  mixins = fetchMixinNames globals
+  return if !mixins
+  yield fetchMixinPackages mixins
 
-module.exports = {renderMixins}
+# Before we can render either the mixins or the Core Sky API, we need to
+# accomdate the changes caused by the mixins.
+reconcileConfigs = (mixins, globals) ->
+  console.log global.policyStatements
+  # Access the policyStatement hook each mixin, and add to the array we haveThe
+  s = globals.policyStatements
+  s = cat s, v.policyStatements for k, v of mixins when v.policyStatements
+
+  globals.policyStatements = s
+  globals
+
+# Pull the template and schema from the mixin code.  Validate the configuration
+renderMixins = async (appRoot, globals) ->
+  a = yield 1
+
+module.exports = {fetchMixins, renderMixins, reconcileConfigs}
