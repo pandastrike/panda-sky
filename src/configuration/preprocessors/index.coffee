@@ -12,8 +12,9 @@ extractDomains = require "./custom-domains"
 addResponses = require "./responses"
 addVariables = require "./variables"
 policyStatements = require "./policy-statements"
+fetchMixins = require "./mixins"
 
-module.exports = (config) ->
+module.exports = async (config) ->
   {name, env} = config
   config.gatewayName = "#{name}-#{env}"
   config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"
@@ -41,10 +42,13 @@ module.exports = (config) ->
   # Add the possible HTTP responses to every API action specification.
   config = addResponses config
 
-
   # Remove the root resource, because it needs special handling
   rootKey = config.rootResourceKey
   delete config.resources[rootKey]
   delete config.rootResourceKey
+
+  # Fetch the declared mixins installed in the project directory and instantiate
+  # their CLI and render interfaces.
+  config = yield fetchMixins config
 
   config

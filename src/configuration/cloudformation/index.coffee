@@ -19,16 +19,14 @@ AWSTemplateFormatVersion = "2010-09-09"
 
 # Helpers
 {renderAPI} = require "./api-core"
-{fetchMixins, renderMixin, reconcileConfigs} = require "./mixins"
 
 # Finds and renders the API description and all mixins as the Resources.
 renderResources = async (config) ->
-  mixins = yield fetchMixins config
-  config = reconcileConfigs mixins, config
-
   resources = []
   resources.push yield renderAPI config
-  resources.push yield renderMixin config, m for name, m of mixins
+  # Mixins have their own configuration schema and templates.  Validation and
+  # rendering is handled internally.  Just accept what we get back.
+  resources.push yield m.render config for name, m of config.mixins
 
   merge resources...
 

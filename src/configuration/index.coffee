@@ -14,8 +14,8 @@ compile = async (appRoot, env) ->
   api = yield readAPI appRoot       # api.yaml
 
   # Run everything through preprocessors to get final config.
-  config = preprocess merge api, sky, {env}
-
+  config = yield preprocess merge api, sky, {env}
+  
   cfoTemplate = yield cloudformation.renderTemplate config
   config.aws.cfoTemplate = JSON.stringify cfoTemplate
   config

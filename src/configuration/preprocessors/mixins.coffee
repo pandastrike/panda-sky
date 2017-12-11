@@ -50,7 +50,7 @@ fetchMixinPackages = async (mixins) ->
 # Gather together all the project's mixin code into one dictionary.
 fetchMixins = async (config) ->
   mixins = fetchMixinNames config
-  return if !mixins
+  return [] if !mixins
   yield fetchMixinPackages mixins
 
 # Before we can render either the mixins or the Core Sky API, we need to
@@ -63,8 +63,6 @@ reconcileConfigs = (mixins, config) ->
   config.policyStatements = s
   config
 
-# Mixins have their own configuration schema and templates.  Validation and
-# rendering is handled internally.  Just accept what we get back.
-renderMixin = async (config, mixin) -> yield mixin.render config
-
-module.exports = {fetchMixins, renderMixin, reconcileConfigs}
+module.exports = async (config) ->
+  config.mixins = mixins = yield fetchMixins config
+  reconcileConfigs mixins, config
