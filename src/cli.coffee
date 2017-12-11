@@ -81,7 +81,7 @@ call ->
     .action -> program.help()
 
   # TODO: This should be more detailed, customized for each subcommand, and
-  # automatially extended with new commands and flags.  For now, this will
+  # automatically extended with new commands and flags.  For now, this will
   # need to do.
   program.help = -> console.error help
 

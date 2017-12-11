@@ -44,7 +44,7 @@ fetchMixinPackages = async (mixins) ->
   for m in mixins
     path = resolve process.cwd(), "node_modules", "sky-mixin-#{m}"
     mixinUnavailable m if !yield exists path
-    packages[m] = (yield require path).default
+    packages[m] = yield require(path).default
   packages
 
 # Gather together all the project's mixin code into one dictionary.

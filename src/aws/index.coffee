@@ -4,16 +4,12 @@
 
 AWS = require "aws-sdk"
 
-{async, read, isFunction, where, lift} = require "fairmont"
-{task} = require "panda-9000"
-
-# this should be in f-core
-bind = (o, f) -> f.bind o
+{async, read, isFunction, where, lift, bind} = require "fairmont"
 
 liftModule = (m) ->
   lifted = {}
   for k, v of m
-    lifted[k] = if isFunction v then (lift v.bind m) else v
+    lifted[k] = if isFunction v then lift bind v, m else v
   lifted
 
 parseCreds = (data) ->

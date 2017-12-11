@@ -19,7 +19,7 @@ AWSTemplateFormatVersion = "2010-09-09"
 
 # Helpers
 {renderAPI} = require "./api-core"
-{fetchMixins, renderMixins, reconcileConfigs} = require "./mixins"
+{fetchMixins, renderMixin, reconcileConfigs} = require "./mixins"
 
 # Finds and renders the API description and all mixins as the Resources.
 renderResources = async (config) ->
@@ -28,7 +28,8 @@ renderResources = async (config) ->
 
   resources = []
   resources.push yield renderAPI config
-  resources.push yield renderMixin config, m for m in mixins
+  resources.push yield renderMixin config, m for name, m of mixins
+
   merge resources...
 
 # The complete and rendered CloudFormation Description. Object not string.
