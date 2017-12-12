@@ -1,5 +1,3 @@
-{values} = require "fairmont"
-
 module.exports = """
 
   Usage: sky [command]
@@ -22,5 +20,7 @@ module.exports = """
       - domain publish [env]      Upserts a CloudFront distribution for your API
       - domain invalidate [env]   Invalidates your API's CloudFront edge cache
       - domain delete [env]       Deletes your API's CloudFront distribution
+
+    mixin [name] [env] [other]  Use augemnted CLI provided by mixin
 
   """

@@ -50,7 +50,7 @@ fetchMixinPackages = async (mixins) ->
 # Gather together all the project's mixin code into one dictionary.
 fetchMixins = async (config) ->
   mixins = fetchMixinNames config
-  return [] if !mixins
+  return {} if !mixins
   yield fetchMixinPackages mixins
 
 # Before we can render either the mixins or the Core Sky API, we need to
