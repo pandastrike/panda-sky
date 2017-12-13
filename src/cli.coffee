@@ -29,8 +29,8 @@ call ->
     .action (options) -> COMMANDS.build START
 
   program
-    .command "init"
-    .action -> COMMANDS.init()
+    .command "init [name]"
+    .action (name) -> COMMANDS.init name
 
   program
     .command "publish [env]"
