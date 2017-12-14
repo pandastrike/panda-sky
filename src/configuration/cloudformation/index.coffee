@@ -22,11 +22,13 @@ AWSTemplateFormatVersion = "2010-09-09"
 
 # Finds and renders the API description and all mixins as the Resources.
 renderResources = async (config) ->
+  {AWS} = yield require("../../aws")(config.aws.region)
   resources = []
   resources.push yield renderAPI config
+
   # Mixins have their own configuration schema and templates.  Validation and
   # rendering is handled internally.  Just accept what we get back.
-  resources.push yield m.render config for name, m of config.mixins
+  resources.push yield m.render AWS, config for name, m of config.mixins
 
   merge resources...
 

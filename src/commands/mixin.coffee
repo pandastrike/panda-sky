@@ -9,13 +9,14 @@ module.exports = async (name, env, argv) ->
     console.error "Compiling configuration for mixin..."
     appRoot = process.cwd()
     config = yield configuration.compile(appRoot, env)
+    {AWS} = yield require("../aws")(config.aws.region)
 
     {mixins} = config
     fail name if name not in keys mixins
     noCLI name if !mixins[name].cli
     console.error "Accessing mixin #{name} CLI..."
     console.error "-".repeat 80
-    yield mixins[name].cli config, extractMixinArgs argv
+    yield mixins[name].cli AWS, config, extractMixinArgs argv
   catch e
     console.error "Command failure:"
     console.error e.stack

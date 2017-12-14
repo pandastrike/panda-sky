@@ -1,0 +1,33 @@
+# Describe your API resources and the endpoints used to access them.
+resources:
+
+  discovery:
+
+    path: /
+    description: Provides a directory of available resources
+
+    methods:
+
+      get:
+        signatures:
+          request: {}
+          response:
+            status: [200]
+
+  alpha:
+
+    path: "/alpha"
+    description: Demo resource with handlers that manipulate S3 buckets.  This HTTP interface for their contents lets developers see the effects of the S3 mixin CLI without having to use the Console.
+
+    methods:
+
+      get:
+        signatures:
+          request: {}
+          response:
+            status: [200]
+      put:
+        signatures:
+          request: {}
+          response:
+            status: [200]

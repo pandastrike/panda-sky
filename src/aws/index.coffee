@@ -45,4 +45,4 @@ module.exports = async (region) ->
   route53 = liftModule new AWS.Route53()
   s3 = liftModule new AWS.S3()
 
-  {acm, agw, gw, cfo, cfr, lambda, route53, s3}
+  {AWS, acm, agw, gw, cfo, cfr, lambda, route53, s3}
