@@ -1,9 +1,8 @@
 # TODO - Sky's roadmap includes plans to automate the construction of this dispatcher.
 
 # Access the Panda Sky dispatch helpers.
-import AWS from "aws-sdk"
 import sky from "panda-sky-helpers"
-{env, dispatch, method} = sky AWS
+{env, dispatch, method} = sky()
 
 # Handlers
 import descriptionGet from "./description/get"
