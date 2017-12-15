@@ -60,7 +60,7 @@ build = async ->
 
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.
     yield safe_mkdir "deploy"
-    yield shell "zip -qr deploy/package.zip lib"
+    yield shell "zip -qr -9 deploy/package.zip lib"
 
     # Now install everything, including dev-dependencies
     console.error "  -- Installing local dependencies"
