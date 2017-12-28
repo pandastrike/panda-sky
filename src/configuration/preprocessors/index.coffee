@@ -11,7 +11,7 @@ addTags = require "./tags"
 extractDomains = require "./custom-domains"
 addResponses = require "./responses"
 addVariables = require "./variables"
-policyStatements = require "./policy-statements"
+addPolicyStatements = require "./policy-statements"
 fetchMixins = require "./mixins"
 
 module.exports = async (config) ->
@@ -19,7 +19,6 @@ module.exports = async (config) ->
   config.gatewayName = "#{name}-#{env}"
   config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"
   config.policyName = "#{name}-#{env}"
-  config.policyStatements = policyStatements
 
   # Add in default tags.
   config = addTags config
@@ -41,6 +40,9 @@ module.exports = async (config) ->
 
   # Add the possible HTTP responses to every API action specification.
   config = addResponses config
+
+  # Add base Sky policy statements that give Lambdas access to AWS resources.
+  config = addPolicyStatements config
 
   # Remove the root resource, because it needs special handling
   rootKey = config.rootResourceKey
