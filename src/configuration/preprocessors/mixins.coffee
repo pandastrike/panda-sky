@@ -58,8 +58,13 @@ fetchMixins = async (config) ->
 reconcileConfigs = (mixins, config) ->
   # Access the policyStatement hook each mixin, and add to the array.
   # TODO: Consider policy uniqueness constraint.
+  {env} = config
   s = config.policyStatements
-  s = cat s, v.policyStatements for k, v of mixins
+
+  for name, mixin of mixins when mixin.getPolicyStatements
+    _config = config.aws.environments[env].mixins[name]
+    s = cat s, mixin.getPolicyStatements _config, config
+
   config.policyStatements = s
   config
 

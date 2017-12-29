@@ -16,8 +16,8 @@ resources:
 
   alpha:
 
-    path: "/alpha"
-    description: Demo resource with handlers that update a single object within the alpha S3 bucket.  The developer can add timestamped touches with put and then fetch the whole log with get.  This is also used with the mixin CLI to showcase bucket empty and delete functionality.
+    path: "/alpha/{name}"
+    description: Demo resource with handlers that lets you manipulate objects within the beta S3 bucket.  The path parameter specifies the S3 object name, while the HTTP verb maps onto the action - get, upsert (put),  and delete.
 
     methods:
 
@@ -25,25 +25,7 @@ resources:
         signatures:
           request: {}
           response:
-            status: [200]
-      put:
-        signatures:
-          request: {}
-          response:
-            status: [200]
-
-  beta:
-
-    path: "/beta/{name}"
-    description: Demo resource with handlers that lets you manipulate objects within the beta S3 bucket.  The path parameter specifies the S3 object name, while the HTTP verb maps onto the action: get, upsert (put),  and delete.
-
-    methods:
-
-      get:
-        signatures:
-          request: {}
-          response:
-            status: [200]
+            status: [200, 404]
       put:
         signatures:
           request: {}
@@ -54,4 +36,4 @@ resources:
         signatures:
           request: {}
           response:
-            status: [200]
+            status: [200, 404]
