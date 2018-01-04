@@ -1,4 +1,4 @@
-{async, md5, read, keys, cat, empty, min, remove} = require "fairmont"
+{async, md5, read, keys, cat, empty, min, remove, toJSON} = require "fairmont"
 {yaml} = require "panda-serialize"
 
 module.exports = (s) ->
@@ -25,6 +25,14 @@ module.exports = (s) ->
 
     update: async -> yield s.bucket.putObject "sky.yaml", s.skyDef
     tier: 0
+
+  permissions =
+    isCurrent: (remote) ->
+      local = md5 toJSON s.permissions
+      if local == remote.permissions then true else false
+
+    update: async -> yield s.bucket.putObject "permissions.json", toJSON(s.permissions), "text/json"
+    tier: 1
 
   hostnames = do ->
     fetch = async ->
@@ -91,16 +99,18 @@ module.exports = (s) ->
         api: md5 yield read s.apiDef
         handlers: md5 yield read(s.pkg, "buffer")
         sky: md5 yield read s.skyDef
+        permissions: md5 toJSON s.permissions
         endpoint: endpoint
 
       yield s.bucket.putObject(".sky", (yaml data), "text/yaml")
 
     check: async (meta) ->
       updates = []
-      yield updates.push handlers.tier if !yield handlers.isCurrent meta
-      yield updates.push api.tier if !yield api.isCurrent meta
-      yield updates.push skyConfig.tier if !yield skyConfig.isCurrent meta
-      if empty updates then -1 else min updates
+      updates.push handlers.tier if !yield handlers.isCurrent meta
+      updates.push api.tier if !yield api.isCurrent meta
+      updates.push skyConfig.tier if !yield skyConfig.isCurrent meta
+      updates.push permissions.tier if !permissions.isCurrent meta
+      if empty updates then -1 else min updates...
 
 
 
@@ -108,6 +118,7 @@ module.exports = (s) ->
     yield api.update()
     yield skyConfig.update()
     yield handlers.update()
+    yield permissions.update()
     yield template.update()
 
   create = async ->

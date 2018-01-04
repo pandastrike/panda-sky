@@ -1,0 +1,39 @@
+# Describe your API resources and the endpoints used to access them.
+resources:
+
+  discovery:
+
+    path: /
+    description: Provides a directory of available resources
+
+    methods:
+
+      get:
+        signatures:
+          request: {}
+          response:
+            status: [200]
+
+  alpha:
+
+    path: "/alpha/{name}"
+    description: Demo resource with handlers that lets you manipulate objects within the beta S3 bucket.  The path parameter specifies the S3 object name, while the HTTP verb maps onto the action - get, upsert (put),  and delete.
+
+    methods:
+
+      get:
+        signatures:
+          request: {}
+          response:
+            status: [200, 404]
+      put:
+        signatures:
+          request: {}
+          response:
+            status: [200]
+
+      delete:
+        signatures:
+          request: {}
+          response:
+            status: [200, 404]

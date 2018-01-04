@@ -1,4 +1,4 @@
-{{rolename}}:
+{{roleName}}:
   Type: "AWS::IAM::Role"
   Properties:
     AssumeRolePolicyDocument:
@@ -15,14 +15,14 @@
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
-            - Effect: Allow
+          {{#each policyStatements}}
+            - Effect: {{Effect}}
               Action:
-                - "logs:CreateLogGroup"
-                - "logs:CreateLogStream"
-                - "logs:PutLogEvents"
-              Resource: "arn:aws:logs:*:*:*"
-            - Effect: Allow
-              Action:
-                - "s3:*"
+              {{#each Action}}
+                - {{.}}
+              {{/each}}
               Resource:
-                - "arn:aws:s3:::*"
+              {{#each Resource}}
+                - {{.}}
+              {{/each}}
+          {{/each}}

@@ -21,6 +21,10 @@ properties:
     type: string
   policyName:
     type: string
+  policyDocument:
+    type: object
+  roleName:
+    type: string
   rootResource: {$ref: "#/definitions/resource"}
   resources:
     type: object
@@ -55,4 +59,3 @@ definitions:
       - lambda
       - IntegrationResponses
       - MethodResponses
-

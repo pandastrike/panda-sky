@@ -1,0 +1,39 @@
+name: sky
+description: Example Project API
+projectID: {{projectID}}
+aws:
+  runtime: nodejs6.10
+  domain:
+    - example.com
+  region: us-west-2
+  environments:
+    staging:
+      hostnames:
+        - staging-api
+      mixins:
+        dynamodb:
+          tables:
+            - name: {{tableName}}
+              attributes:
+                PlayerID: [S, HASH]
+                GameTitle: [S, RANGE]
+                TopScore: [N]
+              throughput: [2, 2]
+              globalIndexes:
+                - name: GameTitleIndex
+                  keys:
+                    GameTitle: HASH
+                    TopScore: RANGE
+                  throughput: [2, 2]
+
+    production:
+      hostnames:
+        - api
+      cache:
+        expires: 1800
+        priceClass: All
+
+# Optional, but lets you track things in billing.
+tags:
+  - Key: stack
+    Value: serverless

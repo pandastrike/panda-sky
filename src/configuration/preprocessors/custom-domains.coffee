@@ -1,5 +1,6 @@
-module.exports = (config, env) ->
+module.exports = (config) ->
   # Pull config data for the requested environment.
+  {env} = config
   desired = config.aws.environments[env]
   {domain} = config.aws
 

@@ -9,4 +9,5 @@ module.exports = (env, config) ->
   s.pkg = join process.cwd(), "deploy", "package.zip"
   s.apiDef = join process.cwd(), "api.yaml"
   s.skyDef = join process.cwd(), "sky.yaml"
+  s.permissions = config.policyStatements
   s

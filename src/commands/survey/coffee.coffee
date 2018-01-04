@@ -1,5 +1,5 @@
 {go, map, tee, reject, include, Type, isType, Method, glob, read, async} = require "fairmont"
-{join} = require "path"
+{resolve} = require "path"
 
 {define, context} = require "panda-9000"
 coffee = require "coffeescript"
@@ -30,7 +30,7 @@ Method.define render, (isType type), async ({source, target}) ->
   try
     source.content ?= yield read source.path
 
-    env = join __dirname, "..", "..", "..", "node_modules", "babel-preset-env"
+    env = resolve __dirname, "..", "..", "..", "node_modules", "babel-preset-env"
     target.content = coffee.compile source.content,
       filename: source.name + source.extension
       inlineMap: true

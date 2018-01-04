@@ -4,16 +4,12 @@
 
 AWS = require "aws-sdk"
 
-{async, read, isFunction, where, lift} = require "fairmont"
-{task} = require "panda-9000"
-
-# this should be in f-core
-bind = (o, f) -> f.bind o
+{async, read, isFunction, where, lift, bind} = require "fairmont"
 
 liftModule = (m) ->
   lifted = {}
   for k, v of m
-    lifted[k] = if isFunction v then (lift v.bind m) else v
+    lifted[k] = if isFunction v then lift bind v, m else v
   lifted
 
 parseCreds = (data) ->
@@ -49,4 +45,4 @@ module.exports = async (region) ->
   route53 = liftModule new AWS.Route53()
   s3 = liftModule new AWS.S3()
 
-  {acm, agw, gw, cfo, cfr, lambda, route53, s3}
+  {AWS, acm, agw, gw, cfo, cfr, lambda, route53, s3}

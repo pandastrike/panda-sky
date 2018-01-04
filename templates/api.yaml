@@ -3,7 +3,7 @@
 # Panda Sky app deployment, with mixins adding resources to the description.
 
 # IAM (Identity and Access Management)
-{{> iamrole rolename="LambdaRole"}}
+{{> iamrole}}
 
 ## API Gateway
 

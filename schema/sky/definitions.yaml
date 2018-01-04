@@ -16,6 +16,13 @@ environment:
         type: string
         minLength: 1
 
+    mixins:
+      description: >
+        This is a dictionary of Sky mixins.  The keys are the names, and the
+        values are the mixin-specific configuration.  The schemas for those
+        configurations are held within the mixins themselves.
+      type: object
+
     cache:
       description: >
         Optional configuration for CloudFront to provide caching on the AWS

@@ -3,11 +3,12 @@ import YAML from "js-yaml"
 
 # Access the Panda Sky helpers.
 import sky from "panda-sky-helpers"
-{env, s3} = sky AWS
+{env, AWS:{S3}} = sky AWS
+
+# Instantiate new s3 helper to target deployment "src" bucket.
+get = S3.get "#{env.fullName}-#{env.projectID}"
 
 handler = (request, context) ->
-  # Instantiate new s3 helper to target deployment "src" bucket.
-  {get} = s3 "#{env.environment}-#{env.projectID}"
   YAML.safeLoad await get "api.yaml"
 
 export default handler

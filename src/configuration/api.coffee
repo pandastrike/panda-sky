@@ -2,7 +2,7 @@
 {yaml} = require "panda-serialize"
 JSCK = require "jsck"
 
-Schemas = require "./schemas"
+Schemas = require "../schemas"
 
 validator = Schemas.validator "api-description"
 
@@ -16,5 +16,5 @@ module.exports = class API
     {valid, errors} = validator.validate description
     if not valid
       console.error errors
-      throw new Error "Invalid Panda Sky API Description"      
+      throw new Error "Invalid Panda Sky API Description"
     {@resources, @schema, @variables} = description

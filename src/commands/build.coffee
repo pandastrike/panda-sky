@@ -32,11 +32,15 @@ build = async ->
         are listed."
       process.exit()
 
-    # Dump the processed assets from "src" into an intermidate directory, lib.
+    # To ensure consistency, wipe out the build, node_module, and deploy dirs.
+    console.error "  -- Wiping out build directories"
     yield rmrf "deploy"
     yield rmrf target
+    yield rmrf "node_modules"
     yield safe_mkdir target
 
+    # Pipeline the assets from "src" into an intermidate directory, lib.
+    console.error "  -- Pipelining project code"
     yield go [
       Asset.iterator()
       tee async (formats) ->
@@ -49,13 +53,18 @@ build = async ->
       pull
     ]
 
-    # Run npm install for the developer.
+    # Run npm install for the developer.  Only the stuff going into Lambda
+    console.error "  -- Building deploy package"
     yield shell "npm install --production --silent"
     yield shell "cp -r node_modules/ #{target}/node_modules/" if yield exists "node_modules"
 
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.
     yield safe_mkdir "deploy"
-    yield shell "zip -qr deploy/package.zip lib"
+    yield shell "zip -qr -9 deploy/package.zip lib"
+
+    # Now install everything, including dev-dependencies
+    console.error "  -- Installing local dependencies"
+    yield shell "npm install --silent"
 
     console.error "Done. (#{outputDuration START})\n\n"
   catch e
