@@ -110,7 +110,7 @@ module.exports = (s) ->
       updates.push api.tier if !yield api.isCurrent meta
       updates.push skyConfig.tier if !yield skyConfig.isCurrent meta
       updates.push permissions.tier if !permissions.isCurrent meta
-      if empty updates then -1 else min updates
+      if empty updates then -1 else min updates...
 
 
 
