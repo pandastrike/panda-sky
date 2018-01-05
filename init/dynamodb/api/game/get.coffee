@@ -1,8 +1,9 @@
-import AWS from "aws-sdk"
+import SDK from "aws-sdk"
 
 # Access the Panda Sky helpers.
-import sky from "panda-sky-helpers"
-{env, AWS:{DynamoDB}, response:{NotFound}} = sky AWS
+import {env, aws, response} from "panda-sky-helpers"
+{NotFound} = response
+{DynamoDB} = aws SDK
 
 # Instantiate new DynamoDB helper and define deployment "alpha" table.
 tableName = "sky-#{env.environment}-alpha"

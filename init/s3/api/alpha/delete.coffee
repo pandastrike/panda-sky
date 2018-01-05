@@ -1,9 +1,9 @@
-import AWS from "aws-sdk"
-import YAML from "js-yaml"
+import SDK from "aws-sdk"
 
 # Access the Panda Sky helpers.
-import sky from "panda-sky-helpers"
-{env, AWS:{S3}, response:{NotFound}} = sky AWS
+import {env, aws, response} from "panda-sky-helpers"
+{NotFound} = response
+{S3} = aws SDK
 
 # Instantiate new s3 helper to target deployment "alpha" bucket.
 bucketName = "sky-#{env.projectID}-alpha"

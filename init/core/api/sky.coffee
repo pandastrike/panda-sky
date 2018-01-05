@@ -1,9 +1,8 @@
 # TODO - Sky's roadmap includes plans to automate the construction of this dispatcher.
 
 # Access the Panda Sky dispatch helpers.
-import sky from "panda-sky-helpers"
-{env, dispatch, method} = sky()
-
+import {env, dispatch, method} from "panda-sky-helpers"
+ 
 # Handlers
 import descriptionGet from "./description/get"
 import greetingGet from "./greeting/get"
