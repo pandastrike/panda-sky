@@ -1,16 +1,23 @@
 {async} = require "fairmont"
 {bellChar} = require "../../utils"
-MIXINS = require "./mixins"
+DEMOS = require "./demos"
 
 # This sets up an existing directory to hold a Panda Sky project. There are
-# different flavors to showcase different mixins.
-module.exports = async (name="core") ->
+# different flavors to showcase different mixin demos.
+module.exports = async (name="core", {demo}) ->
   try
-    if MIXINS[name]
-      yield do MIXINS[name]
+    if demo && DEMOS[name]
+      yield do DEMOS[name]
+    else if !demo
+      console.error """
+      ERROR: The mixin templating feature is not yet implmented.  Please use
+        the flag --demo instead.
+
+      Done.
+      """
     else
       console.error """
-      ERROR: Unknown mixin, #{name}, specified.  Unable to continue.
+      ERROR: The specified mixin, #{name}, has no demo.  Unable to continue.
 
       Done.
       """

@@ -30,7 +30,8 @@ call ->
 
   program
     .command "init [name]"
-    .action (name) -> COMMANDS.init name
+    .option "-d, --demo", "Add a reference implementaiton to demo a feature"
+    .action (name, options) -> COMMANDS.init name, options
 
   program
     .command "publish [env]"
