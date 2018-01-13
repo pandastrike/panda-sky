@@ -42,7 +42,8 @@ module.exports = async (region) ->
   cfo = liftModule new AWS.CloudFormation()
   cfr = liftModule new AWS.CloudFront()
   lambda = liftModule new AWS.Lambda()
+  logs = liftModule new AWS.CloudWatchLogs()
   route53 = liftModule new AWS.Route53()
   s3 = liftModule new AWS.S3()
 
-  {AWS, acm, agw, gw, cfo, cfr, lambda, route53, s3}
+  {AWS, acm, agw, gw, cfo, cfr, lambda, logs, route53, s3}

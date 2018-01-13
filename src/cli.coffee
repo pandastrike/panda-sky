@@ -58,6 +58,12 @@ call ->
     COMMANDS.update START, env
 
   program
+    .command "tail [env]"
+    .action (env, others) ->
+      return if noEnv env
+      COMMANDS.tail env
+
+  program
   .command "domain [subcommand] [env]"
   .option '--hard', 'In domain publish, use hard rollover for replacements.'
   .option '--yes', "Always answer warning prompts with yes. Use with caution."

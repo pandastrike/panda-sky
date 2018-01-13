@@ -6,6 +6,7 @@ init = require "./init"
 mixin = require "./mixin"
 publish = require "./publish"
 render = require "./render"
+tail = require "./tail"
 update = require "./update"
 
 
@@ -19,5 +20,6 @@ module.exports = {
   mixin
   publish
   render
+  tail
   update
 }

@@ -29,6 +29,7 @@ module.exports = async (env, config) ->
   s.bucket = yield require("../s3")(env, config, s.srcName)
   s.lambda = yield require("../lambda")(config)
   s.route53 = yield require("../route53")(s)
+  s.logs = yield require("../logs")(env, config)
 
   # Stack sub-resources
   s.domain = domain s
