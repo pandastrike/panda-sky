@@ -59,9 +59,10 @@ call ->
 
   program
     .command "tail [env]"
-    .action (env, others) ->
+    .option '-v, --verbose', 'output debug level logs'
+    .action (env, options) ->
       return if noEnv env
-      COMMANDS.tail env
+      COMMANDS.tail env, options
 
   program
   .command "domain [subcommand] [env]"

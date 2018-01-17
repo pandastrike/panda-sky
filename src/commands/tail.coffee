@@ -3,7 +3,7 @@
 {bellChar, outputDuration} = require "../utils"
 configuration = require "../configuration"
 
-module.exports = async (env) ->
+module.exports = async (env, {verbose}) ->
   try
     appRoot = process.cwd()
     console.error "Preparing task."
@@ -12,7 +12,7 @@ module.exports = async (env) ->
 
     console.error "Tailing Sky API logs... (Press ^C at any time to quit.)"
     console.error "=".repeat 80
-    yield sky.lambdas.tail()
+    yield sky.lambdas.tail(verbose)
   catch e
     console.error "Log tailing failure:"
     console.error e.stack
