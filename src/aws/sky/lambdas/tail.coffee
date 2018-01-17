@@ -46,7 +46,6 @@ module.exports = (s) ->
 
   # Tail the logs output by the various Lambdas.
   async (isVerbose) ->
-      fail() if !yield s.meta.current.fetch()
       time = new Date().getTime()
       latestTime = false
       latestEvent = false
