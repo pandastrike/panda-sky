@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "./index.js",
   "bin": {
@@ -34,7 +34,9 @@
     "aws-sdk": "2.156.0",
     "babel-core": "6.26.0",
     "babel-preset-env": "1.6.1",
+    "bartlett": "^1.0.0-alpha-02",
     "coffeescript": "2.1.0",
+    "colors": "^1.1.2",
     "commander": "2.12.0",
     "fairmont": "2.0.1",
     "handlebars": "4.0.11",

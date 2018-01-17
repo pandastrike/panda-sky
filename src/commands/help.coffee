@@ -14,6 +14,8 @@ module.exports = """
     init                        Initialize a Panda Sky project.
     publish [options] [env]     Deploy API, Lambdas to AWS infrastructure
     delete [env]                Delete API, Lambdas from AWS infrastructure
+    tail   [env]                Tail the logs for the given environment
+      [-v, --verbose]               Output debug level logs
     render [env]                Render the CloudFormation template to STDERR
     update [env]                Update *only* the Lambda code for an environment
     domain [subcommand] [env]   Manage your API's custom domain and edge cache.
