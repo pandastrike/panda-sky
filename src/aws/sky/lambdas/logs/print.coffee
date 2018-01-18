@@ -4,7 +4,7 @@ parseTime = (d) ->
   pad = (s) -> if s.toString().length == 1 then "0#{s}" else s
   i = (n) -> n + 1
   date = "#{d.getUTCFullYear()}-#{pad i d.getUTCMonth()}-#{pad d.getUTCDate()}"
-  time = "#{pad i d.getUTCHours()}:#{pad d.getUTCMinutes()}:#{pad d.getUTCSeconds()}.#{d.getUTCMilliseconds()} UTC"
+  time = "#{pad d.getUTCHours()}:#{pad d.getUTCMinutes()}:#{pad d.getUTCSeconds()}.#{d.getUTCMilliseconds()} UTC"
   "#{date} #{time}"
 
 justify = (final, s) -> s + " ".repeat(final - s.length)
