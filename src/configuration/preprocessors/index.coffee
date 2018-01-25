@@ -4,7 +4,7 @@
 # add that layer of sophistication.
 
 {async, capitalize} = require "fairmont"
-extractParameters = require "./parameters"
+extractPaths = require "./paths"
 extractResources = require "./resources"
 extractMethods = require "./methods"
 addTags = require "./tags"
@@ -26,8 +26,8 @@ module.exports = async (config) ->
   # Apply default configuration to custom domain configuration
   config = extractDomains config
 
-  # Extract path and querystring parameter configuration
-  config = extractParameters config
+  # Extract path from configuration
+  config = extractPaths config
 
   # Add environment varialbles that are injected into every Lambda.
   config = addVariables config

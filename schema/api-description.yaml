@@ -25,25 +25,20 @@ definitions:
   resource:
     type: object
     required:
-      - path
+      - uriTemplate
       - methods
     properties:
-      path:
+      uriTemplate:
         description: >
-          The (potentially templatized) URL path for the resource.
-          Must not include any querystring, as we specify the parameters
-          derived from the querystring separately.
-          The template syntax uses braces to indicate path parameters:
-          "/blurbs/{key}"
+          The optionally templatized URL for a resource.  Sky uses the RFC standard for URI templating, with additional limits.
+
+          For the path section of the URL, use the simple string notation, {...},  to specify a *single* variable name. More complex uses here are disallowed by Gateway.  See https://tools.ietf.org/html/rfc6570#section-3.2.2
+
+          For the querystring section of the URL, you may use the full RFC  notation for querystring templating, {?...}. The Sky API accepts and parses any querystring parameters in Gateway, but will use this template section to validate incoming parameters in the dispatcher code of "panda-sky-helpers". See https://tools.ietf.org/html/rfc6570#section-3.2.8
+
+          Example: "/person/{key}{?age,gender}"
         type: string
-        pattern: "^/[^?#]*" # TODO: improve this regex
-      query:
-        description: >
-          A limited JSON Schema to describe and constrain the acceptable values
-          of query parameters.
-        # we don't actually want to allow the full JSON Schema featureset here.
-        # I have a schema for limiting to things desired for query params
-        # somewhere in Patchboard.
+        # TODO: Come up with valid and useful regex here.
       methods:
         description: >
           A dictionary of Resource Method descriptions, keyed by the HTTP
@@ -124,7 +119,7 @@ examples:
 
     resources:
       blurbs:
-        path: /blurbs
+        uriTemplate: /blurbs
         description: "Virtual collection of blurbs"
         methods:
           POST:
@@ -146,18 +141,7 @@ examples:
 
       public_blurbs:
         description: "Publicly viewable blurbs"
-        path: /public_blurbs
-        query:
-          required: []
-          minProperties: 1
-          properties:
-            title:
-              type: string
-            content:
-              type: string
-              maxLength: 32
-            tag:
-              type: string
+        uriTemplate: /public_blurbs{?title,content,tag}
         methods:
           GET:
             signatures:
