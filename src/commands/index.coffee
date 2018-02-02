@@ -3,6 +3,7 @@ destroy = require "./delete"
 domain = require "./domain"
 help = require "./help"
 init = require "./init"
+list = require "./list"
 mixin = require "./mixin"
 publish = require "./publish"
 render = require "./render"
@@ -17,6 +18,7 @@ module.exports = {
   domain
   help
   init
+  list
   mixin
   publish
   render

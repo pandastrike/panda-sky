@@ -65,6 +65,10 @@ call ->
       COMMANDS.tail env, options
 
   program
+    .command "list"
+    .action -> COMMANDS.list()
+
+  program
   .command "domain [subcommand] [env]"
   .option '--hard', 'In domain publish, use hard rollover for replacements.'
   .option '--yes', "Always answer warning prompts with yes. Use with caution."

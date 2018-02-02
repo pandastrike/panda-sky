@@ -27,7 +27,7 @@ fail = (errors) ->
 # Confirm the environment selected by the developer is present in configuration.
 checkEnv = (env, config) ->
   available = keys config.aws.environments
-  if env not in available
+  if env && env not in available
     msg = """
     WARNING: The provided environment, "#{env}", is not present in your sky.yaml
       configuration.  The available environments are:
