@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "./index.js",
   "bin": {
