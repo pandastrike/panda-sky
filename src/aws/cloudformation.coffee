@@ -1,4 +1,4 @@
-{async, first, sleep, min} = require "fairmont"
+{async, first, sleep, cat, collect, select} = require "fairmont"
 SkyStack = require "./sky"
 
 module.exports = async (env, config, name) ->
@@ -10,14 +10,16 @@ module.exports = async (env, config, name) ->
       catch
         false
 
-    getApiUrl = async ->
-      params =
-        LogicalResourceId: "API"
-        StackName: name
+    getResource = async (LogicalResourceId, StackName) ->
+      data = yield cfo.describeStackResource {LogicalResourceId, StackName}
+      data.StackResourceDetail.PhysicalResourceId
 
-      data = yield cfo.describeStackResource params
-      apiID = data.StackResourceDetail.PhysicalResourceId
-      "https://#{apiID}.execute-api.#{config.aws.region}.amazonaws.com/#{env}"
+    buildEndpointURL = (id, env) ->
+      "https://#{id}.execute-api.#{config.aws.region}.amazonaws.com/#{env}"
+
+    getApiUrl = async ->
+      apiID = yield getResource "API", name
+      buildEndpointURL apiID, env
 
     # Update an existing stack with a new template.
     update = async (intermediateTemplate, fullTemplate) ->
@@ -74,6 +76,41 @@ module.exports = async (env, config, name) ->
               s.StackStatusReason
             return false
 
+    # From here down, the functions apply to CloudFormation as a whole service, rather than in the context of managing a particular stack.
+
+    validStatuses = [ "CREATE_IN_PROGRESS", "CREATE_COMPLETE", "ROLLBACK_IN_PROGRESS", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE", "DELETE_IN_PROGRESS", "UPDATE_IN_PROGRESS", "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS", "UPDATE_COMPLETE", "UPDATE_ROLLBACK_IN_PROGRESS", "UPDATE_ROLLBACK_FAILED", "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS", "UPDATE_ROLLBACK_COMPLETE"]
+
+    listStacks = async (current=[], token) ->
+      params = StackStatusFilter: validStatuses
+      params.NextToken = token if token
+
+      {NextToken, StackSummaries} = yield cfo.listStacks params
+      if NextToken
+        yield listStacks cat(current, StackSummaries), NextToken
+      else
+        cat current, StackSummaries
+
+    # Get all stacks with the project name in their prefix.
+    list = async (projectName) ->
+      query = ({StackName}) -> ///^#{projectName}-.+$///.test StackName
+      parseEnv = (StackName) ->
+        match = ///^#{projectName}-(.*)$///.exec StackName
+        match[1]
+
+      stacks = collect select query, yield listStacks()
+      for {StackName, StackStatus} in stacks
+        env = parseEnv StackName
+        url = yield lookupEndpoint StackName, env
+        {env, url, status:StackStatus}
+
+    # Get URL for the API endpoint of an arbitrary Sky stack.
+    lookupEndpoint = async (name, env) ->
+      try
+        apiID = yield getResource "API", name
+        buildEndpointURL apiID, env
+      catch
+        false # Stack does not exist or have an API endpoint.
+
     {
       get
       getApiUrl
@@ -82,4 +119,6 @@ module.exports = async (env, config, name) ->
       delete: destroy
       publishWait
       deleteWait
+      list
+      lookupEndpoint
     }

@@ -12,12 +12,14 @@ cloudformation = require "./cloudformation"
 compile = async (appRoot, env) ->
   sky = yield readSky appRoot, env  # sky.yaml
   api = yield readAPI appRoot       # api.yaml
+  config = merge api, sky, {env}
 
-  # Run everything through preprocessors to get final config.
-  config = yield preprocess merge api, sky, {env}
-  
-  cfoTemplate = yield cloudformation.renderTemplate config
-  config.aws.cfoTemplate = JSON.stringify cfoTemplate
+  if env
+    # Run everything through preprocessors to get final config.
+    config = yield preprocess config
+    cfoTemplate = yield cloudformation.renderTemplate config
+    config.aws.cfoTemplate = JSON.stringify cfoTemplate
+
   config
 
 readAPI = async (root) ->
