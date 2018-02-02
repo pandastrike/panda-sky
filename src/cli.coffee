@@ -80,7 +80,7 @@ call ->
   .option '--hard', 'In domain publish, use hard rollover for replacements.'
   .option '--yes', "Always answer warning prompts with yes. Use with caution."
   .action (subcommand, env, options) ->
-    if domain[subcommand]
+    if COMMANDS.domain[subcommand]
       return if noEnv env
       COMMANDS.domain[subcommand] START, env, options
     else
