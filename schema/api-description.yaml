@@ -25,10 +25,10 @@ definitions:
   resource:
     type: object
     required:
-      - uriTemplate
+      - template
       - methods
     properties:
-      uriTemplate:
+      template:
         description: >
           The optionally templatized URL for a resource.  Sky uses the RFC standard for URI templating, with additional limits.
 
@@ -119,7 +119,7 @@ examples:
 
     resources:
       blurbs:
-        uriTemplate: /blurbs
+        template: /blurbs
         description: "Virtual collection of blurbs"
         methods:
           POST:
@@ -141,7 +141,7 @@ examples:
 
       public_blurbs:
         description: "Publicly viewable blurbs"
-        uriTemplate: /public_blurbs{?title,content,tag}
+        template: /public_blurbs{?title,content,tag}
         methods:
           GET:
             signatures:
