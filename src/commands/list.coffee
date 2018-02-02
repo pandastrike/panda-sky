@@ -2,7 +2,6 @@
 configuration = require "../configuration"
 require "colors"
 
-# List doesn't fit well with the other commands currently because spinning up the AWS interfaces in /src/aws/sky/ requires an environment name to get a full configuration.  Here, we just need to compare a single line from sky.yaml to the
 module.exports = async ->
   try
     appRoot = process.cwd()
@@ -10,7 +9,7 @@ module.exports = async ->
     config = yield configuration.compile(appRoot, false)
     sky = yield require("../aws/sky")(false, config)
 
-    deployments = yield sky.cfo.search config.name
+    deployments = yield sky.cfo.list config.name
     if empty deployments
       console.error "No active deployments detected."
     else

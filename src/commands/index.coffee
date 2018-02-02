@@ -8,6 +8,7 @@ mixin = require "./mixin"
 publish = require "./publish"
 render = require "./render"
 tail = require "./tail"
+test = require "./test"
 update = require "./update"
 
 
@@ -23,5 +24,6 @@ module.exports = {
   publish
   render
   tail
+  test
   update
 }

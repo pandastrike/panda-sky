@@ -16,7 +16,7 @@ fetchMixins = require "./mixins"
 
 module.exports = async (config) ->
   {name, env} = config
-  config.gatewayName = "#{name}-#{env}"
+  config.gatewayName = config.stackName = "#{name}-#{env}"
   config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"
   config.policyName = "#{name}-#{env}"
 
