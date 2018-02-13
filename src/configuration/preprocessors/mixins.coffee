@@ -55,19 +55,21 @@ fetchMixins = async (config) ->
 
 # Before we can render either the mixins or the Core Sky API, we need to
 # accomdate the changes caused by the mixins.
-reconcileConfigs = (mixins, config) ->
+reconcileConfigs = async (mixins, config) ->
   # Access the policyStatement hook each mixin, and add to the array.
   # TODO: Consider policy uniqueness constraint.
+  # TODO: Make this faster by not having to require the SDK in mulitiple places.
+  {AWS} = yield require("../../aws")(config.aws.region)
   {env} = config
   s = config.policyStatements
 
   for name, mixin of mixins when mixin.getPolicyStatements
     _config = config.aws.environments[env].mixins[name]
-    s = cat s, mixin.getPolicyStatements _config, config
+    s = cat s, yield mixin.getPolicyStatements _config, config, AWS
 
   config.policyStatements = s
   config
 
 module.exports = async (config) ->
   config.mixins = mixins = yield fetchMixins config
-  reconcileConfigs mixins, config
+  yield reconcileConfigs mixins, config
