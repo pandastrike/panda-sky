@@ -13,6 +13,4 @@ module.exports = async (env) ->
     config = yield configuration.compile appRoot, env
     console.error yaml json config.aws.cfoTemplate
   catch e
-    console.error e.message
-    if e.errors
-      console.error YAML.dump {errors: e.errors}
+    console.error e

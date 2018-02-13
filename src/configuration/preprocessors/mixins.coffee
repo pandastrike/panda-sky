@@ -1,6 +1,6 @@
 {resolve} = require "path"
 {async, keys, exists, cat} = require "fairmont"
-allowedMixins = ["s3", "dynamodb"] #"sqs", "elastic", "cognito"]
+allowedMixins = ["s3", "dynamodb", "cognito"] #"sqs", "elastic"]
 
 mixinInvalid = (env, m) ->
   console.error """
