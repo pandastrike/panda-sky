@@ -9,6 +9,7 @@ extractResources = require "./resources"
 extractMethods = require "./methods"
 addTags = require "./tags"
 extractDomains = require "./custom-domains"
+addAuthorization = require "./authorization"
 addResponses = require "./responses"
 addVariables = require "./variables"
 addPolicyStatements = require "./policy-statements"
@@ -37,6 +38,9 @@ module.exports = async (config) ->
 
   # Compute the formatted template names for API action defintions.
   config = extractMethods config
+
+  # Add in authorization via a Gateway Authorizer, if specified.
+  config = addAuthorization config
 
   # Add the possible HTTP responses to every API action specification.
   config = addResponses config

@@ -1,5 +1,5 @@
 {resolve} = require "path"
-{async, keys, exists, cat} = require "fairmont"
+{async, keys, exists, cat, merge} = require "fairmont"
 allowedMixins = ["s3", "dynamodb", "cognito"] #"sqs", "elastic"]
 
 mixinInvalid = (env, m) ->
@@ -61,13 +61,19 @@ reconcileConfigs = async (mixins, config) ->
   # TODO: Make this faster by not having to require the SDK in mulitiple places.
   {AWS} = yield require("../../aws")(config.aws.region)
   {env} = config
-  s = config.policyStatements
 
+  s = config.policyStatements
   for name, mixin of mixins when mixin.getPolicyStatements
     _config = config.aws.environments[env].mixins[name]
     s = cat s, yield mixin.getPolicyStatements _config, config, AWS
-
   config.policyStatements = s
+
+  v = config.environmentVariables
+  for name, mixin of mixins when mixin.getEnvironmentVariables
+    _config = config.aws.environments[env].mixins[name]
+    v = merge v, yield mixin.getEnvironmentVariables _config, config, AWS
+  config.environmentVariables = v
+
   config
 
 module.exports = async (config) ->
