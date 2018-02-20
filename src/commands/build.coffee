@@ -55,7 +55,7 @@ build = async ->
 
     # Run npm install for the developer.  Only the stuff going into Lambda
     console.error "  -- Building deploy package"
-    yield shell "npm install --production --silent"
+    yield shell "npm install --only=production --silent"
     yield shell "cp -r node_modules/ #{target}/node_modules/" if yield exists "node_modules"
 
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.

@@ -76,10 +76,7 @@ definitions:
     type: object
     properties:
       authorization:
-        type: array
-        items:
-          description: The name of an authorization scheme
-          type: string
+        type: boolean
       mediatype:
         type: array
         items:

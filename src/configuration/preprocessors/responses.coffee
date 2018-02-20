@@ -70,12 +70,12 @@ module.exports = (description) ->
       out
 
     s = method.signatures.response.status
-    if !isArray s
-      return [addDefault s] # Only one response specified.
-    else
-      # Start by adding the "default" response, then all others.
-      [d, others...] = s
-      return cat [addDefault d], (addOthers others)
+    s = [s] if !isArray s # Only one response specified.
+
+    # First response is "default" response, then all others.
+    [d, others...] = s
+    others.push 500 if 500 not in others
+    return cat [addDefault d], (addOthers others)
 
   {resources} = description
   for r, resource of resources

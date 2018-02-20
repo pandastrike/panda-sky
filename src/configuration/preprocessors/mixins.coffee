@@ -1,6 +1,7 @@
 {resolve} = require "path"
-{async, keys, exists, cat} = require "fairmont"
-allowedMixins = ["s3", "dynamodb"] #"sqs", "elastic", "cognito"]
+{async, keys, exists, cat, merge} = require "fairmont"
+allowedMixins = ["s3", "dynamodb", "cognito", "kms"] #"sqs", "elastic"]
+YAML = require "js-yaml"
 
 mixinInvalid = (env, m) ->
   console.error """
@@ -55,19 +56,27 @@ fetchMixins = async (config) ->
 
 # Before we can render either the mixins or the Core Sky API, we need to
 # accomdate the changes caused by the mixins.
-reconcileConfigs = (mixins, config) ->
+reconcileConfigs = async (mixins, config) ->
   # Access the policyStatement hook each mixin, and add to the array.
   # TODO: Consider policy uniqueness constraint.
+  # TODO: Make this faster by not having to require the SDK in mulitiple places.
+  {AWS} = yield require("../../aws")(config.aws.region)
   {env} = config
-  s = config.policyStatements
 
+  s = config.policyStatements
   for name, mixin of mixins when mixin.getPolicyStatements
     _config = config.aws.environments[env].mixins[name]
-    s = cat s, mixin.getPolicyStatements _config, config
+    s = cat s, yield mixin.getPolicyStatements _config, config, AWS
+  config.policyStatements = (YAML.safeDump i for i in s)
 
-  config.policyStatements = s
+  v = config.environmentVariables
+  for name, mixin of mixins when mixin.getEnvironmentVariables
+    _config = config.aws.environments[env].mixins[name]
+    v = merge v, yield mixin.getEnvironmentVariables _config, config, AWS
+  config.environmentVariables = v
+
   config
 
 module.exports = async (config) ->
   config.mixins = mixins = yield fetchMixins config
-  reconcileConfigs mixins, config
+  yield reconcileConfigs mixins, config

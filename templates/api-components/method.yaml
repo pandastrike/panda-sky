@@ -13,7 +13,14 @@
       Ref: API
     ResourceId:
       {{resource.gateway.resourceID}}
+    {{#if authorizationType}}
+    AuthorizationType: {{authorizationType}}
+    {{else}}
     AuthorizationType: NONE
+    {{/if}}
+    {{#if authorizerId}}
+    AuthorizerId: {{authorizerId}}
+    {{/if}}
     HttpMethod: {{name}}
     {{#if requestModel}}
     RequestModels:
