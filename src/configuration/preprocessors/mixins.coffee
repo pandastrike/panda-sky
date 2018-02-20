@@ -1,6 +1,7 @@
 {resolve} = require "path"
 {async, keys, exists, cat, merge} = require "fairmont"
-allowedMixins = ["s3", "dynamodb", "cognito"] #"sqs", "elastic"]
+allowedMixins = ["s3", "dynamodb", "cognito", "kms"] #"sqs", "elastic"]
+YAML = require "js-yaml"
 
 mixinInvalid = (env, m) ->
   console.error """
@@ -66,7 +67,7 @@ reconcileConfigs = async (mixins, config) ->
   for name, mixin of mixins when mixin.getPolicyStatements
     _config = config.aws.environments[env].mixins[name]
     s = cat s, yield mixin.getPolicyStatements _config, config, AWS
-  config.policyStatements = s
+  config.policyStatements = (YAML.safeDump i for i in s)
 
   v = config.environmentVariables
   for name, mixin of mixins when mixin.getEnvironmentVariables

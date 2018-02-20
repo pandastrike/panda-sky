@@ -16,13 +16,5 @@
           Version: "2012-10-17"
           Statement:
           {{#each policyStatements}}
-            - Effect: {{Effect}}
-              Action:
-              {{#each Action}}
-                - {{.}}
-              {{/each}}
-              Resource:
-              {{#each Resource}}
-                - {{.}}
-              {{/each}}
+            - {{indent 14 .}}
           {{/each}}
