@@ -37,6 +37,7 @@ build = async ->
     yield rmrf "deploy"
     yield rmrf target
     yield rmrf "node_modules"
+    yield rmrf "package-lock.json"
     yield safe_mkdir target
 
     # Pipeline the assets from "src" into an intermidate directory, lib.
