@@ -1,19 +1,6 @@
 {resolve} = require "path"
 {async, keys, exists, cat, merge} = require "fairmont"
-allowedMixins = ["s3", "dynamodb", "cognito", "kms"] #"sqs", "elastic"]
 YAML = require "js-yaml"
-
-mixinInvalid = (env, m) ->
-  console.error """
-  ERROR: Invalid mixin:
-    Environment: #{env}
-    Mixin: #{m}
-
-  Please correct your sky.yaml configuration before continuing.
-  This process will now discontinue.
-  Done.
-  """
-  process.exit -1
 
 mixinUnavailable = (m) ->
   console.error """
@@ -34,10 +21,7 @@ fetchMixinNames = (config) ->
   {env} = config
   {mixins} = config.aws.environments[env]
   return false if !mixins
-  mixins = keys mixins
-
-  mixinInvalid env, m for m in mixins when m not in allowedMixins
-  mixins
+  keys mixins
 
 # Collect all the mixin packages.
 fetchMixinPackages = async (mixins) ->
