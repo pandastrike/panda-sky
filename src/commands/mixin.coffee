@@ -4,11 +4,11 @@
 {bellChar} = require "../utils"
 configuration = require "../configuration"
 
-module.exports = async (name, env, argv) ->
+module.exports = async (name, env, {profile}, argv) ->
   try
     console.error "Compiling configuration for mixin..."
     appRoot = process.cwd()
-    config = yield configuration.compile(appRoot, env)
+    config = yield configuration.compile(appRoot, env, profile)
     {AWS} = yield require("../aws")(config.aws.region)
 
     {mixins} = config

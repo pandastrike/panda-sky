@@ -5,14 +5,14 @@
 configuration = require "../configuration"
 
 START = 0
-module.exports = (start, env) ->
+module.exports = (start, env, {profile}) ->
   START = start
-  run "delete", [env]
+  run "delete", [env, profile]
 
-define "delete", async (env) ->
+define "delete", async (env, profile) ->
   try
     appRoot = process.cwd()
-    config = yield configuration.compile(appRoot, env)
+    config = yield configuration.compile(appRoot, env, profile)
     sky = yield require("../aws/sky")(env, config)
 
     console.error "Deleting Sky deployment..."

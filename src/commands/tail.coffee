@@ -3,11 +3,11 @@
 {bellChar, outputDuration} = require "../utils"
 configuration = require "../configuration"
 
-module.exports = async (env, {verbose}) ->
+module.exports = async (env, {verbose, profile}) ->
   try
     appRoot = process.cwd()
     console.error "Preparing task."
-    config = yield configuration.compile(appRoot, env)
+    config = yield configuration.compile(appRoot, env, profile)
     sky = yield require("../aws/sky")(env, config)
 
     console.error "Tailing Sky API logs... (Press ^C at any time to quit.)"

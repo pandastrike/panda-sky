@@ -13,11 +13,11 @@ trimARGV = (env, argv) ->
     else
       argv.shift()
 
-module.exports = async (env, argv) ->
+module.exports = async (env, {profile}, argv) ->
   try
     appRoot = process.cwd()
     console.error "Preparing task."
-    config = yield configuration.compile(appRoot, env)
+    config = yield configuration.compile(appRoot, env, profile)
     sky = yield require("../aws/sky")(env, config)
 
     url = yield sky.cfo.lookupEndpoint config.stackName, env

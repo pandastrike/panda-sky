@@ -6,6 +6,7 @@ module.exports = """
 
     -V, --version  output the version number
     -h, --help     output usage information
+    -p, --profile  name of the desired AWS configuration profile
 
 
   Commands:

@@ -7,10 +7,10 @@ YAML = require "js-yaml"
 configuration = require "../configuration"
 cloudformation = require("../configuration/cloudformation")
 
-module.exports = async (env) ->
+module.exports = async (env, {profile}) ->
   try
     appRoot = process.cwd()
-    config = yield configuration.compile appRoot, env
+    config = yield configuration.compile appRoot, env, profile
     console.error yaml json config.aws.cfoTemplate
   catch e
     console.error e

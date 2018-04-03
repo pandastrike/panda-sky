@@ -35,50 +35,58 @@ call ->
   program
     .command "publish [env]"
     .option '-o, --output [output]', 'Path to write API config file'
+    .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .action (env, options) ->
       return if noEnv env
       COMMANDS.publish START, env, options
 
   program
     .command "delete [env]"
-    .action (env) ->
+    .option '-p, --profile [profile]', 'Name of AWS profile to use'
+    .action (env, options) ->
       return if noEnv env
-      COMMANDS.destroy START, env
+      COMMANDS.destroy START, env, options
 
   program
     .command "render [env]"
-    .action (env) ->
+    .option '-p, --profile [profile]', 'Name of AWS profile to use'
+    .action (env, options) ->
       return if noEnv env
-      COMMANDS.render env
+      COMMANDS.render env, options
 
   program
   .command "update [env]"
-  .action (env) ->
+  .option '-p, --profile [profile]', 'Name of AWS profile to use'
+  .action (env, options) ->
     return if noEnv env
-    COMMANDS.update START, env
+    COMMANDS.update START, env, options
 
   program
     .command "tail [env]"
     .option '-v, --verbose', 'output debug level logs'
+    .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .action (env, options) ->
       return if noEnv env
       COMMANDS.tail env, options
 
   program
     .command "list"
-    .action -> COMMANDS.list()
+    .option '-p, --profile [profile]', 'Name of AWS profile to use'
+    .action (options) -> COMMANDS.list options
 
   program
     .command "test [env] [others...]"
+    .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .allowUnknownOption()
-    .action (env, others) ->
+    .action (env, others, options) ->
       return if noEnv env
-      COMMANDS.test env, process.argv
+      COMMANDS.test env, options, process.argv
 
   program
   .command "domain [subcommand] [env]"
   .option '--hard', 'In domain publish, use hard rollover for replacements.'
   .option '--yes', "Always answer warning prompts with yes. Use with caution."
+  .option '-p, --profile [profile]', 'Name of AWS profile to use'
   .action (subcommand, env, options) ->
     if COMMANDS.domain[subcommand]
       return if noEnv env
@@ -89,10 +97,11 @@ call ->
 
   program
     .command "mixin [name] [env] [others...]"
+    .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .allowUnknownOption()
-    .action (name, env, others) ->
+    .action (name, env, others, options) ->
       return if noEnv env
-      COMMANDS.mixin name, env, process.argv
+      COMMANDS.mixin name, env, options, process.argv
 
   program
     .command('*')

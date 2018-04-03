@@ -44,7 +44,7 @@ reconcileConfigs = async (mixins, config) ->
   # Access the policyStatement hook each mixin, and add to the array.
   # TODO: Consider policy uniqueness constraint.
   # TODO: Make this faster by not having to require the SDK in mulitiple places.
-  {AWS} = yield require("../../aws")(config.aws.region)
+  {AWS} = yield require("../../aws")(config.aws.region, config.profile)
   {env} = config
 
   s = config.policyStatements

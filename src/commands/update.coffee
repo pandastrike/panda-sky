@@ -8,15 +8,15 @@ configuration = require "../configuration"
 {render} = Asset = require "../asset"
 
 START = 0
-module.exports = (start, env) ->
+module.exports = (start, env, {profile}) ->
   START = start
   console.error "Updating #{env}..."
-  run "update", [env]
+  run "update", [env, profile]
 
-define "update", ["survey"], async (env) ->
+define "update", ["survey"], async (env, profile) ->
   try
     appRoot = process.cwd()
-    config = yield configuration.compile(appRoot, env)
+    config = yield configuration.compile(appRoot, env, profile)
     sky = yield require("../aws/sky")(env, config)
 
     # Push code through asset pipeline.

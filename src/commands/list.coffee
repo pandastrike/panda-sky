@@ -2,11 +2,11 @@
 configuration = require "../configuration"
 require "colors"
 
-module.exports = async ->
+module.exports = async ({profile}) ->
   try
     appRoot = process.cwd()
     console.error "Preparing task."
-    config = yield configuration.compile(appRoot, false)
+    config = yield configuration.compile(appRoot, false, profile)
     sky = yield require("../aws/sky")(false, config)
 
     deployments = yield sky.cfo.list config.name

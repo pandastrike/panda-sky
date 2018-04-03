@@ -9,10 +9,10 @@ SKY = require "./sky"
 preprocess = require "./preprocessors"
 cloudformation = require "./cloudformation"
 
-compile = async (appRoot, env) ->
+compile = async (appRoot, env, profile) ->
   sky = yield readSky appRoot, env  # sky.yaml
   api = yield readAPI appRoot       # api.yaml
-  config = merge api, sky, {env}
+  config = merge api, sky, {env, profile}
 
   if env
     # Run everything through preprocessors to get final config.
