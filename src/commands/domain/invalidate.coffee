@@ -7,7 +7,7 @@ module.exports = async (START, env, options) ->
   try
     appRoot = process.cwd()
     console.error "Compiling configuration for API custom domain."
-    config = yield configuration.compile(appRoot, env)
+    config = yield configuration.compile(appRoot, env, options.profile)
     sky = yield require("../../aws/sky")(env, config)
 
     yield sky.domain.preInvalidate config.aws.hostnames[0], options
