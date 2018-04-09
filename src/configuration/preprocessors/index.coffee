@@ -13,6 +13,7 @@ addAuthorization = require "./authorization"
 addResponses = require "./responses"
 addVariables = require "./variables"
 addPolicyStatements = require "./policy-statements"
+addVPCConfig = require "./vpc-config"
 fetchMixins = require "./mixins"
 
 module.exports = async (config) ->
@@ -47,6 +48,9 @@ module.exports = async (config) ->
 
   # Add base Sky policy statements that give Lambdas access to AWS resources.
   config = addPolicyStatements config
+
+  # Add VPC configuration, if present in the target environment.
+  config = addVPCConfig config
 
   # Remove the root resource, because it needs special handling
   rootKey = config.rootResourceKey

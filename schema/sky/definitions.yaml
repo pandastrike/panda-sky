@@ -1,3 +1,28 @@
+vpc:
+  description: >
+    A set of configurations that allow your Lambdas access to resources within a VPC.
+  type: object
+  additionalProperties: false
+  properties:
+    subnets:
+      description: >
+        A list of subnet IDs your lambdas will be able to access
+      type: array
+      minItems: 1
+      uniqueItems: true
+      items:
+        type: string
+        minLength: 1
+    securityGroups:
+      description: >
+        A list of security group IDs your Lambdas will be able to access.
+      type: array
+      minItems: 1
+      uniqueItems: true
+      items:
+        type: string
+        minLength: 1
+
 environment:
   description: >
     A collection of Cloud resources allocated on your behalf to deploy the
@@ -15,6 +40,8 @@ environment:
       items:
         type: string
         minLength: 1
+
+    vpc: {$ref: "#/definitions/vpc"}
 
     mixins:
       description: >

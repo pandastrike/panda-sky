@@ -23,7 +23,7 @@ module.exports = async (env, config) ->
   throw new Error("Unable to find sky.yaml") if !(yield exists s.skyDef)
 
   # Wrappers around the AWS service APIs
-  s.acm = yield require("../acm")
+  s.acm = yield require("../acm")(config)
   s.cfo = yield require("../cloudformation")(env, config, s.stackName)
   s.cfr = yield require("../cloudfront")(s)
   s.bucket = yield require("../s3")(env, config, s.srcName)

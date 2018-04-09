@@ -120,6 +120,17 @@
     Role:
       "Fn::GetAtt" : ["{{@root.roleName}}", "Arn"]
     Runtime: {{@root.aws.runtime}}
+    {{#if @root.aws.vpc}}
+    VpcConfig:
+      SecurityGroupIds:
+        {{#each @root.aws.vpc.securityGroups}}
+        - {{.}}
+        {{/each}}
+      SubnetIds:
+        {{#each @root.aws.vpc.subnets}}
+        - {{.}}
+        {{/each}}
+    {{/if}}
     Environment:
       Variables:
       {{#eachProperty @root.environmentVariables}}

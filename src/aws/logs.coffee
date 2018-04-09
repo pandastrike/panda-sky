@@ -2,7 +2,7 @@
 
 
 module.exports = async (env, config) ->
-  {logs} = yield require("./index")(config.aws.region)
+  {logs} = yield require("./index")(config.aws.region, config.profile)
 
   # Returns data on a group or groups given an input prefix.
   listGroups = async (prefix, current=[], token) ->

@@ -1,5 +1,4 @@
-# Mango uses the AWS-SDK and your credentials to directly interact with Amazon.
-{join} = require "path"
+# Panda Sky uses the AWS-SDK and your credentials to directly interact with Amazon.
 {homedir} = require "os"
 
 SDK = require "aws-sdk"
@@ -15,7 +14,7 @@ liftModule = (m) ->
 module.exports = (region, profile="default") ->
   SDK.config =
      credentials: new SDK.SharedIniFileCredentials {profile}
-     region: region || "us-west-2"
+     region: region
      sslEnabled: true
 
   # Module's we'd like to invoke from AWS are listed and lifted here.

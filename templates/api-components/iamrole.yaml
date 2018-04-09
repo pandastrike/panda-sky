@@ -10,6 +10,12 @@
               - lambda.amazonaws.com
           Action:
             - "sts:AssumeRole"
+    {{#if managedPolicies}}
+    ManagedPolicyArns:
+      {{#each managedPolicies}}
+      - {{.}}
+      {{/each}}
+    {{/if}}
     Policies:
       - PolicyName: {{policyName}}
         PolicyDocument:

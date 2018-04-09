@@ -1,10 +1,10 @@
 {async, call, collect, where, empty} = require "fairmont"
 
-module.exports = call ->
+module.exports = async ({profile}) ->
   # TODO: Consider how to handle multiple region cert placement.  For now, AWS
   #  has a preference for these certs to reside in us-east-1, so we should
   #  direct developers to always place their certs there.
-  {acm} = yield require("./index")("us-east-1")
+  {acm} = yield require("./index")("us-east-1", profile)
   {root, regularlyQualify} = require "./url"
 
   wild = (name) -> regularlyQualify "*." + root name

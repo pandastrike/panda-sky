@@ -2,7 +2,7 @@
 SkyStack = require "./sky"
 
 module.exports = async (env, config, name) ->
-    {cfo} = yield require("./index")(config.aws.region)
+    {cfo} = yield require("./index")(config.aws.region, config.profile)
 
     get = async ->
       try

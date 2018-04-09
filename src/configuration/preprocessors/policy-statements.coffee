@@ -13,6 +13,7 @@ module.exports = (config) ->
   buildARN = (n) -> "arn:aws:logs:*:*:log-group:/aws/lambda/#{n}:*"
   loggerResources = (buildARN n for n in lambdaNames)
 
+  config.managedPolicies = []
   config.policyStatements = [
     {
       Effect: "Allow"

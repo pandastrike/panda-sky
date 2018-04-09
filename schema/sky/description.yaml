@@ -91,6 +91,7 @@ properties:
           API Gateway.
         type: string
         enum:
+          - nodejs8.10
           - nodejs6.10
           - nodejs4.3
 

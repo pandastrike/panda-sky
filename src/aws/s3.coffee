@@ -1,10 +1,11 @@
 {async, sleep, read, md5} = require "fairmont"
 {createReadStream} = require "fs"
-{join} = require "path"
 mime = require "mime"
 
 module.exports = async (env, config, name) ->
-  {s3} = yield require("./index")(config.aws.region)
+  # TODO: There's something funky about how S3's API handles the us-east-1 region.  It disallows the SDK to be pointed at the us-east-1 specific endpoint because it seems to use that as a default.  Anyway, it's weird and SunDog should do something to make this less painful.
+  {region} = config.aws
+  {s3} = yield require("./index")(region, config.profile)
 
 
   # Does the bucket exist?
@@ -27,7 +28,12 @@ module.exports = async (env, config, name) ->
       yield s3.createBucket {Bucket: name}
       yield sleep 15000
     catch e
-      throw new "Failed to establish bucket. #{e}"
+      console.error "Request ID", e.requestId
+      throw new Error """
+        Failed to establish bucket.
+        Request ID: #{e.requestId}
+        #{e}
+      """
 
   # Upsert an object to the bucket.
   putObject = async (key, data, filetype) ->

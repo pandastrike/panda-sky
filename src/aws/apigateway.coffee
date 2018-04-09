@@ -5,7 +5,7 @@
 {async, collect, where, empty} = require "fairmont"
 
 module.exports = async (env, config, sky) ->
-  {agw} = yield require("./index")(config.aws.region)
+  {agw} = yield require("./index")(config.aws.region, config.profile)
   APIID = null
 
   invalidate = async ->
