@@ -16,7 +16,7 @@ module.exports = (s) ->
       if local == remote.handlers then true else false
 
     update: async -> yield s.bucket.putObject "package.zip", s.pkg
-    tier: 1
+    # This does not currently have tier, because we don't want simple code changes to cause structural changes to the deployment. But there may come a time where there are resources that do need to change.
 
   skyConfig =
     isCurrent: async (remote) ->
@@ -24,7 +24,7 @@ module.exports = (s) ->
       if local == remote.sky then true else false
 
     update: async -> yield s.bucket.putObject "sky.yaml", s.skyDef
-    tier: 0
+    tier: 1
 
   permissions =
     isCurrent: (remote) ->
@@ -69,9 +69,15 @@ module.exports = (s) ->
       tiers = keys s.resources
 
       intermediate = (tier, template) ->
-        retain = cat (r for k, r of s.resources when k <= tier)...
+        regexes = cat (r for k, r of s.resources when k <= tier)...
+        retain = (name) ->
+          for r in regexes
+            return true if r.test name
+          false
+
         R = template.Resources
-        delete R[k] for k, v of R when !(k in retain)
+        for k of R
+          delete R[k] unless retain k
         template.Resources = R
         template
 
@@ -106,11 +112,12 @@ module.exports = (s) ->
 
     check: async (meta) ->
       updates = []
-      updates.push handlers.tier if !yield handlers.isCurrent meta
       updates.push api.tier if !yield api.isCurrent meta
       updates.push skyConfig.tier if !yield skyConfig.isCurrent meta
       updates.push permissions.tier if !permissions.isCurrent meta
-      if empty updates then -1 else min updates...
+
+      dirtyTier: if empty updates then -1 else min updates...
+      dirtyHandlers: yield handlers.isCurrent meta
 
 
 

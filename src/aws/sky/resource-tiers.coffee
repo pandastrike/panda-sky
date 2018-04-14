@@ -1,3 +1,4 @@
 module.exports =
-  0: ["API", "LambdaRole"]
-  1: ["DNSRecords"]
+  0: [///^.*LambdaHandler$///]
+  1: [///^.*LambdaRole$///]
+  2: [///^API$///]

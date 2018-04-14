@@ -47,6 +47,7 @@ module.exports = (description) ->
         handler:
           name: "#{camelized}LambdaHandler"
           bucket: description.environmentVariables.skyBucket
+          retain: description.aws.vpc?.skipConnectionDraining
         permission:
           name: "#{camelized}LambdaPermission"
           path: "/*/#{toUpper methodName}#{resource.permissionsPath}"

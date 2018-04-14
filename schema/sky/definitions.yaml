@@ -3,7 +3,12 @@ vpc:
     A set of configurations that allow your Lambdas access to resources within a VPC.
   type: object
   additionalProperties: false
+  required: [subnets, securityGroups]
   properties:
+    skipConnectionDraining:
+      description: >
+        When Lambdas are integrated with a VPC, they for ENIs to reach the resources within.  By default, CloudFormation waits for these connections to be drained before deleting the Lambdas during 'sky delete' and 'sky publish' (update) operations.  While this is sometimes good practice, it takes around 40 minutes to complete.  Setting this value to true ignores connection draining consideraitons and moves to complete the requested operation as quickly as possible.
+      type: boolean
     subnets:
       description: >
         A list of subnet IDs your lambdas will be able to access

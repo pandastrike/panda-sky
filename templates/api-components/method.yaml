@@ -112,6 +112,9 @@
 {{#with lambda}}
 {{handler.name}}:
   Type: "AWS::Lambda::Function"
+  {{#if handler.retain}}
+  DeletionPolicy: Retain
+  {{/if}}
   Properties:
     Description: "Handler for API {{@root.name}}"
     FunctionName: {{function.name}}

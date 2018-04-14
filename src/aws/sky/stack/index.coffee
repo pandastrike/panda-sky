@@ -16,11 +16,22 @@ module.exports = (s) ->
     Capabilities: ["CAPABILITY_IAM"]
     Tags: s.config.tags
 
+  updateLambdas = async (dirtyHandlers) ->
+    console.error "Checking Lambda code..."
+    if dirtyHandlers
+      console.error "Lambdas out of date. pushing changes..."
+      yield s.lambdas.update()
+      console.error "Done."
+    else
+      console.error "Lambdas are current."
+
   publish = async ->
     console.error "-- Scanning AWS for current deploy."
-    dirtyTier = yield scan()  # Prep the app's core bucket
+    {dirtyTier, dirtyHandlers} = yield scan()  # Prep the app's core bucket
     if dirtyTier == -1
-      console.error "#{s.stackName} is up to date."
+      console.error "#{s.stackName} infrastructure is up to date."
+      yield updateLambdas dirtyHandlers
+
       return false
 
     # If the stack already exists, update instead of create.
@@ -38,6 +49,10 @@ module.exports = (s) ->
       console.error "  #{yield s.cfo.getApiUrl()}"
 
   # Handle stuff that happens after we've confirmed the stack deleted.
-  postDelete = async -> yield s.meta.delete()
+  postDelete = async ->
+    yield s.meta.delete()
+    console.log s.config.aws.vpc
+    if s.config.aws.vpc?.skipConnectionDraining
+      yield s.lambdas.delete()
 
   {publish, postPublish, postDelete}
