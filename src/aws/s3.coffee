@@ -24,6 +24,7 @@ module.exports = async (env, config, name) ->
     return true if yield exists()
 
     # Create a new, empty S3 bucket.
+    console.error "Establishing new S3 bucket. One moment..."
     try
       yield s3.createBucket {Bucket: name}
       yield sleep 15000

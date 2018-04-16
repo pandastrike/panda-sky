@@ -2,6 +2,10 @@
 # Lambda backends as the handlers.  This template forms the core of every
 # Panda Sky app deployment, with mixins adding resources to the description.
 
+{{#each customResources}}
+{{.}}
+{{/each}}
+
 # IAM (Identity and Access Management)
 {{> iamrole}}
 

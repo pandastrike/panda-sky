@@ -15,6 +15,7 @@ addVariables = require "./variables"
 addPolicyStatements = require "./policy-statements"
 addVPCConfig = require "./vpc-config"
 fetchMixins = require "./mixins"
+addCustomResources = require "./custom-resources"
 
 module.exports = async (config) ->
   {name, env} = config
@@ -52,6 +53,8 @@ module.exports = async (config) ->
   # Add VPC configuration, if present in the target environment.
   config = addVPCConfig config
 
+  config = yield addCustomResources config
+  console.log config.customResources
   # Remove the root resource, because it needs special handling
   rootKey = config.rootResourceKey
   delete config.resources[rootKey]
