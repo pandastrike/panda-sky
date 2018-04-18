@@ -18,7 +18,7 @@ define "delete", async (env, profile) ->
     console.error "Deleting Sky deployment..."
     isDeleting = yield sky.stack.delete()
     if isDeleting
-      console.error "-- Waiting for deletion to complete."
+      console.error "-- Waiting for stack deletion to complete."
       yield sky.cfo.deleteWait()
     else
       console.error "WARNING: No Sky stack detected. Now checking for metadata."

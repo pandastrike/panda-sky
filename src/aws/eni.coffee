@@ -2,6 +2,7 @@
 
 module.exports = async (config) ->
   {ec2} = yield require("./index")(config.aws.region, config.profile)
+  {fullName} = config.environmentVariables
 
   list = async ->
     {NetworkInterfaces} = yield ec2.describeNetworkInterfaces
@@ -19,37 +20,38 @@ module.exports = async (config) ->
     catch e
       false
 
-  isDetached = async (id) ->
-    subnet = yield get id
-    subnet.Status == "available"
+  waitFor = (status) ->
+    async (id) ->
+      while true
+        console.error "  --> waiting on #{id}"
+        yield sleep 10000
+        subnet = yield get id
+        if subnet.Status == status
+          console.error "  --> done waiting on #{id}"
+          return
+
+  waitForAvailable = waitFor "available"
+  waitForInUse = waitFor "in-use"
 
   detach = async (id, attachmentID) ->
     yield ec2.detachNetworkInterface
       AttachmentId: attachmentID
       Force: true
 
-    console.log "detatched #{id}"
-    while true
-      console.log "waiting on #{id}"
-      yield sleep 10000
-      if yield isDetached id
-        console.log "done waiting on #{id}"
-        return
+    console.log "  --> detatching #{id}..."
+    yield waitForAvailable id
 
   Delete = async (id) ->
-    console.log "deleting #{id}"
+    console.log "  --> deleting #{id}..."
     yield ec2.deleteNetworkInterface
       NetworkInterfaceId: id
 
-
-  attachedToLambdas = (eni) ->
-    ///#{config.environmentVariables.fullName}///.test eni.RequesterId
+  attachedToLambdas = (eni) -> ///#{fullName}///.test eni.RequesterId
 
   purge = async ->
     # Collect any ENIs used by this stacks's Lambdas
     ENIs = yield list()
     ENIs = collect select attachedToLambdas, ENIs
-    console.log ENIs
 
     # Detach any attached ENIs
     attachedENIs = collect where Status: "in-use", ENIs
