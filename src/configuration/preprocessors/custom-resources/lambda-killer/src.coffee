@@ -3,25 +3,29 @@
 import https from "https"
 import url from "url"
 import SDK from "aws-sdk"
-import {lift, collect, project, select} from "fairmont"
+import {lift, collect, project, select, isFunction, bind, cat} from "fairmont"
 
-Lambda = new SDK.Lambda()
-listFunctions = lift Lambda.listFunctions
-deleteFunction = lift Lambda.deleteFunction
+liftModule = (m) ->
+  lifted = {}
+  for k, v of m
+    lifted[k] = if isFunction v then lift bind v, m else v
+  lifted
+
+LAMBDA = liftModule new SDK.Lambda()
 
 lambda = do ->
   list = (fns=[], marker) ->
     params = {MaxItems: 100}
     params.Marker = marker if marker
 
-    {NextMarker, Functions} = await listFunctions params
+    {NextMarker, Functions} = await LAMBDA.listFunctions params
     fns = cat fns, Functions
     if NextMarker
       await list fns, NextMarker
     else
       fns
 
-  Delete = (name) -> await deleteFunction FunctionName: name
+  Delete = (name) -> await LAMBDA.deleteFunction FunctionName: name
   {list, delete:Delete}
 
 deleteAll = (stackName) ->
@@ -29,14 +33,16 @@ deleteAll = (stackName) ->
   lambdas = await lambda.list()
   names = collect project "FunctionName", lambdas
 
-  isOurs = (str) -> ///^#{s.stackName}.+///.test str
+  isOurs = (str) -> ///^#{stackName}.+///.test str
   names = collect select isOurs, names
 
   await Promise.all (lambda.delete name for name in names)
 
 
 handler = (event, context) ->
+  console.log "handling event for", event
   # For Non-Delete requests, immediately send a SUCCESS response.
+
   if event.RequestType != "Delete"
       sendResponse event, context, "SUCCESS"
       return
@@ -50,7 +56,7 @@ handler = (event, context) ->
 
 
 # CloudFormation waits for a result JSON object to be sent to the pre-signed S3 bucket URL.
-sendResponse = (event, context, responseStatus, responseData={}) ->
+sendResponse = (event, context, responseStatus, responseData) ->
   responseBody = JSON.stringify
     Status: responseStatus,
     Reason: "See the details in CloudWatch Log Stream: " + context.logStreamName,
@@ -59,6 +65,8 @@ sendResponse = (event, context, responseStatus, responseData={}) ->
     RequestId: event.RequestId
     LogicalResourceId: event.LogicalResourceId
     Data: responseData
+
+  console.log responseBody
 
   parsedUrl = url.parse event.ResponseURL
   options =

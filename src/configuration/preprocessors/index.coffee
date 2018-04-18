@@ -15,7 +15,7 @@ addVariables = require "./variables"
 addPolicyStatements = require "./policy-statements"
 addVPCConfig = require "./vpc-config"
 fetchMixins = require "./mixins"
-addCustomResources = require "./custom-resources"
+#addCustomResources = require "./custom-resources"
 
 module.exports = async (config) ->
   {name, env} = config
@@ -53,8 +53,10 @@ module.exports = async (config) ->
   # Add VPC configuration, if present in the target environment.
   config = addVPCConfig config
 
-  config = yield addCustomResources config
-  console.log config.customResources
+  # Custom resources are developer defined resources in CloudFormation
+  # TODO: Think about how to approach this.  A mixin form might be better.
+  #config = yield addCustomResources config
+
   # Remove the root resource, because it needs special handling
   rootKey = config.rootResourceKey
   delete config.resources[rootKey]

@@ -10,11 +10,12 @@ module.exports = async (config) ->
 
   {skyBucket, fullName} = config.environmentVariables
   handlerName = "#{fullName}-custom-lambda-killer"
+  keyName = "custom-resources/lambda-killer.zip"
 
   Bucket = require "../../../../aws/s3"
   bucket = yield Bucket config.aws.region, config, skyBucket
   yield bucket.establish()
-  yield bucket.putObject "lambda-killer.zip", resolve __dirname, "lambda-killer.zip"
+  yield bucket.putObject keyName, resolve __dirname, "lambda-killer.zip"
 
 
   if !config.customResources
@@ -45,7 +46,7 @@ module.exports = async (config) ->
                   "logs:PutLogEvents"
                 ]
                 Resource: [
-                  "arn:aws:logs:*:*:log-group:/aws/lambda/#{handlerName}:*"
+                  "arn:aws:logs:*:*:log-group:/aws/lambda/*:*"
                 ]
               },{
                 Effect: "Allow"
@@ -58,10 +59,10 @@ module.exports = async (config) ->
               },{
                 Effect: "Allow"
                 Action: [
-                  "lambda:DeleteFunction"
+                  "lambda:*"
                 ]
                 Resource: [
-                  "arn:aws:lambda:*:*"
+                  "*"
                 ]
               }
             ]
@@ -73,8 +74,8 @@ module.exports = async (config) ->
       Properties:
         Code:
           S3Bucket: skyBucket
-          S3Key: "custom-resources/lambda-killer.zip"
-        Handler: "#{handlerName}.handler"
+          S3Key: keyName
+        Handler: "src.handler"
         Runtime: "nodejs6.10"
         Timeout: 60
         Role: "Fn::GetAtt" : [ "LambdaKillerRole", "Arn" ]

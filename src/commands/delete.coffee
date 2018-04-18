@@ -16,7 +16,7 @@ define "delete", async (env, profile) ->
     sky = yield require("../aws/sky")(env, config)
 
     console.error "Deleting Sky deployment..."
-    isDeleting = yield sky.cfo.delete()
+    isDeleting = yield sky.stack.delete()
     if isDeleting
       console.error "-- Waiting for deletion to complete."
       yield sky.cfo.deleteWait()

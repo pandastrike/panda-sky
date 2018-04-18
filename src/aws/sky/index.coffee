@@ -28,6 +28,7 @@ module.exports = async (env, config) ->
   s.cfr = yield require("../cloudfront")(s)
   s.bucket = yield require("../s3")(env, config, s.srcName)
   s.lambda = yield require("../lambda")(config)
+  s.eni = yield require("../eni")(config)
   s.route53 = yield require("../route53")(s)
   s.logs = yield require("../logs")(env, config)
 
