@@ -22,20 +22,26 @@ module.exports = (s) ->
       console.error "Destroying Lambda ENIs to speed operation. One moment..."
       yield s.eni.purge()
 
+  directLambdaUpdate = async ->
+    console.error "Updating stack lambdas..."
+    yield s.lambdas.update()
+    console.error "Lambdas updated."
+
   publish = async ->
     console.error "-- Scanning AWS for current deploy."
-    dirtyTier = yield scan()  # Prep the app's core bucket
-    if dirtyTier == -1
+    {dirtyTier, dirtyLambda} = yield scan()  # Prep the app's core bucket
+    if !dirtyTier
+      yield s.cfo.create config "full"
+      return true
+    else if dirtyTier == -1 && !dirtyLambda
       console.error "#{s.stackName} is up to date."
       return false
 
-    # If the stack already exists, update instead of create.
-    if yield s.cfo.get()
-      yield purgeENIs()
+    if dirtyTier >= 0
       yield s.cfo.update (config dirtyTier), (config "full")
-    else
-      yield s.cfo.create config "full"
-    true
+    if dirtyLambda
+      yield directLambdaUpdate()
+    return true
 
   # Handle stuff that happens after we've confirmed the stack deployed.
   postPublish = async ->

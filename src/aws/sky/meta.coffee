@@ -16,7 +16,7 @@ module.exports = (s) ->
       if local == remote.handlers then true else false
 
     update: async -> yield s.bucket.putObject "package.zip", s.pkg
-    tier: 1
+    tier: null
 
   skyConfig =
     isCurrent: async (remote) ->
@@ -71,7 +71,12 @@ module.exports = (s) ->
       intermediate = (tier, template) ->
         retain = cat (r for k, r of s.resources when k <= tier)...
         R = template.Resources
-        delete R[k] for k, v of R when !(k in retain)
+        for k, v of R
+          result = false
+          for regex in retain
+            break if result = k.match regex
+          delete R[k] if !result
+
         template.Resources = R
         template
 
@@ -105,12 +110,16 @@ module.exports = (s) ->
       yield s.bucket.putObject(".sky", (yaml data), "text/yaml")
 
     check: async (meta) ->
+      # Examine regular stack resources, to see what priority there is for wiping away and republishing.  We wish to wipe away as little as possible.
       updates = []
-      updates.push handlers.tier if !yield handlers.isCurrent meta
       updates.push api.tier if !yield api.isCurrent meta
       updates.push skyConfig.tier if !yield skyConfig.isCurrent meta
       updates.push permissions.tier if !permissions.isCurrent meta
-      if empty updates then -1 else min updates...
+      dirtyTier = if empty updates then -1 else min updates...
+
+      # Lambdas are in a special category.  Becuause their ENIs (used when integrated with a VPC) take hours to re-establish, we want to detect when Lambdas are dirty and issue an update out-of-band for CloudFormation, bydirectly using the AWS API.
+      dirtyLambda = !(yield handlers.isCurrent meta)
+      {dirtyTier, dirtyLambda}
 
 
 
