@@ -30,7 +30,7 @@ module.exports = (s) ->
   publish = async ->
     console.error "-- Scanning AWS for current deploy."
     {dirtyTier, dirtyLambda} = yield scan()  # Prep the app's core bucket
-    if !dirtyTier
+    if !dirtyTier?
       yield s.cfo.create config "full"
       return true
     else if dirtyTier == -1 && !dirtyLambda
