@@ -1,0 +1,23 @@
+# This is a templatized verion of a CFo template for Amazon API Gateway with
+# Lambda backends as the handlers.  This template forms the core of every
+# Panda Sky app deployment, with mixins adding resources to the description.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "{{env}} {{name}} - deployed by Panda Sky"
+Resources:
+  SkyCore:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Tags:
+        - Key: Substack Type
+          Value: Core
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/index.yaml"
+
+Outputs:
+  API:
+    Value:
+      "Fn::GetAtt": ["SkyCore", "Outputs.API"]

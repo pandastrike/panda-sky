@@ -1,4 +1,4 @@
-{async, first, sleep, cat, collect, select} = require "fairmont"
+{async, first, sleep, cat, collect, select, where} = require "fairmont"
 SkyStack = require "./sky"
 
 module.exports = async (env, config, name) ->
@@ -10,15 +10,16 @@ module.exports = async (env, config, name) ->
       catch
         false
 
-    getResource = async (LogicalResourceId, StackName) ->
-      data = yield cfo.describeStackResource {LogicalResourceId, StackName}
-      data.StackResourceDetail.PhysicalResourceId
+    getOutput = async (OuputName, StackName) ->
+      data = yield cfo.describeStacks {StackName}
+      outputs = collect where {OutputKey: "API"}, data.Stacks[0].Outputs
+      outputs[0].OutputValue
 
     buildEndpointURL = (id, env) ->
       "https://#{id}.execute-api.#{config.aws.region}.amazonaws.com/#{env}"
 
     getApiUrl = async ->
-      apiID = yield getResource "API", name
+      apiID = yield getOutput "API", name
       buildEndpointURL apiID, env
 
     # Update an existing stack with a new template.

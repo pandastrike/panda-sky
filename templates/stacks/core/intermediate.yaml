@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Core Resources
+Resources:
+  GatewayBase:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Tags:
+        - Key: Substack Type
+          Value: Core Gateway API Base
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-base.yaml"
+
+  LambdaFunctions:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Tags:
+        - Key: Substack Type
+          Value: Core Lambda Functions
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/lambda-functions.yaml"

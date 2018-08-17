@@ -17,8 +17,9 @@ compile = async (appRoot, env, profile) ->
   if env
     # Run everything through preprocessors to get final config.
     config = yield preprocess config
-    cfoTemplate = yield cloudformation.renderTemplate config
-    config.aws.cfoTemplate = JSON.stringify cfoTemplate
+    {topLevelStack, coreStacks} = yield cloudformation.renderTemplate config
+    config.aws.coreStacks = coreStacks
+    config.aws.cfoTemplate = topLevelStack
 
   config
 

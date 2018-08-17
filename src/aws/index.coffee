@@ -28,6 +28,7 @@ module.exports = (region, profile="default") ->
   route53 = liftModule new SDK.Route53()
   s3 = liftModule new SDK.S3()
   ec2 = liftModule new SDK.EC2()
+  sts = liftModule new SDK.STS()
 
 
-  {AWS:SDK, acm, agw, gw, cfo, cfr, lambda, logs, route53, s3, ec2}
+  {AWS:SDK, acm, agw, gw, cfo, cfr, lambda, logs, route53, s3, ec2, sts}

@@ -4,6 +4,8 @@
 # add that layer of sophistication.
 
 {async, capitalize} = require "fairmont"
+STS = require "../../aws/sts"
+
 extractPaths = require "./paths"
 extractResources = require "./resources"
 extractMethods = require "./methods"
@@ -19,9 +21,13 @@ fetchMixins = require "./mixins"
 
 module.exports = async (config) ->
   {name, env} = config
+  {whoAmI} = yield STS config
+  config.accountID = (yield whoAmI()).Account
+
   config.gatewayName = config.stackName = "#{name}-#{env}"
   config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"
   config.policyName = "#{name}-#{env}"
+
 
   # Add in default tags.
   config = addTags config

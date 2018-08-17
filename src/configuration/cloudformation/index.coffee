@@ -14,37 +14,21 @@
 # Libraries
 {async, merge} = require "fairmont"
 
-# Constants
-AWSTemplateFormatVersion = "2010-09-09"
-
 # Helpers
-{renderAPI} = require "./api-core"
-
-# Finds and renders the API description and all mixins as the Resources.
-renderResources = async (config) ->
-  {AWS} = yield require("../../aws")(config.aws.region)
-  resources = []
-  resources.push yield renderAPI config
-
-  # Mixins have their own configuration schema and templates.  Validation and
-  # rendering is handled internally.  Just accept what we get back.
-  resources.push yield m.render AWS, config for name, m of config.mixins
-
-  merge resources...
+{renderCore, renderTopLevel} = require "./api-core"
 
 # The complete and rendered CloudFormation Description. Object not string.
 renderTemplate = async (config) ->
-  Description = config.description || "#{config.name} - deployed by Panda Sky"
-  Resources = yield renderResources config
+  coreStacks = yield renderCore config
+  topLevelStack = yield renderTopLevel config
 
-  # These fields are the high level sections of a CloudFormation pattern.
-  return {
-    AWSTemplateFormatVersion
-    Description
-    Resources
-  }
+  # # Mixins have their own configuration schema and templates.  Validation and rendering is handled internally.  Just accept what we get back.
+  # {AWS} = yield require("../../aws")(config.aws.region)
+  # resources.push yield m.render AWS, config for name, m of config.mixins
+
+  # Return the rendered chunks needed to make the deployment real.
+  {coreStacks, topLevelStack}
 
 module.exports = {
-  AWSTemplateFormatVersion
   renderTemplate
 }

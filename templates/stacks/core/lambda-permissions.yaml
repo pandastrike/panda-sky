@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Core Resources - Gateway to Lambda Permissions
+Parameters:
+  API:
+    Type: String
+    Description: Gateway API ID for the Sky stack HTTP endpoint.
+  LambdaDone:
+    Type: String
+    Description: Forces order dependency, Lambdas must exist before permission to access them is granted.
+Resources:
+  {{#with rootResource}}
+  # The root resource needs different expansion than others. Define all the Lambdas for methods on the root resource.
+  {{#each methods}}
+  {{> lambda-permissions}}
+  {{/each}}
+  {{/with}}
+
+  # Define all Lambdas for methods on all non-root resources
+  {{#each resources}}
+  {{#each methods}}
+  {{> lambda-permissions}}
+  {{/each}}
+  {{/each}}

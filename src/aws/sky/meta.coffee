@@ -1,4 +1,4 @@
-{async, md5, read, keys, cat, empty, min, remove, toJSON} = require "fairmont"
+{async, md5, read, keys, cat, empty, min, remove, toJSON, clone} = require "fairmont"
 {yaml} = require "panda-serialize"
 
 module.exports = (s) ->
@@ -34,6 +34,11 @@ module.exports = (s) ->
     update: async -> yield s.bucket.putObject "permissions.json", toJSON(s.permissions), "text/json"
     tier: 1
 
+  substacks =
+    update: async ->
+      for key, stack of s.config.aws.coreStacks
+        yield s.bucket.putObject "templates/#{key}", stack, "text/yaml"
+
   hostnames = do ->
     fetch = async ->
       try
@@ -66,28 +71,15 @@ module.exports = (s) ->
     # Assign tiers to resources so we can specify how bare the intermediate
     # template needs to be.
     update: async ->
-      tiers = keys s.resources
-
-      intermediate = (tier, template) ->
-        retain = cat (r for k, r of s.resources when k <= tier)...
-        R = template.Resources
-        for k, v of R
-          result = false
-          for regex in retain
-            break if result = k.match regex
-          delete R[k] if !result
-
-        template.Resources = R
-        template
-
-      t = full: JSON.parse s.config.aws.cfoTemplate
-      t[x] = JSON.parse s.config.aws.cfoTemplate for x in tiers
+      {cfoTemplate} = s.config.aws
+      intermediate = clone cfoTemplate
+      intermediate.Resources.SkyCore.Properties.TemplateURL = "https://#{s.config.environmentVariables.skyBucket}.s3.amazonaws.com/templates/core/intermediate.yaml"
 
       write = async (name, file) ->
         yield s.bucket.putObject name, (yaml file), "text/yaml"
 
-      yield write "template.yaml", t.full
-      yield write "template-#{x}.yaml", (intermediate x, t[x]) for x in tiers
+      yield write "template.yaml", cfoTemplate
+      yield write "template-intermediate.yaml", intermediate
 
   # .sky holds the app's tracking metadata, ie hashes of API and handler defs.
   # this is how we determine what's currently deployed.  It's only updated
@@ -110,16 +102,16 @@ module.exports = (s) ->
       yield s.bucket.putObject(".sky", (yaml data), "text/yaml")
 
     check: async (meta) ->
-      # Examine regular stack resources, to see what priority there is for wiping away and republishing.  We wish to wipe away as little as possible.
+      # Examine core stack resources to see if we need to wipe away Gateway resources and republish
       updates = []
       updates.push api.tier if !yield api.isCurrent meta
       updates.push skyConfig.tier if !yield skyConfig.isCurrent meta
       updates.push permissions.tier if !permissions.isCurrent meta
-      dirtyTier = if empty updates then -1 else min updates...
+      dirtyAPI = !(empty updates)
 
-      # Lambdas are in a special category.  Becuause their ENIs (used when integrated with a VPC) take hours to re-establish, we want to detect when Lambdas are dirty and issue an update out-of-band for CloudFormation, bydirectly using the AWS API.
+      # Lambdas are in a special category.  Becuause their ENIs (used when integrated with a VPC) take hours to re-establish, we want to detect when Lambdas are dirty and issue an update out-of-band for CloudFormation, by directly using the AWS API.
       dirtyLambda = !(yield handlers.isCurrent meta)
-      {dirtyTier, dirtyLambda}
+      {dirtyAPI, dirtyLambda}
 
 
 
@@ -129,6 +121,7 @@ module.exports = (s) ->
     yield handlers.update()
     yield permissions.update()
     yield template.update()
+    yield substacks.update()
 
   create = async ->
     yield s.bucket.establish()

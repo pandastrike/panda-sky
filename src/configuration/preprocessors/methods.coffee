@@ -43,6 +43,9 @@ module.exports = (description) ->
       if method.signatures.request?.resource?
         method.requestModel = capitalize method.signatures.request.resource
       method.dependencies = dependencies method.signatures
+
+      lambdaName = "#{appName}-#{env}-#{toLower resourceName}-#{toLower method.name}"
+
       method.lambda =
         handler:
           name: "#{camelized}LambdaHandler"
@@ -51,7 +54,8 @@ module.exports = (description) ->
           name: "#{camelized}LambdaPermission"
           path: "/*/#{toUpper methodName}#{resource.permissionsPath}"
         "function":
-          name: "#{appName}-#{env}-#{toLower resourceName}-#{toLower method.name}"
+          name: lambdaName
+          arn: "arn:aws:lambda:#{description.aws.region}:#{description.accountID}:function:#{lambdaName}"
 
     resource.methodList = toUpper methods.join ", "
 

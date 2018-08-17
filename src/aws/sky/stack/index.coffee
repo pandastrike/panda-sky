@@ -29,16 +29,16 @@ module.exports = (s) ->
 
   publish = async ->
     console.error "-- Scanning AWS for current deploy."
-    {dirtyTier, dirtyLambda} = yield scan()  # Prep the app's core bucket
-    if !dirtyTier?
+    {dirtyAPI, dirtyLambda} = yield scan()  # Prep the app's core bucket
+    if !dirtyAPI?
       yield s.cfo.create config "full"
       return true
-    else if dirtyTier == -1 && !dirtyLambda
+    else if !dirtyAPI && !dirtyLambda
       console.error "#{s.stackName} is up to date."
       return false
 
-    if dirtyTier >= 0
-      yield s.cfo.update (config dirtyTier), (config "full")
+    if dirtyAPI
+      yield s.cfo.update (config "intermediate"), (config "full")
     if dirtyLambda
       yield directLambdaUpdate()
     return true
