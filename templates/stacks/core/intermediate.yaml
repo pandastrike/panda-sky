@@ -24,3 +24,7 @@ Resources:
           Value: {{Value}}
         {{/each}}
       TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/lambda-functions.yaml"
+
+Outputs:
+  API:
+    Value: "true"
