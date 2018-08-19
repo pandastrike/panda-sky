@@ -30,7 +30,7 @@ nameKey = (path) -> relative (resolve skyRoot, "templates", "stacks"), path
 
 renderCore = async (config) ->
   core = {}
-  stacks = yield lsR tPath "stacks"
+  stacks = yield lsR tPath "stacks/core"
   for s in stacks when parse(s).ext == ".yaml"
     core[nameKey s] = render (yield registerTemplate s), config
   core

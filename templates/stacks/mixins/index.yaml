@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Mixin Resources
+Resources:
+  {{#each mixins}}
+  Mixin{{title}}:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Tags:
+        - Key: Substack Type
+          Value: Sky Mixin {{title}}
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{@root.bucket}}.s3.amazonaws.com/templates/mixins/{{file}}.yaml"
+  {{/each}}

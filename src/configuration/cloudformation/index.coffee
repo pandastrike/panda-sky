@@ -12,22 +12,27 @@
 # into one large CloudFormation Description that gets deployed together by AWS.
 
 # Libraries
-{async, merge} = require "fairmont"
+{async, merge, capitalize, empty, keys} = require "fairmont"
+{yaml} = require "panda-serialize"
 
 # Helpers
 {renderCore, renderTopLevel} = require "./api-core"
+{renderMixins} = require "./mixins"
 
-# The complete and rendered CloudFormation Description. Object not string.
+# The complete and rendered CloudFormation Description.
 renderTemplate = async (config) ->
-  coreStacks = yield renderCore config
-  topLevelStack = yield renderTopLevel config
+  # Get the mixin resources
+  mixins = yield renderMixins config
+  # Don't put mixin substack in top level if there are no resources to render.
+  config.needsMixinResources = !(empty keys mixins)
 
-  # # Mixins have their own configuration schema and templates.  Validation and rendering is handled internally.  Just accept what we get back.
-  # {AWS} = yield require("../../aws")(config.aws.region)
-  # resources.push yield m.render AWS, config for name, m of config.mixins
 
-  # Return the rendered chunks needed to make the deployment real.
-  {coreStacks, topLevelStack}
+  # Get the "core" sky deployment stuff, lambdas and their HTTP interface
+  top = yield renderTopLevel config
+  core = yield renderCore config
+
+  # Return the rendered chunks to the configuration compiler top-level.
+  {top, core, mixins}
 
 module.exports = {
   renderTemplate

@@ -17,6 +17,20 @@ Resources:
         {{/each}}
       TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/index.yaml"
 
+  {{#if needsMixinResources}}
+  SkyMixins:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Tags:
+        - Key: Substack Type
+          Value: Mixins Top Level
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/mixins/index.yaml"
+  {{/if}}
+
 Outputs:
   API:
     Value:

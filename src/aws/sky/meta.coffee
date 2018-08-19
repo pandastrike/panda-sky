@@ -36,8 +36,10 @@ module.exports = (s) ->
 
   substacks =
     update: async ->
-      for key, stack of s.config.aws.coreStacks
+      for key, stack of s.config.aws.stacks.core
         yield s.bucket.putObject "templates/#{key}", stack, "text/yaml"
+      for key, stack of s.config.aws.stacks.mixins
+        yield s.bucket.putObject "templates/mixins/#{key}.yaml", stack, "text/yaml"
 
   hostnames = do ->
     fetch = async ->
@@ -71,14 +73,13 @@ module.exports = (s) ->
     # Assign tiers to resources so we can specify how bare the intermediate
     # template needs to be.
     update: async ->
-      {cfoTemplate} = s.config.aws
-      intermediate = clone cfoTemplate
+      intermediate = clone s.config.aws.stacks.top
       intermediate.Resources.SkyCore.Properties.TemplateURL = "https://#{s.config.environmentVariables.skyBucket}.s3.amazonaws.com/templates/core/intermediate.yaml"
 
       write = async (name, file) ->
         yield s.bucket.putObject name, (yaml file), "text/yaml"
 
-      yield write "template.yaml", cfoTemplate
+      yield write "template.yaml", s.config.aws.stacks.top
       yield write "template-intermediate.yaml", intermediate
 
   # .sky holds the app's tracking metadata, ie hashes of API and handler defs.
