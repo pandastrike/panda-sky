@@ -1,5 +1,14 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Panda Sky Core Resources
+{{#if aws.vpc.new}}
+Parameters:
+  SecurityGroups:
+    Type: String
+    Description: Security groups for the core stack VPC
+  Subnets:
+    Type: String
+    Description: comma delimited list of subnet IDs for the core stack VPC
+{{/if}}
 Resources:
   GatewayBase:
     Type: "AWS::CloudFormation::Stack"
@@ -15,6 +24,8 @@ Resources:
 
   GatewayResources:
     Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
     Properties:
       Parameters:
         API:
@@ -32,6 +43,9 @@ Resources:
 
   GatewayMainMethods:
     Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+      - GatewayResources
     Properties:
       Parameters:
         API:
@@ -49,6 +63,9 @@ Resources:
 
   GatewayOptionsMethods:
     Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+      - GatewayResources
     Properties:
       Parameters:
         API:
@@ -66,6 +83,10 @@ Resources:
 
   GatewayDeployment:
     Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+      - GatewayMainMethods
+      - GatewayOptionsMethods
     Properties:
       Parameters:
         API:
@@ -86,6 +107,18 @@ Resources:
   LambdaFunctions:
     Type: "AWS::CloudFormation::Stack"
     Properties:
+      {{#if aws.vpc.new}}
+      Parameters:
+        SecurityGroups:
+          Ref: SecurityGroups
+        Subnets:
+          Ref: Subnets
+      {{/if}}
+      {{#unless aws.vpc.new}}
+      Parameters:
+        SecurityGroups: {{aws.vpc.securityGroups}}
+        Subnets: {{aws.vpc.subnets}}
+      {{/unless}}
       Tags:
         - Key: Substack Type
           Value: Core Lambda Functions
@@ -97,6 +130,9 @@ Resources:
 
   LambdaFunctionPermissions:
     Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+      - LambdaFunctions
     Properties:
       Parameters:
         API:

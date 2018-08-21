@@ -12,13 +12,9 @@
     {{#if @root.aws.vpc}}
     VpcConfig:
       SecurityGroupIds:
-        {{#each @root.aws.vpc.securityGroups}}
-        - {{.}}
-        {{/each}}
+        "Fn::Split" : [ ",", {"Ref": SecurityGroups} ] 
       SubnetIds:
-        {{#each @root.aws.vpc.subnets}}
-        - {{.}}
-        {{/each}}
+        "Fn::Split" : [ ",", {"Ref": Subnets} ]
     {{/if}}
     Environment:
       Variables:

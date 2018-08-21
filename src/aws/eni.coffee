@@ -8,7 +8,7 @@ module.exports = async (config) ->
     {NetworkInterfaces} = yield ec2.describeNetworkInterfaces
       Filters: [
         Name: "subnet-id"
-        Values: config.aws.vpc.subnets
+        Values: config.aws.vpc.override.subnets
       ]
     NetworkInterfaces
 

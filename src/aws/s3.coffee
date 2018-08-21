@@ -34,7 +34,6 @@ module.exports = async (env, config, name) ->
       ]
 
     if yield exists()
-      yield s3.putBucketPolicy {Policy, Bucket:name}
       return true
 
     # Create a new, empty S3 bucket.
@@ -42,7 +41,6 @@ module.exports = async (env, config, name) ->
     try
       yield s3.createBucket {Bucket: name}
       yield sleep 15000
-      yield s3.putBucketPolicy {Policy, Bucket:name}
     catch e
       console.error "Request ID", e.requestId
       throw new Error """

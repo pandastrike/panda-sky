@@ -12,7 +12,7 @@ module.exports = (s) ->
       t = "template-#{tier}.yaml"
 
     StackName: s.stackName
-    TemplateURL: "http://#{s.srcName}.s3.amazonaws.com/#{t}"
+    TemplateURL: "https://#{s.srcName}.s3.amazonaws.com/#{t}"
     Capabilities: ["CAPABILITY_IAM"]
     Tags: s.config.tags
 

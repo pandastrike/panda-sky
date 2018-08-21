@@ -5,9 +5,34 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "{{env}} {{name}} - deployed by Panda Sky"
 Resources:
-  SkyCore:
+  {{#if aws.vpc.new}}
+  SkyCoreVPC:
     Type: "AWS::CloudFormation::Stack"
     Properties:
+      Tags:
+        - Key: Substack Type
+          Value: Core VPC
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/vpc.yaml"
+  {{/if}}
+
+  SkyCore:
+    Type: "AWS::CloudFormation::Stack"
+    {{#if aws.vpc.new}}
+    DependsOn:
+      - SkyCoreVPC
+    {{/if}}
+    Properties:
+      {{#if aws.vpc.new}}
+      Parameters:
+        SecurityGroups:
+          "Fn::GetAtt": ["SkyCoreVPC", "Outputs.SecurityGroups"]
+        Subnets:
+          "Fn::GetAtt": ["SkyCoreVPC", "Outputs.Subnets"]
+      {{/if}}
       Tags:
         - Key: Substack Type
           Value: Core
@@ -20,6 +45,8 @@ Resources:
   {{#if needsMixinResources}}
   SkyMixins:
     Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - SkyCore
     Properties:
       Tags:
         - Key: Substack Type

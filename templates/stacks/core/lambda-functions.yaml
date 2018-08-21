@@ -1,5 +1,14 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Panda Sky Core Resources - Lambda Functions
+{{#if aws.vpc}}
+Parameters:
+  SecurityGroups:
+    Type: String
+    Description: Security groups for the core stack VPC
+  Subnets:
+    Type: String
+    Description: comma delimited list of subnet IDs for the core stack VPC
+{{/if}}
 Resources:
   # IAM (Identity and Access Management), granting functions acccess to other stack resources.
   {{> iamrole}}
