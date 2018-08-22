@@ -10,9 +10,9 @@ module.exports = async (env, config, name) ->
       catch
         false
 
-    getOutput = async (OuputName, StackName) ->
+    getOutput = async (OutputKey, StackName) ->
       data = yield cfo.describeStacks {StackName}
-      outputs = collect where {OutputKey: "API"}, data.Stacks[0].Outputs
+      outputs = collect where {OutputKey}, data.Stacks[0].Outputs
       outputs[0].OutputValue
 
     buildEndpointURL = (id, env) ->
@@ -21,6 +21,9 @@ module.exports = async (env, config, name) ->
     getApiUrl = async ->
       apiID = yield getOutput "API", name
       buildEndpointURL apiID, env
+
+    getApiSubnets = async ->
+      (yield getOutput "Subnets", name).split ","
 
     # Update an existing stack with a new template.
     update = async (intermediateTemplate, fullTemplate) ->
@@ -115,6 +118,7 @@ module.exports = async (env, config, name) ->
     {
       get
       getApiUrl
+      getApiSubnets
       create
       update
       delete: destroy

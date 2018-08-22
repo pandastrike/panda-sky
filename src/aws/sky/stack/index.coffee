@@ -20,7 +20,7 @@ module.exports = (s) ->
     # For deployments that interface with a VPC, and the developer has opted out of waiting for connection draining, we need to wipe out the Lambda's ENIs by force
     if s.config.aws.vpc?.skipConnectionDraining
       console.error "Destroying Lambda ENIs to speed operation. One moment..."
-      yield s.eni.purge()
+      yield s.eni.purge yield s.cfo.getApiSubnets()
 
   directLambdaUpdate = async ->
     console.error "Updating stack lambdas..."

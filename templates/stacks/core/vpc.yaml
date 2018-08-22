@@ -9,6 +9,8 @@ Resources:
       EnableDnsHostnames: true
       InstanceTenancy: default
       Tags:
+        - Key: Name
+          Value: {{environmentVariables.fullName}}
         {{#each tags}}
         - Key: {{Key}}
           Value: {{Value}}
@@ -132,9 +134,6 @@ Resources:
     DependsOn:
       - VPC
       - RouteTable
-      - Subnet1
-      - Subnet2
-      - SecurityGroup
     Type: "AWS::EC2::VPCEndpoint"
     Properties:
       VpcId:
@@ -143,26 +142,6 @@ Resources:
         - Ref: RouteTable
       ServiceName: com.amazonaws.{{aws.region}}.s3
       VpcEndpointType: Gateway
-
-  EndpointKMS:
-    DependsOn:
-      - VPC
-      - RouteTable
-      - Subnet1
-      - Subnet2
-      - SecurityGroup
-    Type: "AWS::EC2::VPCEndpoint"
-    Properties:
-      VpcId:
-        Ref: VPC
-      ServiceName: com.amazonaws.{{aws.region}}.kms
-      VpcEndpointType: Interface
-      PrivateDnsEnabled: true
-      SubnetIds:
-        - Ref: Subnet1
-        - Ref: Subnet2
-      SecurityGroupIds:
-        - Ref: SecurityGroup
 
 
 Outputs:

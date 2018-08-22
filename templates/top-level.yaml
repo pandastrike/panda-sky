@@ -26,13 +26,20 @@ Resources:
       - SkyCoreVPC
     {{/if}}
     Properties:
-      {{#if aws.vpc.new}}
+      {{#with aws.vpc}}
+      {{#if new}}
       Parameters:
         SecurityGroups:
           "Fn::GetAtt": ["SkyCoreVPC", "Outputs.SecurityGroups"]
         Subnets:
           "Fn::GetAtt": ["SkyCoreVPC", "Outputs.Subnets"]
       {{/if}}
+      {{#unless new}}
+      Parameters:
+        SecurityGroups: {{securityGroups}}
+        Subnets: {{subnets}}
+      {{/unless}}
+      {{/with}}
       Tags:
         - Key: Substack Type
           Value: Core
@@ -45,9 +52,28 @@ Resources:
   {{#if needsMixinResources}}
   SkyMixins:
     Type: "AWS::CloudFormation::Stack"
+    {{#if aws.vpc.new}}
     DependsOn:
       - SkyCore
+    {{/if}}
     Properties:
+      {{#with aws.vpc}}
+      {{#if new}}
+      Parameters:
+        VPC:
+          "Fn::GetAtt": ["SkyCoreVPC", "Outputs.VPC"]
+        SecurityGroups:
+          "Fn::GetAtt": ["SkyCoreVPC", "Outputs.SecurityGroups"]
+        Subnets:
+          "Fn::GetAtt": ["SkyCoreVPC", "Outputs.Subnets"]
+      {{/if}}
+      {{#unless new}}
+      Parameters:
+        VPC: {{vpcID}}
+        SecurityGroups: {{securityGroups}}
+        Subnets: {{subnets}}
+      {{/unless}}
+      {{/with}}
       Tags:
         - Key: Substack Type
           Value: Mixins Top Level
@@ -62,3 +88,24 @@ Outputs:
   API:
     Value:
       "Fn::GetAtt": ["SkyCore", "Outputs.API"]
+  {{#with aws.vpc}}
+  {{#if new}}
+  VPC:
+    Value:
+      "Fn::GetAtt": ["SkyCoreVPC", "Outputs.VPC"]
+  SecurityGroups:
+    Value:
+      "Fn::GetAtt": ["SkyCoreVPC", "Outputs.SecurityGroups"]
+  Subnets:
+    Value:
+      "Fn::GetAtt": ["SkyCoreVPC", "Outputs.Subnets"]
+  {{/if}}
+  {{#unless new}}
+  VPC:
+    Value: {{vpcID}}
+  SecurityGroups:
+    Value: {{securityGroups}}
+  Subnets:
+    Value: {{subnets}}
+  {{/unless}}
+  {{/with}}

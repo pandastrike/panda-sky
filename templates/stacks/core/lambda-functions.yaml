@@ -4,7 +4,7 @@ Description: Panda Sky Core Resources - Lambda Functions
 Parameters:
   SecurityGroups:
     Type: String
-    Description: Security groups for the core stack VPC
+    Description: comma delimited list of security groups for the core stack VPC
   Subnets:
     Type: String
     Description: comma delimited list of subnet IDs for the core stack VPC

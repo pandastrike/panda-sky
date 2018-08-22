@@ -4,11 +4,11 @@ module.exports = async (config) ->
   {ec2} = yield require("./index")(config.aws.region, config.profile)
   {fullName} = config.environmentVariables
 
-  list = async ->
+  list = async (subnetIDs) ->
     {NetworkInterfaces} = yield ec2.describeNetworkInterfaces
       Filters: [
         Name: "subnet-id"
-        Values: config.aws.vpc.override.subnets
+        Values: subnetIDs
       ]
     NetworkInterfaces
 
@@ -48,9 +48,9 @@ module.exports = async (config) ->
 
   attachedToLambdas = (eni) -> ///#{fullName}///.test eni.RequesterId
 
-  purge = async ->
+  purge = async (subnetIDs) ->
     # Collect any ENIs used by this stacks's Lambdas
-    ENIs = yield list()
+    ENIs = yield list subnetIDs
     ENIs = collect select attachedToLambdas, ENIs
 
     # Detach any attached ENIs

@@ -10,7 +10,7 @@ vpc:
       type: boolean
     availabilityZones:
       description: >
-        To provide robust availability of resources within your VPC, specify two availability zones by listing the letter code.  That letter will be combined with the region specified in the top-level AWS configuration.  You may omit this field if you specify override configuration.
+        To provide robust availability of resources within your VPC, specify two availability zones by listing the letter code.  That letter will be combined with the region specified in the top-level AWS configuration.  You may omit this field if you specify existing configuration.
       type: array
       minItems: 2
       maxItems: 2
@@ -18,13 +18,17 @@ vpc:
       items:
         type: string
         enum: [a, b, c, d, e, f]
-    override:
+    existing:
       description: >
         Use this field when you have an extant VPC with known Subnet and SecurityGroup IDs to associate with your Sky stack lambdas.  Otherwise, omit this field and have Sky create the VPC for you.
       type: object
       additionalProperties: false
-      required: [subnets, securityGroups]
+      required: [vpcID, subnets, securityGroups]
       properties:
+        vpcID:
+          description: >
+            The ID of the VPC for this deployment stack.
+          type: string
         subnets:
           description: >
             A list of subnet IDs your lambdas will be able to access
