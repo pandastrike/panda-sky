@@ -62,6 +62,8 @@ Resources:
       Parameters:
         VPC:
           "Fn::GetAtt": ["SkyCoreVPC", "Outputs.VPC"]
+        AvailabilityZones:
+          "Fn::GetAtt": ["SkyCoreVPC", "Outputs.AvailabilityZones"]
         SecurityGroups:
           "Fn::GetAtt": ["SkyCoreVPC", "Outputs.SecurityGroups"]
         Subnets:
@@ -70,6 +72,7 @@ Resources:
       {{#unless new}}
       Parameters:
         VPC: {{vpcID}}
+        AvailabilityZones: {{availabilityZones}}
         SecurityGroups: {{securityGroups}}
         Subnets: {{subnets}}
       {{/unless}}
@@ -93,6 +96,9 @@ Outputs:
   VPC:
     Value:
       "Fn::GetAtt": ["SkyCoreVPC", "Outputs.VPC"]
+  AvailabilityZones:
+    Value:
+      "Fn::GetAtt": ["SkyCoreVPC", "Outputs.AvailabilityZones"]
   SecurityGroups:
     Value:
       "Fn::GetAtt": ["SkyCoreVPC", "Outputs.SecurityGroups"]
@@ -103,6 +109,8 @@ Outputs:
   {{#unless new}}
   VPC:
     Value: {{vpcID}}
+  AvailabilityZones:
+    Value: {{availabilityZones}}
   SecurityGroups:
     Value: {{securityGroups}}
   Subnets:

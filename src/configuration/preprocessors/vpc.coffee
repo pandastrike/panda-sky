@@ -9,10 +9,14 @@ module.exports = (config) ->
     config.managedPolicies.push "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
     if vpc.existing
       # Since this VPC already exists, we need to put the input subnets and security groups into a form that CloudFormation can consume directly.
+      for zone, index in vpc.existing.availabilityZones
+        vpc.existing.availabilityZones[index] = config.aws.region + zone
+
       config.aws.vpc = merge vpc,
         new: false
         subnets: vpc.existing.subnets.join ","
         securityGroups: vpc.existing.securityGroups.join ","
+        availabilityZones: vpc.existing.availabilityZones.join ","
     else
       config.aws.vpc = merge vpc,
         new: true

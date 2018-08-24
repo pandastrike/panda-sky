@@ -23,12 +23,21 @@ vpc:
         Use this field when you have an extant VPC with known Subnet and SecurityGroup IDs to associate with your Sky stack lambdas.  Otherwise, omit this field and have Sky create the VPC for you.
       type: object
       additionalProperties: false
-      required: [vpcID, subnets, securityGroups]
+      required: [vpcID, availabilityZones, subnets, securityGroups]
       properties:
         vpcID:
           description: >
             The ID of the VPC for this deployment stack.
           type: string
+        availabilityZones:
+          description: >
+            The zones within this region where resources may be placed into your VPC.
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [a, b, c, d, e, f]
         subnets:
           description: >
             A list of subnet IDs your lambdas will be able to access

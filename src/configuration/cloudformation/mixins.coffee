@@ -32,6 +32,9 @@ finishTemplate = (resources, name, vpc) ->
       VPC:
         Type: "String"
         Description: "VPC ID for this deployment"
+      AvailabilityZones:
+        Type: "String"
+        Description: "comma delimited list of availability zones for the core stack VPC"
       SecurityGroups:
         Type: "String"
         Description: "comma delimited list of security groups for the core stack VPC"
