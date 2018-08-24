@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Core Resources - Gatway Methods - Main Verbs
+Parameters:
+  API:
+    Type: String
+    Description: Gateway API ID for the Sky stack HTTP endpoint.
+  RootResourceId:
+    Type: String
+    Description: ID of the Gateways virtual root resource to be used as a reference for its direct children.
+
+Resources:
+  # Define all the non-root Gateway resources
+  {{#each resources}}
+  {{> gateway-resource }}
+  {{/each}}
+
+Outputs:
+  ResourceIDs:
+    Value:
+      "Fn::Join":
+        - ","
+        -
+          - {'Ref': RootResourceId}
+          {{#orderedEach resources}}
+          - {'Ref': {{gateway.name}} }
+          {{/orderedEach}}

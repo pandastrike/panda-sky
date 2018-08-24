@@ -1,0 +1,149 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Core Resources
+{{#with aws.vpc}}
+Parameters:
+  SecurityGroups:
+    Type: String
+    Description: Security groups for the core stack VPC
+  Subnets:
+    Type: String
+    Description: comma delimited list of subnet IDs for the core stack VPC
+{{/with}}
+Resources:
+  GatewayBase:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Tags:
+        - Key: Substack Type
+          Value: Core Gateway API Base
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-base.yaml"
+
+  GatewayResources:
+    Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+    Properties:
+      Parameters:
+        API:
+          "Fn::GetAtt": ["GatewayBase", "Outputs.API"]
+        RootResourceId:
+          "Fn::GetAtt": ["GatewayBase", "Outputs.RootResourceId"]
+      Tags:
+        - Key: Substack Type
+          Value: Core Gateway Resource Paths
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-resources.yaml"
+
+  GatewayMainMethods:
+    Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+      - GatewayResources
+    Properties:
+      Parameters:
+        API:
+          "Fn::GetAtt": ["GatewayBase", "Outputs.API"]
+        ResourceIDs:
+          "Fn::GetAtt": ["GatewayResources", "Outputs.ResourceIDs"]
+      Tags:
+        - Key: Substack Type
+          Value: Core Gateway Main Methods
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-methods.yaml"
+
+  GatewayOptionsMethods:
+    Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+      - GatewayResources
+    Properties:
+      Parameters:
+        API:
+          "Fn::GetAtt": ["GatewayBase", "Outputs.API"]
+        ResourceIDs:
+          "Fn::GetAtt": ["GatewayResources", "Outputs.ResourceIDs"]
+      Tags:
+        - Key: Substack Type
+          Value: Core Gateway OPTIONS Methods
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-options.yaml"
+
+  GatewayDeployment:
+    Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+      - GatewayMainMethods
+      - GatewayOptionsMethods
+    Properties:
+      Parameters:
+        API:
+          "Fn::GetAtt": ["GatewayBase", "Outputs.API"]
+        MainDone:
+          "Fn::GetAtt": ["GatewayMainMethods", "Outputs.isDone"]
+        OptionsDone:
+          "Fn::GetAtt": ["GatewayOptionsMethods", "Outputs.isDone"]
+      Tags:
+        - Key: Substack Type
+          Value: Core Gateway Deployment
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-deployment.yaml"
+
+  LambdaFunctions:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      {{#with aws.vpc}}
+      Parameters:
+        SecurityGroups:
+          Ref: SecurityGroups
+        Subnets:
+          Ref: Subnets
+      {{/with}}
+      Tags:
+        - Key: Substack Type
+          Value: Core Lambda Functions
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/lambda-functions.yaml"
+
+  LambdaFunctionPermissions:
+    Type: "AWS::CloudFormation::Stack"
+    DependsOn:
+      - GatewayBase
+      - LambdaFunctions
+    Properties:
+      Parameters:
+        API:
+          "Fn::GetAtt": ["GatewayBase", "Outputs.API"]
+        LambdaDone:
+          "Fn::GetAtt": ["LambdaFunctions", "Outputs.isDone"]
+      Tags:
+        - Key: Substack Type
+          Value: Core Lambda Function Permissions
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/lambda-permissions.yaml"
+
+Outputs:
+  API:
+    Value:
+      "Fn::GetAtt": ["GatewayBase", "Outputs.API"]

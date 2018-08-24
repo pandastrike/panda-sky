@@ -21,7 +21,20 @@ module.exports = async (env, config, name) ->
 
   # Create a new bucket if it does not exist.
   establish = async ->
-    return true if yield exists()
+    Policy = JSON.stringify
+      Version: "2012-10-17"
+      Statement: [
+        Sid: "id-1"
+        Effect: "Allow"
+        Principal: "*"
+        Action: "s3:GetObject"
+        Resource: [
+          "arn:aws:s3:::#{name}/templates/*"
+        ]
+      ]
+
+    if yield exists()
+      return true
 
     # Create a new, empty S3 bucket.
     console.error "Establishing new S3 bucket. One moment..."

@@ -1,0 +1,32 @@
+{{#with lambda}}
+{{handler.name}}:
+  Type: "AWS::Lambda::Function"
+  Properties:
+    Description: "Handler for API {{@root.name}}"
+    FunctionName: {{function.name}}
+
+    Handler: "lib/sky.API"
+    Role:
+      "Fn::GetAtt" : ["{{@root.roleName}}", "Arn"]
+    Runtime: {{@root.aws.runtime}}
+    {{#if @root.aws.vpc}}
+    VpcConfig:
+      SecurityGroupIds:
+        "Fn::Split" : [ ",", {"Ref": SecurityGroups} ] 
+      SubnetIds:
+        "Fn::Split" : [ ",", {"Ref": Subnets} ]
+    {{/if}}
+    Environment:
+      Variables:
+      {{#eachProperty @root.environmentVariables}}
+        {{key}}: {{value}}
+      {{/eachProperty}}
+  {{#if timeout}}
+    Timeout: {{timeout}}
+  {{else}}
+    Timeout: 15
+  {{/if}}
+    Code:
+      S3Bucket: {{handler.bucket}}
+      S3Key: "package.zip"
+{{/with}}

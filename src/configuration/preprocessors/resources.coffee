@@ -75,14 +75,18 @@ module.exports = (config) ->
       resources[r].permissionsPath = "/#{p}"
 
   # Identify unique path and parents.
+  index = 1
   for r, resource of resources
     p = resource.path
     parts = p.split "/"
 
     if p == "/"
+      resource.index = 0
       resource.parent = "/"
       resource.pathPart = "/"
     else
+      resource.index = index
+      index++
       resource.pathPart = last parts
       if parts.length == 1
         resource.parent = "/"
@@ -90,7 +94,7 @@ module.exports = (config) ->
         resource.parent = getKey( parts.slice(0,-1).join("/") )
 
     if resource.parent == "/"
-      resource.parentID = '"Fn::GetAtt": ["API", "RootResourceId"]'
+      resource.parentID = '"Ref": "RootResourceId"'
     else
       resource.parentID = "Ref: #{capitalize resource.parent}Resource"
 

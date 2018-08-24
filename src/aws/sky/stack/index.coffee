@@ -12,7 +12,7 @@ module.exports = (s) ->
       t = "template-#{tier}.yaml"
 
     StackName: s.stackName
-    TemplateURL: "http://#{s.srcName}.s3.amazonaws.com/#{t}"
+    TemplateURL: "https://#{s.srcName}.s3.amazonaws.com/#{t}"
     Capabilities: ["CAPABILITY_IAM"]
     Tags: s.config.tags
 
@@ -20,7 +20,7 @@ module.exports = (s) ->
     # For deployments that interface with a VPC, and the developer has opted out of waiting for connection draining, we need to wipe out the Lambda's ENIs by force
     if s.config.aws.vpc?.skipConnectionDraining
       console.error "Destroying Lambda ENIs to speed operation. One moment..."
-      yield s.eni.purge()
+      yield s.eni.purge yield s.cfo.getApiSubnets()
 
   directLambdaUpdate = async ->
     console.error "Updating stack lambdas..."
@@ -29,16 +29,16 @@ module.exports = (s) ->
 
   publish = async ->
     console.error "-- Scanning AWS for current deploy."
-    {dirtyTier, dirtyLambda} = yield scan()  # Prep the app's core bucket
-    if !dirtyTier?
+    {dirtyAPI, dirtyLambda} = yield scan()  # Prep the app's core bucket
+    if !dirtyAPI?
       yield s.cfo.create config "full"
       return true
-    else if dirtyTier == -1 && !dirtyLambda
+    else if !dirtyAPI && !dirtyLambda
       console.error "#{s.stackName} is up to date."
       return false
 
-    if dirtyTier >= 0
-      yield s.cfo.update (config dirtyTier), (config "full")
+    if dirtyAPI
+      yield s.cfo.update (config "intermediate"), (config "full")
     if dirtyLambda
       yield directLambdaUpdate()
     return true

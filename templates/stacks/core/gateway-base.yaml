@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Core Resources - Gateway Base API
+Resources:
+  API:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: {{gatewayName}}
+      Description: {{description}}
+
+Outputs:
+  API:
+    Value:
+      Ref: API
+  RootResourceId:
+    Value:
+      "Fn::GetAtt": ["API", "RootResourceId"]

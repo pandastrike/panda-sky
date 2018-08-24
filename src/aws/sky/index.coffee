@@ -10,12 +10,10 @@ variables = require "./variables"
 domain = require "./domain"
 lambdas = require "./lambdas"
 meta = require "./meta"
-resources = require "./resource-tiers"
 stack = require "./stack"
 
 module.exports = async (env, config) ->
   s = variables env, config
-  s.resources = resources
 
   # Confirm it's safe to proceed with the Sky Stack instanciation.
   throw new Error("Unable to find deploy/package.zip") if !(yield exists s.pkg)

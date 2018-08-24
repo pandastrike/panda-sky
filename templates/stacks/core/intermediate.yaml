@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Core Resources
+{{#if aws.vpc.new}}
+Parameters:
+  SecurityGroups:
+    Type: String
+    Description: comma delimited list of security groups for the core stack VPC
+  Subnets:
+    Type: String
+    Description: comma delimited list of subnet IDs for the core stack VPC
+{{/if}}
+Resources:
+  GatewayBase:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Tags:
+        - Key: Substack Type
+          Value: Core Gateway API Base
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-base.yaml"
+
+  LambdaFunctions:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      {{#if aws.vpc.new}}
+      Parameters:
+        SecurityGroups:
+          Ref: SecurityGroups
+        Subnets:
+          Ref: Subnets
+      {{/if}}
+      {{#unless aws.vpc.new}}
+      Parameters:
+        SecurityGroups: {{aws.vpc.securityGroups}}
+        Subnets: {{aws.vpc.subnets}}
+      {{/unless}}
+      Tags:
+        - Key: Substack Type
+          Value: Core Lambda Functions
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/lambda-functions.yaml"
+
+Outputs:
+  API:
+    Value: "true"

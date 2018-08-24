@@ -3,30 +3,59 @@ vpc:
     A set of configurations that allow your Lambdas access to resources within a VPC.
   type: object
   additionalProperties: false
-  required: [subnets, securityGroups]
   properties:
     skipConnectionDraining:
       description: >
         When Lambdas are integrated with a VPC, they for ENIs to reach the resources within.  By default, CloudFormation waits for these connections to be drained before deleting the Lambdas during 'sky delete' and 'sky publish' (update) operations.  While this is sometimes good practice, it takes around 40 minutes to complete.  Setting this value to true ignores connection draining consideraitons and moves to complete the requested operation as quickly as possible.
       type: boolean
-    subnets:
+    availabilityZones:
       description: >
-        A list of subnet IDs your lambdas will be able to access
+        To provide robust availability of resources within your VPC, specify two availability zones by listing the letter code.  That letter will be combined with the region specified in the top-level AWS configuration.  You may omit this field if you specify existing configuration.
       type: array
-      minItems: 1
+      minItems: 2
+      maxItems: 2
       uniqueItems: true
       items:
         type: string
-        minLength: 1
-    securityGroups:
+        enum: [a, b, c, d, e, f]
+    existing:
       description: >
-        A list of security group IDs your Lambdas will be able to access.
-      type: array
-      minItems: 1
-      uniqueItems: true
-      items:
-        type: string
-        minLength: 1
+        Use this field when you have an extant VPC with known Subnet and SecurityGroup IDs to associate with your Sky stack lambdas.  Otherwise, omit this field and have Sky create the VPC for you.
+      type: object
+      additionalProperties: false
+      required: [vpcID, availabilityZones, subnets, securityGroups]
+      properties:
+        vpcID:
+          description: >
+            The ID of the VPC for this deployment stack.
+          type: string
+        availabilityZones:
+          description: >
+            The zones within this region where resources may be placed into your VPC.
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [a, b, c, d, e, f]
+        subnets:
+          description: >
+            A list of subnet IDs your lambdas will be able to access
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+        securityGroups:
+          description: >
+            A list of security group IDs your Lambdas will be able to access.
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
 
 environment:
   description: >
