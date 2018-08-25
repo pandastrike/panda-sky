@@ -39,6 +39,7 @@ module.exports = (sky) ->
       DefaultTTL: cacheConfig.expires
       ViewerProtocolPolicy: "redirect-to-https"
       Compress: false
+      FieldLevelEncryptionId: ""
       ForwardedValues:
         Cookies:
           Forward: "all"
