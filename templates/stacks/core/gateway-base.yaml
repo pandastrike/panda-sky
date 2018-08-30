@@ -6,6 +6,8 @@ Resources:
     Properties:
       Name: {{gatewayName}}
       Description: {{description}}
+      EndpointConfiguration:
+        Types: [REGIONAL]
 
 Outputs:
   API:

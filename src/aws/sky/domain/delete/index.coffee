@@ -1,9 +1,30 @@
-{async} = require "fairmont"
+{async, first, sleep} = require "fairmont"
 
 scan = require "./scan"
 Confirm = require "./confirm"
 
-module.exports = (s) ->
+module.exports = async (s) ->
+  {cfo} = yield require("../../../index")(s.config.aws.region, s.config.profile)
+  getStack = async (name) ->
+    try
+      first (yield cfo.describeStacks({StackName: name})).Stacks
+    catch
+      false
+  # Confirm the stack is fully and properly deleted.
+  deleteWait = async (name) ->
+    while true
+      {StackStatus, StackStatusReason} = yield getStack name
+      return true if !StackStatus
+      switch StackStatus
+        when "DELETE_IN_PROGRESS"
+          yield sleep 5000
+        when "DELETE_COMPLETE"
+          return true
+        else
+          console.warn "Stack deletion failed.", StackStatus, StackStatusReason
+          return false
+
+
   {isViable} = scan s
   confirm = Confirm s
 
@@ -15,17 +36,8 @@ module.exports = (s) ->
 
   # This is the main domain deletion engine.
   destroy = async (name) ->
-    # Delete the CloudFront distribution
-    console.error "-- Issuing edge cache tear-down..."
-    distro = yield s.cfr.delete name
-
-    # Delete the corresponding DNS records.
-    if distro
-      console.error "-- Deleting DNS record."
-      yield s.route53.delete name, distro.DomainName
-
-    # Remove this hostname to the environment's Sky Bucket
-    console.error "-- Updating Sky deployment records."
-    yield s.meta.hostnames.remove name
+    console.error "Tearing down custom domain stack..."
+    yield cfo.deleteStack StackName: s.stackName + "CustomDomain"
+    yield deleteWait s.stackName + "CustomDomain"
 
   {preDelete, destroy}

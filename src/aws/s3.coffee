@@ -1,4 +1,4 @@
-{async, sleep, read, md5} = require "fairmont"
+{async, sleep, read, md5, merge} = require "fairmont"
 {createReadStream} = require "fs"
 mime = require "mime"
 
@@ -21,18 +21,6 @@ module.exports = async (env, config, name) ->
 
   # Create a new bucket if it does not exist.
   establish = async ->
-    Policy = JSON.stringify
-      Version: "2012-10-17"
-      Statement: [
-        Sid: "id-1"
-        Effect: "Allow"
-        Principal: "*"
-        Action: "s3:GetObject"
-        Resource: [
-          "arn:aws:s3:::#{name}/templates/*"
-        ]
-      ]
-
     if yield exists()
       return true
 
@@ -48,6 +36,9 @@ module.exports = async (env, config, name) ->
         Request ID: #{e.requestId}
         #{e}
       """
+
+  setACL = async (acl) ->
+    yield s3.putBucketAcl merge {Bucket: name}, acl
 
   # Upsert an object to the bucket.
   putObject = async (key, data, filetype) ->
@@ -124,4 +115,4 @@ module.exports = async (env, config, name) ->
   destroy = async -> yield s3.deleteBucket Bucket: name
 
   # Return exposed functions.
-  {destroy, deleteObject, establish, getObject, putObject, listObjects, exists}
+  {destroy, deleteObject, establish, getObject, putObject, listObjects, exists, setACL}

@@ -170,3 +170,25 @@ environment:
           items:
             type: string
             minLength: 1
+
+        waf:
+          description: >
+            Configuration for the AWS Web Application Firewall stack that is associated with this environment custom domain.  This is an automated system to counter SQL injection, XSS, and DDOS attacks.
+          anyOf:
+            - type: boolean
+            - type: object
+              additionalProperties: false
+              properties:
+                floodThreshold:
+                  description: >
+                    The maximum acceptable requests per 5 (five) minute period per IP address. Minimum value of 2000; defaults to 2000.
+                  type: integer
+                  minimum: 2000
+                errorThreshold:
+                  description: >
+                    The maximum acceptable bad requests per minute per IP. Violating this causes the IP to be blocked for the given TTL. Defaults to 50.
+                  type: integer
+                  minimum: 0
+                blockTTL:
+                  description: >
+                    The period, in minutes, to block applicable IP addresses.  Defaults to 240.

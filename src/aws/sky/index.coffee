@@ -31,7 +31,7 @@ module.exports = async (env, config) ->
   s.logs = yield require("../logs")(env, config)
 
   # Stack sub-resources
-  s.domain = domain s
+  s.domain = yield domain s
   s.lambdas = lambdas s
   s.meta = meta s
   s.stack = stack s

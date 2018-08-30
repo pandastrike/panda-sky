@@ -3,6 +3,7 @@
 # corresponding DNS records and Amazon Certificate Manager(ACM)-based TLS
 # certificate.  This sub-module corrdinates their deployment, tear-down, and
 # record-keeping within the Sky orchestration bucket.
+{async} = require "fairmont"
 
 #Destroy = require "./delete"
 #Invalidate = require "./invalidate"
@@ -10,10 +11,10 @@ Publish = require "./publish"
 Destroy = require "./delete"
 Invalidate = require "./invalidate"
 
-module.exports = (s) ->
-  {prePublish, publish} = Publish s
-  {preInvalidate, invalidate} = Invalidate s
-  {preDelete, destroy} = Destroy s
+module.exports = async (s) ->
+  {prePublish, publish} = yield Publish s
+  {preInvalidate, invalidate} = yield Invalidate s
+  {preDelete, destroy} = yield Destroy s
 
   {
     delete: destroy

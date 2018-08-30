@@ -32,14 +32,14 @@ module.exports = async (config) ->
   # Add in default tags.
   config = addTags config
 
-  # Apply default configuration to custom domain configuration
-  config = extractDomains config
-
   # Extract path from configuration
   config = extractPaths config
 
   # Add environment variables that are injected into every Lambda.
   config = addVariables config
+
+  # Apply default configuration to custom domain configuration
+  config = extractDomains config
 
   # Extract and validate optional VPC configuration.
   config = extractVPC config

@@ -64,5 +64,14 @@ module.exports = (sky) ->
         Quantity: 0
         Items: []
 
+    c.Logging =
+      Bucket: "#{sky.config.environmentVariables.fullName}-#{sky.config.projectID}-cflogs"
+      Enabled: true
+      IncludeCookies: true
+      Prefix: ""
+
+    if sky.domain.wafID
+      c.WebACLId = sky.domain.wafID
+
 
     c

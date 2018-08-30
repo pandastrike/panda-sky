@@ -11,19 +11,27 @@ module.exports = (config) ->
   config.aws.hostnames = hostnames
 
   # Pull CloudFront (cdn / caching) info into the config
-  config.aws.cache = applyDefaultCacheConfig desired.cache
+  config.aws.cache = buildCustomDomain desired.cache
+
+  # Internal names for the custom domain stack.
+  config.aws.cache.logBucket = "#{config.environmentVariables.fullName}-#{config.projectID}-cflogs"
+  config.aws.cache.originID = "customDomain#{config.name}#{config.env}"
+
 
   config
 
-# Accept the cache configuraiton and fill in any default values.
-applyDefaultCacheConfig = (config={}) ->
-  config.httpVersion ||= "http2"
-  config.protocol ||= "TLSv1.2_2018"
-  config.expires ||= 0
-  config.priceClass ||= 100
-  config.headers = setHeaders config.headers
 
-  config
+defaultHeaders = [
+  "Accept",
+  "Accept-Charset",
+  "Accept-Datetime",
+  "Accept-Language",
+  "Access-Control-Request-Headers",
+  "Access-Control-Request-Method",
+  "Authorization",
+  "Origin",
+  "Referer"
+]
 
 setHeaders = (headers) ->
   if !headers
@@ -41,14 +49,27 @@ setHeaders = (headers) ->
   else
     headers
 
-defaultHeaders = [
-  "Accept",
-  "Accept-Charset",
-  "Accept-Datetime",
-  "Accept-Language",
-  "Access-Control-Request-Headers",
-  "Access-Control-Request-Method",
-  "Authorization",
-  "Origin",
-  "Referer"
-]
+# Accept the cache configuraiton and fill in any default values.
+applyDefaults = (config={}) ->
+  config.httpVersion ||= "http2"
+  config.protocol ||= "TLSv1.2_2018"
+  config.expires ||= 0
+  config.priceClass ||= 100
+  config.headers = setHeaders config.headers
+  config.originID =
+
+  config
+
+applyFirewall = (config) ->
+  if !config.waf
+    config.waf = false
+  else
+    config.waf =
+      floodThreshold: config.waf.floodThreshold || 2000
+      errorThreshold: config.waf.errorThreshold || 50
+      blockTTL: config.waf.blockTTL || 240
+  config
+
+buildCustomDomain = (config={}) ->
+  config = applyDefaults config
+  config = applyFirewall config

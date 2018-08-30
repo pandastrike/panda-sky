@@ -12,13 +12,14 @@ module.exports = (config) ->
       for zone, index in vpc.existing.availabilityZones
         vpc.existing.availabilityZones[index] = config.aws.region + zone
 
-      config.aws.vpc = merge vpc,
+      config.aws.vpc =
         new: false
+        vpcID: vpc.existing.vpcID
         subnets: vpc.existing.subnets.join ","
         securityGroups: vpc.existing.securityGroups.join ","
         availabilityZones: vpc.existing.availabilityZones.join ","
     else
-      config.aws.vpc = merge vpc,
+      config.aws.vpc =
         new: true
         zone1: config.aws.region + vpc.availabilityZones[0]
         zone2: config.aws.region + vpc.availabilityZones[1]
