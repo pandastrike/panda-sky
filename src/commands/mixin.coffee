@@ -1,22 +1,22 @@
-{async, keys} = require "fairmont"
-{yaml} = require "panda-serialize"
+import {keys} from "fairmont"
+import {yaml} from "panda-serialize"
 
-{bellChar} = require "../utils"
-configuration = require "../configuration"
+import {bellChar} from "../utils"
+import configuration from "../configuration"
 
-module.exports = async (name, env, {profile}, argv) ->
+Mixins = (name, env, {profile}, argv) ->
   try
-    console.error "Compiling configuration for mixin..."
+    console.log "Compiling configuration for mixin..."
     appRoot = process.cwd()
-    config = yield configuration.compile(appRoot, env, profile)
-    {AWS} = yield require("../aws")(config.aws.region)
+    config = await configuration.compile(appRoot, env, profile)
+    {AWS} = await require("../aws")(config.aws.region)
 
     {mixins} = config
     fail name if name not in keys mixins
     noCLI name if !mixins[name].cli
-    console.error "Accessing mixin #{name} CLI..."
-    console.error "-".repeat 80
-    yield mixins[name].cli AWS, config, extractMixinArgs argv
+    console.log "Accessing mixin #{name} CLI..."
+    console.log "-".repeat 80
+    await mixins[name].cli AWS, config, extractMixinArgs argv
   catch e
     console.error "Command failure:"
     console.error e.stack
@@ -42,3 +42,5 @@ noCLI = (name) ->
 extractMixinArgs = (argv) ->
   x = argv.shift() until x == "mixin"
   argv
+
+export default Mixins

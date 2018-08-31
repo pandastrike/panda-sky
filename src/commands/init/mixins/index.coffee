@@ -1,9 +1,9 @@
-core = require "./core"
-dynamodb = require "./dynamodb"
-kms = require "./kms"
-s3 = require "./s3"
+import core from "./core"
+import dynamodb from "./dynamodb"
+import kms from "./kms"
+import s3 from "./s3"
 
-module.exports = {
+export default {
   core
   dynamodb
   kms

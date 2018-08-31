@@ -1,11 +1,10 @@
-{createReadStream} = require "fs"
-{go, map, tee, reject,
-w, include, Type, isType, isMatch, Method,
-glob} = require "fairmont"
+import {createReadStream} from "fs"
+import {go, map, tee, reject, w, include, Type, isType, isMatch, Method, glob} from "fairmont"
+import {define, context} from "panda-9000"
 
-{define, context} = require "panda-9000"
-{save, render} = Asset = require "../../asset"
-{pathWithUnderscore} = require "../../utils"
+import Asset from "../../asset"
+{save, render} = Asset
+import {pathWithUnderscore} from  "../../utils"
 
 formats = w ".html .css .xml .json .yaml"
 

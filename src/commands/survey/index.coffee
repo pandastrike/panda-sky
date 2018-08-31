@@ -1,3 +1,3 @@
-require "./pass-thru"
-require "./coffee"
-require "./javascript"
+import "./pass-thru"
+import "./coffee"
+import "./javascript"

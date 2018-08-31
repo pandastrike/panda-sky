@@ -1,18 +1,20 @@
-{async, write} = require "fairmont"
+import {write} from "fairmont"
 
-{bellChar, outputDuration} = require "../utils"
-configuration = require "../configuration"
+import {bellChar, outputDuration} from "../utils"
+import configuration from "../configuration"
 
-module.exports = async (env, {verbose, profile}) ->
+Tail = (env, {verbose, profile}) ->
   try
     appRoot = process.cwd()
-    console.error "Preparing task."
-    config = yield configuration.compile(appRoot, env, profile)
-    sky = yield require("../aws/sky")(env, config)
+    console.log "Preparing task."
+    config = await configuration.compile(appRoot, env, profile)
+    sky = await require("../aws/sky")(env, config)
 
-    console.error "Tailing Sky API logs... (Press ^C at any time to quit.)"
-    console.error "=".repeat 80
-    yield sky.lambdas.tail(verbose)
+    console.log "Tailing Sky API logs... (Press ^C at any time to quit.)"
+    console.log "=".repeat 80
+    await sky.lambdas.tail(verbose)
   catch e
     console.error "Log tailing failure:"
     console.error e.stack
+
+export default Tail

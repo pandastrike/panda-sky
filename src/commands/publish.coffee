@@ -1,31 +1,33 @@
-{async, write} = require "fairmont"
-{yaml} = require "panda-serialize"
+import {write} from "fairmont"
+import {yaml} from "panda-serialize"
 
 
-{bellChar, outputDuration} = require "../utils"
-configuration = require "../configuration"
+import {bellChar, outputDuration} from "../utils"
+import configuration from "../configuration"
 
-module.exports = async (START, env, options) ->
+Publish = (START, env, options) ->
   try
     appRoot = process.cwd()
-    console.error "Compiling configuration for publish"
-    config = yield configuration.compile(appRoot, env, options.profile)
-    sky = yield require("../aws/sky")(env, config)
+    console.log "Compiling configuration for publish"
+    config = await configuration.compile(appRoot, env, options.profile)
+    sky = await require("../aws/sky")(env, config)
 
-    console.error "Publishing..."
-    isPublishing = yield sky.stack.publish()
-    yield sky.cfo.publishWait() if isPublishing
-    yield sky.stack.postPublish()
-    yield writeOutput sky if options.output
-    console.error "Done. (#{outputDuration START})\n\n"
+    console.log "Publishing..."
+    isPublishing = await sky.stack.publish()
+    await sky.cfo.publishWait() if isPublishing
+    await sky.stack.postPublish()
+    await writeOutput sky if options.output
+    console.log "Done. (#{outputDuration START})\n\n"
   catch e
     console.error "Publish failure:"
     console.error e.stack
-  console.error bellChar
+  console.info bellChar
   sky.cfo
 
 # The developer may use the --output flag to write the API configuration to a
 # file, including the endpoint.
-writeOutput = async (sky) ->
-  config = url: yield sky.cfo.getApiUrl()
-  yield write options.output, (yaml config)
+writeOutput = (sky) ->
+  config = url: await sky.cfo.getApiUrl()
+  await write options.output, (yaml config)
+
+export default Publish

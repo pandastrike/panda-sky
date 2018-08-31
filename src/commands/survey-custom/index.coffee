@@ -1,12 +1,11 @@
-{async, go, map, tee, reject, read,
-w, include, Type, isType, Method,
-glob} = require "fairmont"
+import {go, map, tee, reject, read, w, include, Type, isType, Method, glob} from "fairmont"
 
-{join} = require "path"
-{define, context} = require "panda-9000"
-babel = require "babel-core"
+import {join} from "path"
+import {define, context} from "panda-9000"
+import babel from "babel-core"
 
-{save, render} = Asset = require "../../asset"
+import Asset from "../../asset"
+{save, render} = Asset
 
 type = Type.define Asset
 
@@ -25,10 +24,10 @@ define "custom-survey", ->
     process.exit()
 
 
-Method.define render, (isType type), async ({source, target}) ->
+Method.define render, (isType type), ({source, target}) ->
   # AWS Lambda runtimes only go up to Node v6.10.  Babel allows us to support more advanced JavaScript, like the ES6 standard.
   try
-    source.content ?= yield read source.path
+    source.content ?= await read source.path
 
     {code} = babel.transform source.content,
       sourceFileName: source.name + source.extension
