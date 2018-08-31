@@ -1,4 +1,4 @@
-{regexp, many, any, all, rule, grammar} = require "bartlett"
+{regexp, many, any, all, rule, grammar} = require "panda-grammar"
 {merge} = require "fairmont"
 require "colors"
 

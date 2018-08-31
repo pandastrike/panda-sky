@@ -3,10 +3,8 @@ program = require "commander"
 {call, read, write, collect, project, empty} = require "fairmont"
 
 require "./index"
-{run} = require "panda-9000"
-
-{bellChar} = {} #require "./utils"
-COMMANDS = {}#require "./commands"
+{bellChar} = require "./utils"
+COMMANDS = require "./commands"
 START = new Date().getTime()
 
 call ->
@@ -19,7 +17,7 @@ call ->
     else
       false
 
-  {version} = JSON.parse yield read join __dirname, "..", "package.json"
+  {version} = JSON.parse yield read join __dirname, "..", "..", "..", "package.json"
 
   program
     .version(version)
