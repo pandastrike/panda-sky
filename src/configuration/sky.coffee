@@ -4,7 +4,7 @@
 JSCK = require "jsck"
 
 schemaPath = (name) ->
-  resolve __dirname, "..", "..", "schema", "sky", name
+  resolve __dirname, "..", "..", "..", "..", "schema", "sky", name
 
 getSchema = async ->
   schema = yaml yield read  schemaPath "description.yaml"

@@ -5,7 +5,7 @@ fs = require "fs"
 {yaml} = require "panda-serialize"
 JSCK = require "jsck"
 
-schemaRoot = resolve __dirname, "..", "schema"
+schemaRoot = resolve __dirname, "..", "..", "..", "schema"
 
 cache = {}
 
@@ -20,8 +20,3 @@ validator = (name) ->
 module.exports = {
   validator
 }
-  
-  
-
-
-

@@ -10,7 +10,7 @@
 Templater = require "../../templater"
 
 # Paths
-skyRoot = resolve __dirname, "..", "..", ".."
+skyRoot = resolve __dirname, "..", "..", "..", "..", ".."
 mixinPath = resolve skyRoot, "templates", "stacks", "mixins", "index.yaml"
 
 render = async (path, config) ->

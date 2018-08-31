@@ -32,7 +32,7 @@ Method.define render, (isType type), async ({source, target}) ->
   try
     source.content ?= yield read source.path
 
-    env = resolve __dirname, "..", "..", "..", "node_modules", "babel-preset-env"
+    env = resolve __dirname, "..", "..", "..", "..", "..", "node_modules", "babel-preset-env"
     {code} = babel.transform source.content,
       sourceFileName: source.name + source.extension
       sourceMaps: "inline"

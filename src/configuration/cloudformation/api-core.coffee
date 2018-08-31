@@ -10,7 +10,7 @@
 Templater = require "../../templater"
 
 # Paths
-skyRoot = resolve __dirname, "..", "..", ".."
+skyRoot = resolve __dirname, "..", "..", "..", "..", ".."
 tPath = (file) -> resolve skyRoot, "templates", file
 
 registerPartials = async (T) ->

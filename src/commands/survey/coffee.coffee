@@ -30,7 +30,7 @@ Method.define render, (isType type), async ({source, target}) ->
   try
     source.content ?= yield read source.path
 
-    env = resolve __dirname, "..", "..", "..", "node_modules", "babel-preset-env"
+    env = resolve __dirname, "..", "..", "..", "..", "..", "node_modules", "babel-preset-env"
     target.content = coffee.compile source.content,
       filename: source.name + source.extension
       inlineMap: true

@@ -5,8 +5,8 @@ program = require "commander"
 require "./index"
 {run} = require "panda-9000"
 
-{bellChar} = require "./utils"
-COMMANDS = require "./commands"
+{bellChar} = {} #require "./utils"
+COMMANDS = {}#require "./commands"
 START = new Date().getTime()
 
 call ->

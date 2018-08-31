@@ -39,7 +39,7 @@ module.exports = async ->
   config = projectID: projectID
 
   # Drop in the file stubs.
-  src = (file) -> resolve __dirname, "..", "..", "..", "..",
+  src = (file) -> resolve __dirname, "..", "..", "..", "..", "..", "..",
     "init", "kms", "#{file}"
   target = (file) -> resolve process.cwd(), file
 

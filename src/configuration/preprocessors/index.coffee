@@ -17,7 +17,6 @@ addVariables = require "./variables"
 addPolicyStatements = require "./policy-statements"
 fetchMixins = require "./mixins"
 extractVPC = require "./vpc"
-#addCustomResources = require "./custom-resources"
 
 module.exports = async (config) ->
   {name, env} = config
@@ -58,10 +57,6 @@ module.exports = async (config) ->
 
   # Add base Sky policy statements that give Lambdas access to AWS resources.
   config = addPolicyStatements config
-
-  # Custom resources are developer defined resources in CloudFormation
-  # TODO: Think about how to approach this.  A mixin form might be better.
-  #config = yield addCustomResources config
 
   # Remove the root resource, because it needs special handling
   rootKey = config.rootResourceKey

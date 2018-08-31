@@ -41,7 +41,7 @@ module.exports = async ->
     buckets: ["sky-#{projectID}-alpha", "sky-#{projectID}-beta"]
 
   # Drop in the file stubs.
-  src = (file) -> resolve __dirname, "..", "..", "..", "..",
+  src = (file) -> resolve __dirname, "..", "..", "..", "..", "..", "..",
     "init", "s3", "#{file}"
   target = (file) -> resolve process.cwd(), file
 
