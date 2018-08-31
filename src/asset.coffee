@@ -1,4 +1,4 @@
-{iterator, values, first, Method, Type, include} = require "fairmont"
+import {iterator, values, first, Method, Type, include} from "fairmont"
 
 Asset = Type.define()
 
@@ -24,4 +24,4 @@ include Asset,
 
   render: Method.create()
 
-module.exports = Asset
+export default Asset

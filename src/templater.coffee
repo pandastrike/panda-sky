@@ -1,11 +1,11 @@
-JSCK = require "jsck"
-{async, read, merge, collect, project } = require "fairmont"
-{yaml} = require "panda-serialize"
-pandaTemplate = require("panda-template").default
+import JSCK from "jsck"
+import {read, merge, collect, project } from "fairmont"
+import {yaml} from "panda-serialize"
+import pandaTemplate from "panda-template"
 
 join = (d, array) -> array.join d
 
-module.exports = class Templater
+Templater = class Templater
   constructor: (@template, @schema) ->
     @validator = new JSCK.draft4 @schema
     @T = new pandaTemplate()
@@ -21,10 +21,10 @@ module.exports = class Templater
           ret = ret + options.fn c
         ret
 
-  @read: async (templatePath, schemaPath) ->
-    template = yield read templatePath
+  @read: (templatePath, schemaPath) ->
+    template = await read templatePath
     if schemaPath
-      schema = yaml yield read schemaPath
+      schema = yaml await read schemaPath
     else
       schema =
         $schema: "http://json-schema.org/draft-04/schema#"
@@ -51,3 +51,5 @@ module.exports = class Templater
       error.errors = errors
       throw error
     config
+
+export default Templater

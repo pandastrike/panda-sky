@@ -1,8 +1,8 @@
 # Developers may specify a VPC to be associated with their deployment's core Lambdas.  That may be specified as either a new VPC, or an existing one by referencing its subnet and security group IDs.
 
-{merge} = require "fairmont"
+import {merge} from "fairmont"
 
-module.exports = (config) ->
+VPC = (config) ->
   config.managedPolicies = []
   config.aws.vpc = false
   if vpc = config.aws.environments[config.env].vpc
@@ -27,3 +27,5 @@ module.exports = (config) ->
 
 
   config
+
+export default VPC

@@ -1,10 +1,10 @@
-{toLower, camelCase, capitalize, first, last, values, project, collect, cat} = require "fairmont"
+import {toLower, camelCase, capitalize, first, last, values, project, collect, cat} from "fairmont"
 
 # Cycle through every resource and build up a dictionary of resources that is
 # acceptable to Gateway.  In the case of nested resources or those with path
 # parameters, each antecedeant must be present, even if not defined explictly.
 # Implicit, "virtual" collections are added here.
-module.exports = (config) ->
+Resources = (config) ->
   {resources} = config
   counter = 0 # keeps resource names unique #TODO: Do better
 
@@ -118,3 +118,5 @@ module.exports = (config) ->
 
   config.resources = resources
   config
+
+export default Resources

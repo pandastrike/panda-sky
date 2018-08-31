@@ -1,6 +1,6 @@
-{cat} = require "fairmont"
+import {cat} from "fairmont"
 
-module.exports = (config) ->
+Statements = (config) ->
   {environmentVariables: {skyBucket}} = config
   throw new Error "Undefined Sky Bucket" if !skyBucket
 
@@ -34,3 +34,5 @@ module.exports = (config) ->
   ]
 
   config
+
+export default Statements

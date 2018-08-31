@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   100: "continue"
   101: "switching protocols"
   102: "processing"

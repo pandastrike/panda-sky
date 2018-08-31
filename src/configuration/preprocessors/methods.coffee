@@ -1,10 +1,10 @@
-{toLower, capitalize, first, toUpper} = require "fairmont"
+import {toLower, capitalize, first, toUpper} from "fairmont"
 
 # Cycle through the methods on every resource and generate their algorithmic
 # names.  This includes CFo template names (CamelName) as well as lambda
 # defintion names (dash-name).  These names are attached to the resource methods
 # as implict properties and applied in the templates.
-module.exports = (description) ->
+Methods = (description) ->
   {resources, env} = description
   appName = description.name
 
@@ -60,3 +60,5 @@ module.exports = (description) ->
     resource.methodList = toUpper methods.join ", "
 
   description
+
+export default Methods

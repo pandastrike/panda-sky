@@ -12,28 +12,26 @@
 # into one large CloudFormation Description that gets deployed together by AWS.
 
 # Libraries
-{async, merge, capitalize, empty, keys} = require "fairmont"
-{yaml} = require "panda-serialize"
+import {merge, capitalize, empty, keys} from "fairmont"
+import {yaml} from "panda-serialize"
 
 # Helpers
-{renderCore, renderTopLevel} = require "./api-core"
-{renderMixins} = require "./mixins"
+import {renderCore, renderTopLevel} from "./api-core"
+import {renderMixins} from "./mixins"
 
 # The complete and rendered CloudFormation Description.
-renderTemplate = async (config) ->
+Render = (config) ->
   # Get the mixin resources
-  mixins = yield renderMixins config
+  mixins = await renderMixins config
   # Don't put mixin substack in top level if there are no resources to render.
   config.needsMixinResources = !(empty keys mixins)
 
 
   # Get the "core" sky deployment stuff, lambdas and their HTTP interface
-  top = yield renderTopLevel config
-  core = yield renderCore config
+  top = await renderTopLevel config
+  core = await renderCore config
 
   # Return the rendered chunks to the configuration compiler top-level.
   {top, core, mixins}
 
-module.exports = {
-  renderTemplate
-}
+export default Render

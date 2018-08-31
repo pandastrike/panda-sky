@@ -5,11 +5,10 @@
 # TODO: AWS provides default encryption to variables set here upon their upload
 # but we should consider how to encrypt these client side so AWS never sees plaintext.
 
-{merge} = require "fairmont"
-Sky = require "../../aws/sky/variables"
-module.exports = (config) ->
+import {merge} from "fairmont"
+
+Variables = (config) ->
   {env, aws:{environments}} = config
-  sky = Sky env, config
   {variables} = environments[env]
 
   variables = {} if !variables
@@ -18,8 +17,12 @@ module.exports = (config) ->
     environment: config.env
     projectID: config.projectID
     fullName: "#{config.name}-#{config.env}"
-    skyBucket: sky.srcName  # Root bucket used to orchastrate Panda Sky state.
+    
+    # Root bucket used to orchastrate Panda Sky state.
+    skyBucket: "#{config.name}-#{env}-#{config.projectID}"
   }
 
   config.environmentVariables = variables
   config
+
+export default Variables

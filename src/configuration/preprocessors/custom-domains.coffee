@@ -1,26 +1,3 @@
-module.exports = (config) ->
-  # Pull config data for the requested environment.
-  {env} = config
-  desired = config.aws.environments[env]
-  {domain} = config.aws
-
-  # Construct an array of full subdomains to feed the process.
-  hostnames = []
-  if desired.hostnames
-    hostnames.push "#{name}.#{domain}" for name in desired.hostnames
-  config.aws.hostnames = hostnames
-
-  # Pull CloudFront (cdn / caching) info into the config
-  config.aws.cache = buildCustomDomain desired.cache
-
-  # Internal names for the custom domain stack.
-  config.aws.cache.logBucket = "#{config.environmentVariables.fullName}-#{config.projectID}-cflogs"
-  config.aws.cache.originID = "customDomain#{config.name}#{config.env}"
-
-
-  config
-
-
 defaultHeaders = [
   "Accept",
   "Accept-Charset",
@@ -43,8 +20,8 @@ setHeaders = (headers) ->
       environment within sky.yaml and try again.
 
       This process will discontinue.
-      Done.
     """
+    console.log "Done."
     process.exit()
   else
     headers
@@ -73,3 +50,27 @@ applyFirewall = (config) ->
 buildCustomDomain = (config={}) ->
   config = applyDefaults config
   config = applyFirewall config
+
+Domains = (config) ->
+  # Pull config data for the requested environment.
+  {env} = config
+  desired = config.aws.environments[env]
+  {domain} = config.aws
+
+  # Construct an array of full subdomains to feed the process.
+  hostnames = []
+  if desired.hostnames
+    hostnames.push "#{name}.#{domain}" for name in desired.hostnames
+  config.aws.hostnames = hostnames
+
+  # Pull CloudFront (cdn / caching) info into the config
+  config.aws.cache = buildCustomDomain desired.cache
+
+  # Internal names for the custom domain stack.
+  config.aws.cache.logBucket = "#{config.environmentVariables.fullName}-#{config.projectID}-cflogs"
+  config.aws.cache.originID = "customDomain#{config.name}#{config.env}"
+
+
+  config
+
+export default Domains

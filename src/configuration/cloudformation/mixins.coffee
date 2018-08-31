@@ -2,23 +2,24 @@
 # Sky deployment, the API Gateway and Lambdas that back it.
 
 # Libraries
-{resolve} = require "path"
-{async, keys, empty, capitalize, camelCase, plainText} = require "fairmont"
-{yaml} = require "panda-serialize"
+import {resolve} from "path"
+import {keys, empty, capitalize, camelCase, plainText} from "fairmont"
+import {yaml} from "panda-serialize"
+import SDK from "aws-sdk"
 
 # Helper Classes
-Templater = require "../../templater"
+import Templater from "../../templater"
 
 # Paths
 skyRoot = resolve __dirname, "..", "..", "..", "..", ".."
 mixinPath = resolve skyRoot, "templates", "stacks", "mixins", "index.yaml"
 
-render = async (path, config) ->
-  template = yield Templater.read path
+render = (path, config) ->
+  template = await Templater.read path
   template.render config
 
-renderMixinRoot = async (config) ->
-  yield render mixinPath, config
+renderMixinRoot = (config) ->
+  await render mixinPath, config
 
 # Place the rendered resources from the mixin into a blank CloudFromation shell to form the final template.
 finishTemplate = (resources, name, vpc) ->
@@ -45,12 +46,16 @@ finishTemplate = (resources, name, vpc) ->
   yaml final
 
 # Mixins have their own configuration schema and templates.  Validation and rendering is handled internally.  Just accept what we get back.  Not every mixin will actually need to deploy resources in this stack, so only index them if they do.
-renderMixins = async (config) ->
+renderMixins = (config) ->
   bucket = config.environmentVariables.skyBucket
-  {AWS} = yield require("../../aws")(config.aws.region)
+  SDK.config =
+    credentials: new SDK.SharedIniFileCredentials {profile: config.profile}
+    region: config.aws.region
+    sslEnabled: true
   stacks = {}
+
   for name, m of config.mixins
-    out = yield m.render AWS, config  # optional object of needed resources.
+    out = await m.render SDK, config  # optional object of needed resources.
     stacks[name] = (finishTemplate out, name, config.aws.vpc) if out
 
   if !(empty keys stacks)
@@ -58,7 +63,7 @@ renderMixins = async (config) ->
       for name in keys stacks
         title: capitalize camelCase plainText name
         file: name
-    stacks.index = yield renderMixinRoot {mixins, bucket, vpc: config.aws.vpc}
+    stacks.index = await renderMixinRoot {mixins, bucket, vpc: config.aws.vpc}
   stacks
 
-module.exports = {renderMixins}
+export {renderMixins}

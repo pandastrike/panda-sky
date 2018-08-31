@@ -1,9 +1,9 @@
-{resolve} = require "path"
-fs = require "fs"
+import {resolve} from "path"
+import fs from "fs"
 
-{async, read, merge } = require "fairmont"
-{yaml} = require "panda-serialize"
-JSCK = require "jsck"
+import {read, merge} from "fairmont"
+import {yaml} from "panda-serialize"
+import JSCK from "jsck"
 
 schemaRoot = resolve __dirname, "..", "..", "..", "schema"
 
@@ -17,6 +17,6 @@ validator = (name) ->
     data = yaml fs.readFileSync schemaFile, "utf-8"
     cache[name] = new JSCK.draft4 data
 
-module.exports = {
+export default {
   validator
 }

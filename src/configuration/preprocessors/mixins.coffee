@@ -1,6 +1,7 @@
-{resolve} = require "path"
-{async, keys, exists, cat, merge} = require "fairmont"
-YAML = require "js-yaml"
+import {resolve} from "path"
+import {keys, exists, cat, merge} from "fairmont"
+import YAML from "js-yaml"
+import SDK from "aws-sdk"
 
 mixinUnavailable = (m) ->
   console.error """
@@ -11,8 +12,8 @@ mixinUnavailable = (m) ->
       npm install sky-mixin-#{m} --save
 
   This process will now discontinue.
-  Done.
   """
+  console.log "Done."
   process.exit -1
 
 
@@ -24,43 +25,47 @@ fetchMixinNames = (config) ->
   keys mixins
 
 # Collect all the mixin packages.
-fetchMixinPackages = async (mixins) ->
+fetchMixinPackages = (mixins) ->
   packages = {}
   for m in mixins
     path = resolve process.cwd(), "node_modules", "sky-mixin-#{m}"
-    mixinUnavailable m if !yield exists path
-    packages[m] = yield require(path).default
+    mixinUnavailable m if !await exists path
+    packages[m] = await require(path).default
   packages
 
 # Gather together all the project's mixin code into one dictionary.
-fetchMixins = async (config) ->
+fetchMixins = (config) ->
   mixins = fetchMixinNames config
   return {} if !mixins
-  yield fetchMixinPackages mixins
+  await fetchMixinPackages mixins
 
 # Before we can render either the mixins or the Core Sky API, we need to
 # accomdate the changes caused by the mixins.
-reconcileConfigs = async (mixins, config) ->
+reconcileConfigs = (mixins, config) ->
   # Access the policyStatement hook each mixin, and add to the array.
   # TODO: Consider policy uniqueness constraint.
-  # TODO: Make this faster by not having to require the SDK in mulitiple places.
-  {AWS} = yield require("../../aws")(config.aws.region, config.profile)
+  SDK.config =
+    credentials: new SDK.SharedIniFileCredentials {profile: config.profile}
+    region: config.aws.region
+    sslEnabled: true
   {env} = config
 
   s = config.policyStatements
   for name, mixin of mixins when mixin.getPolicyStatements
     _config = config.aws.environments[env].mixins[name]
-    s = cat s, yield mixin.getPolicyStatements _config, config, AWS
+    s = cat s, await mixin.getPolicyStatements _config, config, SDK
   config.policyStatements = (YAML.safeDump i for i in s)
 
   v = config.environmentVariables
   for name, mixin of mixins when mixin.getEnvironmentVariables
     _config = config.aws.environments[env].mixins[name]
-    v = merge v, yield mixin.getEnvironmentVariables _config, config, AWS
+    v = merge v, await mixin.getEnvironmentVariables _config, config, SDK
   config.environmentVariables = v
 
   config
 
-module.exports = async (config) ->
-  config.mixins = mixins = yield fetchMixins config
-  yield reconcileConfigs mixins, config
+Mixins = (config) ->
+  config.mixins = mixins = await fetchMixins config
+  await reconcileConfigs mixins, config
+
+export default Mixins

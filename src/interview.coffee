@@ -1,6 +1,6 @@
-prompt = require "prompt"
+import prompt from "prompt"
 
-module.exports = 
+Interview
 
   # Initialize the interviewer.  Remove the default settings, start `prompt`
   setup: ->
@@ -23,3 +23,5 @@ module.exports =
               answers[k] = false
 
           resolve answers
+
+export default Interview

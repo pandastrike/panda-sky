@@ -1,6 +1,6 @@
-{merge} = require "fairmont"
+import {merge} from "fairmont"
 
-module.exports = (description) ->
+Authorization = (description) ->
 
   # TODO: Make this dyanmic and sensitive to mixins.
   getAuthorization = (method) ->
@@ -20,3 +20,5 @@ module.exports = (description) ->
 
   description.resources = resources
   description
+
+export default Authorization

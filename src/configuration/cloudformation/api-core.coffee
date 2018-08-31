@@ -2,25 +2,25 @@
 # Sky deployment, the API Gateway and Lambdas that back it.
 
 # Libraries
-{resolve, parse, relative} = require "path"
-{async, merge, ls, lsR, read} = require "fairmont"
-{yaml} = require "panda-serialize"
+import {resolve, parse, relative} from "path"
+import {merge, ls, lsR, read} from "fairmont"
+import {yaml} from "panda-serialize"
 
 # Helper Classes
-Templater = require "../../templater"
+import Templater from "../../templater"
 
 # Paths
 skyRoot = resolve __dirname, "..", "..", "..", "..", ".."
 tPath = (file) -> resolve skyRoot, "templates", file
 
-registerPartials = async (T) ->
-  components = yield ls tPath "partials"
+registerPartials = (T) ->
+  components = await ls tPath "partials"
   for c in components when parse(c).ext == ".yaml"
-    T.registerPartial(parse(c).name, yield read c)
+    T.registerPartial(parse(c).name, await read c)
 
-registerTemplate = async (path) ->
-  templater = yield Templater.read path
-  yield registerPartials templater
+registerTemplate = (path) ->
+  templater = await Templater.read path
+  await registerPartials templater
   templater
 
 render = (template, config) ->
@@ -28,15 +28,15 @@ render = (template, config) ->
 
 nameKey = (path) -> relative (resolve skyRoot, "templates", "stacks"), path
 
-renderCore = async (config) ->
+renderCore = (config) ->
   core = {}
-  stacks = yield lsR tPath "stacks/core"
+  stacks = await lsR tPath "stacks/core"
   for s in stacks when parse(s).ext == ".yaml"
-    core[nameKey s] = render (yield registerTemplate s), config
+    core[nameKey s] = render (await registerTemplate s), config
   core
 
-renderTopLevel = async (config) ->
-  yaml render (yield registerTemplate tPath "top-level.yaml"), config
+renderTopLevel = (config) ->
+  yaml render (await registerTemplate tPath "top-level.yaml"), config
 
 
-module.exports = {renderCore, renderTopLevel}
+export {renderCore, renderTopLevel}

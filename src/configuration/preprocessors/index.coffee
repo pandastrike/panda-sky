@@ -3,25 +3,23 @@
 # underlying configuraiton requires.  These preprocessors do quite a bit to
 # add that layer of sophistication.
 
-{async, capitalize} = require "fairmont"
-STS = require "../../aws/sts"
+import {capitalize} from "fairmont"
 
-extractPaths = require "./paths"
-extractResources = require "./resources"
-extractMethods = require "./methods"
-addTags = require "./tags"
-extractDomains = require "./custom-domains"
-addAuthorization = require "./authorization"
-addResponses = require "./responses"
-addVariables = require "./variables"
-addPolicyStatements = require "./policy-statements"
-fetchMixins = require "./mixins"
-extractVPC = require "./vpc"
+import extractPaths from "./paths"
+import extractResources from "./resources"
+import extractMethods from "./methods"
+import addTags from "./tags"
+import extractDomains from "./custom-domains"
+import addAuthorization from "./authorization"
+import addResponses from "./responses"
+import addVariables from "./variables"
+import addPolicyStatements from "./policy-statements"
+import fetchMixins from "./mixins"
+import extractVPC from "./vpc"
 
-module.exports = async (config) ->
-  {name, env} = config
-  {whoAmI} = yield STS config
-  config.accountID = (yield whoAmI()).Account
+Preprocessor = (config) ->
+  {name, env, sundog} = config
+  config.accountID = (await sundog.STS.whoAmI()).Account
 
   config.gatewayName = config.stackName = "#{name}-#{env}"
   config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"
@@ -65,6 +63,8 @@ module.exports = async (config) ->
 
   # Fetch the declared mixins installed in the project directory and instantiate
   # their CLI and render interfaces.
-  config = yield fetchMixins config
+  config = await fetchMixins config
 
   config
+
+export default Preprocessor

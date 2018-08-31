@@ -1,4 +1,4 @@
-module.exports = '''
+export default '''
 {
   "url": {
     "path": {
@@ -24,4 +24,3 @@ module.exports = '''
   "content" : $input.json('$')
 }
 '''
-

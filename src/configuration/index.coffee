@@ -2,22 +2,30 @@ import {resolve} from "path"
 import JSCK from "jsck"
 import {read, merge, keys} from "fairmont"
 import {yaml} from "panda-serialize"
+import SDK from "aws-sdk"
+import Sundog from "sundog"
 
 import API from "./api"
 import SKY from "./sky"
 
 import preprocess from "./preprocessors"
-import cloudformation from "./cloudformation"
+import render from "./cloudformation"
 
-compile = (appRoot, env, profile) ->
+compile = (appRoot, env, profile="default") ->
   sky = await readSky appRoot, env  # sky.yaml
   api = await readAPI appRoot       # api.yaml
   config = merge api, sky, {env, profile}
 
+  SDK.config =
+     credentials: new SDK.SharedIniFileCredentials {profile}
+     region: sky.aws.region
+     sslEnabled: true
+  config.sundog = Sundog(SDK).AWS
+
   if env
     # Run everything through preprocessors to get final config.
     config = await preprocess config
-    config.aws.stacks = await cloudformation.renderTemplate config
+    config.aws.stacks = await render config
 
   config
 

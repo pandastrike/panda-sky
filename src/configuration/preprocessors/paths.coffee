@@ -1,6 +1,6 @@
-{cat, empty} = require "fairmont"
+import {cat, empty} from "fairmont"
 
-module.exports = (description) ->
+Paths = (description) ->
   {resources} = description
 
   # Remove any querystring data from the URI template so that we can feed the path template into Gateway when declaring a resource.
@@ -16,3 +16,5 @@ module.exports = (description) ->
     resources[k].path = extractPath v
   description.resources = resources
   description
+
+export default Paths

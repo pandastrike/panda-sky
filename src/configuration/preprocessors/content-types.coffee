@@ -6,16 +6,14 @@
 # TODO: For now, we just support JSON and HTML, but this is going to become quite sophisticated as we start using HTTP fully.
 # ==============================================================================
 # ==============================================================================
-{empty, keys} = require "fairmont"
+import {empty, keys} from "fairmont"
 
 # Lookup the velocity template to use based on the mediatype given.
 velocity =
   "application/json": """$input.json('$')"""
   "text/html": """$input.path('$')"""
 
-
-
-module.exports = (int, method) ->
+Types = (int, method) ->
   mt = method.signatures.response.mediatype
   if mt
     int.headers["Content-Type"] = "'#{mt.join(",")}'"
@@ -25,3 +23,5 @@ module.exports = (int, method) ->
     int.ResponseTemplates = templates if !empty templates
 
   int
+
+export default Types
