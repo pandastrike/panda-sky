@@ -1,16 +1,21 @@
-YAML = require "js-yaml"
-{yaml, json} = require "panda-serialize"
-{define} = require "panda-9000"
-{async, merge} = require "fairmont"
+import {yaml} from "panda-serialize"
+import configuration from "../configuration"
 
-{bellChar} = require "../utils"
-configuration = require "../configuration"
-cloudformation = require("../configuration/cloudformation")
-
-module.exports = async (env, {profile}) ->
+render = (env, {profile}) ->
   try
     appRoot = process.cwd()
-    config = yield configuration.compile appRoot, env, profile
-    console.error yaml config.aws.cfoTemplate
+    config = await configuration.compile appRoot, env, profile
+    for key, stack of config.aws.stacks.core
+      console.log "=".repeat 80
+      console.log "templates/#{key}"
+      console.log "=".repeat 80
+      console.log stack
+    for key, stack of config.aws.stacks.mixins
+      console.log "=".repeat 80
+      console.log "templates/mixins/#{key}.yaml"
+      console.log "=".repeat 80
+      console.log stack
   catch e
     console.error e
+
+export default render

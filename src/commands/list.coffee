@@ -1,31 +1,33 @@
-{async, empty} = require "fairmont"
-configuration = require "../configuration"
-require "colors"
+import {empty} from "fairmont"
+import configuration from "../configuration"
+import "colors"
 
-module.exports = async ({profile}) ->
+List = ({profile}) ->
   try
     appRoot = process.cwd()
-    console.error "Preparing task."
-    config = yield configuration.compile(appRoot, false, profile)
-    sky = yield require("../aws/sky")(false, config)
+    console.log "Preparing task."
+    config = await configuration.compile(appRoot, false, profile)
+    sky = await require("../aws/sky")(false, config)
 
-    deployments = yield sky.cfo.list config.name
+    deployments = await sky.cfo.list config.name
     if empty deployments
-      console.error "No active deployments detected."
+      console.warn "No active deployments detected."
     else
-      console.error "=".repeat 80
+      console.log "=".repeat 80
       for {env, url, status} in deployments
         msg = "#{env} (#{status})"
         if /COMPLETE/.test status
-          console.error msg.green
-          console.error "      #{url}"
+          console.log msg.green
+          console.log "      #{url}"
         else if /IN_PROGRESS/.test status
-          console.error msg.yellow
-          console.error "      #{url}"
+          console.log msg.yellow
+          console.log "      #{url}"
         else
-          console.error msg.red
-          console.error "      #{url}"
-      console.error "=".repeat 80
+          console.log msg.red
+          console.log "      #{url}"
+      console.log "=".repeat 80
   catch e
     console.error "List Failure:"
     console.error e.stack
+
+export default List

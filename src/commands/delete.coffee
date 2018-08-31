@@ -1,30 +1,32 @@
-{define, run} = require "panda-9000"
-{async, first, sleep} = require "fairmont"
+import {define, run} from "panda-9000"
+import {first, sleep} from "fairmont"
 
-{bellChar, outputDuration} = require "../utils"
-configuration = require "../configuration"
+import {bellChar, outputDuration} from "../utils"
+import configuration from "../configuration"
 
 START = 0
-module.exports = (start, env, {profile}) ->
+Delete = (start, env, {profile}) ->
   START = start
   run "delete", [env, profile]
 
-define "delete", async (env, profile) ->
+define "delete", (env, profile) ->
   try
     appRoot = process.cwd()
-    config = yield configuration.compile(appRoot, env, profile)
-    sky = yield require("../aws/sky")(env, config)
+    config = await configuration.compile(appRoot, env, profile)
+    sky = await require("../aws/sky")(env, config)
 
-    console.error "Deleting Sky deployment..."
-    isDeleting = yield sky.stack.delete()
+    console.log "Deleting Sky deployment..."
+    isDeleting = await sky.stack.delete()
     if isDeleting
-      console.error "-- Waiting for stack deletion to complete."
-      yield sky.cfo.deleteWait()
+      console.log "-- Waiting for stack deletion to complete."
+      await sky.cfo.deleteWait()
     else
       console.error "WARNING: No Sky stack detected. Now checking for metadata."
 
-    yield sky.stack.postDelete()
-    console.error "Done. (#{outputDuration START})\n\n"
+    await sky.stack.postDelete()
+    console.log "Done. (#{outputDuration START})\n\n"
   catch e
     console.error e.stack
-  console.error bellChar
+  console.info bellChar
+
+export default Delete

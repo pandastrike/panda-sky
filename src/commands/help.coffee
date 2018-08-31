@@ -1,4 +1,4 @@
-module.exports = """
+help = """
 
   Usage: sky [command]
 
@@ -29,3 +29,5 @@ module.exports = """
     mixin [name] [env] [other]  Use augemnted CLI provided by mixin
 
   """
+
+export default help

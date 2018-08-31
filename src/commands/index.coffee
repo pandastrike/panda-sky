@@ -1,19 +1,19 @@
-build = require "./build"
-destroy = require "./delete"
-domain = require "./domain"
-help = require "./help"
-init = require "./init"
-list = require "./list"
-mixin = require "./mixin"
-publish = require "./publish"
-render = require "./render"
-tail = require "./tail"
-test = require "./test"
-update = require "./update"
+import build from "./build"
+import destroy from "./delete"
+import domain from "./domain"
+import help from "./help"
+import init from "./init"
+import list from "./list"
+import mixin from "./mixin"
+import publish from "./publish"
+import render from "./render"
+import tail from "./tail"
+import test from "./test"
+import update from "./update"
 
 
 
-module.exports = {
+export default {
   build
   destroy
   domain

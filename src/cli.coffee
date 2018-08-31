@@ -1,13 +1,11 @@
-{join} = require "path"
-program = require "commander"
-{call, read, write, collect, project, empty} = require "fairmont"
-
-require "./index"
-{bellChar} = require "./utils"
-COMMANDS = require "./commands"
+import program from "commander"
+import "./index"
+import {bellChar, getVersion} from "./utils"
+import COMMANDS from "./commands"
 START = new Date().getTime()
 
-call ->
+do ->
+  version = await getVersion()
 
   noEnv = (env) ->
     if !env
@@ -16,8 +14,6 @@ call ->
       true
     else
       false
-
-  {version} = JSON.parse yield read join __dirname, "..", "..", "..", "package.json"
 
   program
     .version(version)
@@ -108,7 +104,7 @@ call ->
   # TODO: This should be more detailed, customized for each subcommand, and
   # automatically extended with new commands and flags.  For now, this will
   # need to do.
-  program.help = -> console.error COMMANDS.help
+  program.help = -> console.log COMMANDS.help
 
   # Begin execution.
   program.parse process.argv

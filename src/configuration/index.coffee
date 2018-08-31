@@ -1,41 +1,41 @@
-{resolve} = require "path"
-JSCK = require "jsck"
-{async, read, merge, keys} = require "fairmont"
-{yaml} = require "panda-serialize"
+import {resolve} from "path"
+import JSCK from "jsck"
+import {read, merge, keys} from "fairmont"
+import {yaml} from "panda-serialize"
 
-API = require "./api"
-SKY = require "./sky"
+import API from "./api"
+import SKY from "./sky"
 
-preprocess = require "./preprocessors"
-cloudformation = require "./cloudformation"
+import preprocess from "./preprocessors"
+import cloudformation from "./cloudformation"
 
-compile = async (appRoot, env, profile) ->
-  sky = yield readSky appRoot, env  # sky.yaml
-  api = yield readAPI appRoot       # api.yaml
+compile = (appRoot, env, profile) ->
+  sky = await readSky appRoot, env  # sky.yaml
+  api = await readAPI appRoot       # api.yaml
   config = merge api, sky, {env, profile}
 
   if env
     # Run everything through preprocessors to get final config.
-    config = yield preprocess config
-    config.aws.stacks = yield cloudformation.renderTemplate config
+    config = await preprocess config
+    config.aws.stacks = await cloudformation.renderTemplate config
 
   config
 
-readAPI = async (root) ->
+readAPI = (root) ->
   try
-    yield API.read resolve root, "api.yaml"
+    await API.read resolve root, "api.yaml"
   catch e
     console.error "Unable to read API description."
     console.error e
     process.exit()
 
 
-readSky = async (root, env) ->
+readSky = (root, env) ->
   try
-    yield SKY.read root, env
+    await SKY.read root, env
   catch e
     console.error "Unable to read Sky description."
     console.error e
     process.exit()
 
-module.exports = {compile}
+export default {compile}
