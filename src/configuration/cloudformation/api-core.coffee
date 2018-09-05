@@ -36,7 +36,7 @@ renderCore = (config) ->
   core
 
 renderTopLevel = (config) ->
-  yaml render (await registerTemplate tPath "top-level.yaml"), config
+  render (await registerTemplate tPath "top-level.yaml"), config
 
 
 export {renderCore, renderTopLevel}

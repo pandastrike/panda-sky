@@ -7,12 +7,12 @@ fail = ->
   console.log "Done."
   process.exit()
 
-Handlers = new class Handlers
+Handlers = class Handlers
   constructor: (@config) ->
     @stack = @config.aws.stack
     @Lambda = @config.sundog.Lambda
 
-  @initialize: ->
+  initialize: ->
     api = yaml await read @stack.apiDef
     names =
       for r, resource of api.resources
@@ -22,7 +22,7 @@ Handlers = new class Handlers
     @names = cat names...
     @bucket = await Bucket @config
 
-  @update: ->
+  update: ->
     fail() if !@bucket.metadata
     await @bucket.syncHandlersSrc()
     await Promise.all do ->

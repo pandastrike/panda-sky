@@ -8,29 +8,30 @@ Stack = class Stack
   constructor: (@config) ->
     @sundog = @config.sundog
     @stack = @config.aws.stack
-    @cfo = sundog.CloudFormation
-    @eni = sundog.EC2.ENI
+    @cfo = @sundog.CloudFormation
+    @eni = @sundog.EC2.ENI
 
-  @initialize: ->
-    await validate config
-    @bucket = await Bucket config
-    @handlers = await Handlers config
+  initialize: ->
+    await validate @config
+    @bucket = await Bucket @config
+    @handlers = await Handlers @config
 
 
-  @delete: ->
+  delete: ->
     if @config.aws.vpc?.skipConnectionDraining
       await @eni.purge @bucket.subnetIDs,
         (eni) -> ///#{stack.name}///.test eni.RequesterId
     await @cfo.delete stack.name
+    await @bucket.delete()
 
-  @getEndpoint: ->
+  getEndpoint: ->
     id = await @cfo.output "API", @stack.name
     "https://#{id}.execute-api.#{@config.aws.region}.amazonaws.com/#{@config.env}"
 
-  @getSubnets: -> (await @cfo.output "Subnets", name).split ","
+  getSubnets: -> (await @cfo.output "Subnets", name).split ","
 
   # Ask politely if a stack override is neccessary.
-  @override: ->
+  override: ->
     try
       {ask} = new Interview()
       answers = await ask questions @stack.name
@@ -41,20 +42,20 @@ Stack = class Stack
 
     if answers.override
       console.log "Attempting to remove non-Sky stack..."
-      yield @cfo.delete @stack.name
+      await @cfo.delete @stack.name
       console.log "Removal complete.  Continuing with publish."
     else
       console.warn "Discontinuing publish."
       console.log "Done."
       process.exit()
 
-  @newPublish: ->
+  newPublish: ->
     console.log "Waiting for new stack publish to complete..."
     await @bucket.create()
-    await @cfo.publish @bucket.cloudformationParameters
-    await @bucket.stateMarkers.sync @getEndpoint()
+    await @cfo.create @bucket.cloudformationParameters
+    await @bucket.syncState await @getEndpoint()
 
-  @updatePublish: ->
+  updatePublish: ->
     {dirtyAPI, dirtyLambda} = await @bucket.needsUpdate()
     if !dirtyAPI && !dirtyLambda
       console.warn "The Sky deployment is already up to date."
@@ -67,14 +68,16 @@ Stack = class Stack
     if dirtyLambda
       console.log "Updating deployment lambdas..."
       await @handlers.update()
-    await @bucket.stateMarkers.sync @getEndpoint()
+    await @bucket.syncState await @getEndpoint()
 
-  @publish: ->
+  publish: ->
     if @bucket.metadata
-      @updatePublish()
+      await @updatePublish()
     else
       await @override() if (await @cfo.get @stack.name)
-      @newPublish()
+      await @newPublish()
+    console.log "Your API is online and ready at the following endpoint:"
+    console.log "  #{await @getEndpoint()}"
 
 stack = (config) ->
   S = new Stack config

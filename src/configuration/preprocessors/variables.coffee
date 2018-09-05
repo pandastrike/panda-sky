@@ -24,7 +24,7 @@ applyEnvironmentVariables = (config) ->
   {variables} = environments[env]
 
   variables = {} if !variables
-  variables = merge variables, {
+  variables = merge variables,
     baseName: config.name
     environment: config.env
     projectID: config.projectID
@@ -34,6 +34,7 @@ applyEnvironmentVariables = (config) ->
     skyBucket: config.aws.stack.src
 
   config.environmentVariables = variables
+  config
 
 Variables = (config) ->
   config = applyStackVariables config

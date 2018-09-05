@@ -1,5 +1,6 @@
 import {write} from "fairmont"
 import {yaml} from "panda-serialize"
+import Stack from "../virtual-resources/stack"
 
 
 import {bellChar, outputDuration} from "../utils"
@@ -10,24 +11,14 @@ Publish = (START, env, options) ->
     appRoot = process.cwd()
     console.log "Compiling configuration for publish"
     config = await configuration.compile(appRoot, env, options.profile)
-    sky = await require("../aws/sky")(env, config)
+    stack = await Stack config
 
     console.log "Publishing..."
-    isPublishing = await sky.stack.publish()
-    await sky.cfo.publishWait() if isPublishing
-    await sky.stack.postPublish()
-    await writeOutput sky if options.output
+    await stack.publish()
     console.log "Done. (#{outputDuration START})\n\n"
   catch e
     console.error "Publish failure:"
     console.error e.stack
   console.info bellChar
-  sky.cfo
-
-# The developer may use the --output flag to write the API configuration to a
-# file, including the endpoint.
-writeOutput = (sky) ->
-  config = url: await sky.cfo.getApiUrl()
-  await write options.output, (yaml config)
 
 export default Publish
