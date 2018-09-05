@@ -36,9 +36,9 @@ module.exports = (s) ->
 
   substacks =
     update: async ->
-      for key, stack of s.config.aws.stacks.core
+      for key, stack of s.config.aws.templates.core
         yield s.bucket.putObject "templates/#{key}", stack, "text/yaml"
-      for key, stack of s.config.aws.stacks.mixins
+      for key, stack of s.config.aws.templates.mixins
         yield s.bucket.putObject "templates/mixins/#{key}.yaml", stack, "text/yaml"
 
   hostnames = do ->

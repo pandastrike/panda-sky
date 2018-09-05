@@ -25,7 +25,7 @@ compile = (appRoot, env, profile="default") ->
   if env
     # Run everything through preprocessors to get final config.
     config = await preprocess config
-    config.aws.stacks = await render config
+    config.aws.templates = await render config
 
   config
 

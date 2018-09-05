@@ -28,10 +28,10 @@ Render = (config) ->
 
 
   # Get the "core" sky deployment stuff, lambdas and their HTTP interface
-  top = await renderTopLevel config
+  root = await renderTopLevel config
   core = await renderCore config
 
   # Return the rendered chunks to the configuration compiler top-level.
-  {top, core, mixins}
+  {root, core, mixins}
 
 export default Render
