@@ -5,6 +5,7 @@ import {go, tee, pull, values, shell, exists} from "fairmont"
 
 import {bellChar, outputDuration} from "../utils"
 import configuration from "../configuration"
+import Handlers from "../virtual-resources/handlers"
 import Asset from "../asset"
 {render} = Asset
 
@@ -18,7 +19,7 @@ define "update", ["survey"], (env, profile) ->
   try
     appRoot = process.cwd()
     config = await configuration.compile(appRoot, env, profile)
-    sky = await require("../aws/sky")(env, config)
+    handlers = await Handlers config
 
     # Push code through asset pipeline.
     source = "src"
@@ -43,7 +44,7 @@ define "update", ["survey"], (env, profile) ->
     await shell "zip -qr -9 #{pkg} lib -x *node_modules*"
 
     # Update Sky metadata with new Zip acrhive, and republish all lambdas.
-    await sky.lambdas.update()
+    await handlers.update()
     console.log "Done. (#{outputDuration START})\n\n"
   catch e
     console.error e.stack

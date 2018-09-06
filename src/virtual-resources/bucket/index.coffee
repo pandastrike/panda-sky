@@ -66,33 +66,6 @@ Metadata = class Metadata
       for key, stack of @templates.mixins
         await @s3.put @src, "templates/mixins/#{key}.yaml", stack, "text/yaml"
 
-  # hostnames = do ->
-  #   fetch = ->
-  #     try
-  #       data = yaml await s.bucket.getObject "hostnames.yaml"
-  #       data.hostnames
-  #     catch e
-  #       []
-  #
-  #   add = (name) ->
-  #     data = await fetch()
-  #     data.push name
-  #     data = hostnames: data
-  #     await @s3.put @src,("hostnames.yaml", (yaml data), "text/yaml")
-  #
-  #   _remove = (name) ->
-  #     data = await fetch()
-  #     data = remove data, name
-  #     data = hostnames: data
-  #
-  #     if await @s3.bucketExists @src
-  #       await @s3.put @src,("hostnames.yaml", (yaml data), "text/yaml")
-  #     else
-  #       console.log "WARNING: No Sky metadata detected for #{@config.env}. Skipping."
-  #
-  #   {fetch, add, remove: _remove}
-
-
   needsUpdate: ->
     # Examine core stack resources to update the CloudFormation stack.
     dirtyAPI = !(await @api().isCurrent()) || !(await @skyConfig().isCurrent()) || !@permissions().isCurrent()

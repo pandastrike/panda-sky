@@ -1,23 +1,24 @@
 # A scan of the current domain configuration and available AWS resources is
 # needed to confirm that Sky can accomplish the requested operation.
-{async} = require "fairmont"
-{regularlyQualify, root} = require "../../../url"
 
-module.exports = (s) ->
-  isViable: async (name) ->
-    domain = regularlyQualify root name
+validate = (config, bucket) ->
+  name = if config.aws.hostnames then config.aws.hostnames[0] else false
+  {regularlyQualify, root} = config.sundog.URL
+  {hzGet} = config.sundog.Route53
+  {fetch} = config.sundog.ACM "us-east-1" # quirk of how sky uses ACM
 
-    # Check to make sure a hostname is specified
-    fail hostnameMSG s.env if !name
+  # Check to make sure a hostname is specified
+  fail hostnameMSG config.env if !name
 
-    # Check to make sure a public hosted zone exists to support that hostname
-    fail domainMSG name if !yield s.route53.getHostedZoneID name
+  # Check to make sure a public hosted zone exists to support that hostname
+  fail domainMSG name if !await hzGet name
 
-    # Check to make sure we have the ACM cert for that domain
-    fail ACMMSG name if !yield s.acm.fetch domain
+  # Check to make sure we have the ACM cert for that domain
+  domain = regularlyQualify root name
+  fail ACMMSG name if !await fetch domain
 
-    # Check to make sure we have deployment for this hostname
-    fail deploymentMSG s.env if !yield s.meta.current.fetch()
+  # Check to make sure we have deployment for this hostname
+  fail deploymentMSG config.env if !await bucket.getState()
 
 
 fail = (msg) ->
@@ -57,3 +58,5 @@ ERROR: There is no Sky deployment detected for this environment.  Sky Custom
   deployment so it may target Gateway URL for you.  Please use "sky publish
   #{env}" to create a Sky deployment and try again.
 """
+
+export default validate

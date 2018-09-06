@@ -29,7 +29,7 @@ normalize = (parsedOutput) ->
       output +="\n    Billed Duration: #{parsedOutput["Billed Duration"]}"
       output +="\n    Memory Size: #{parsedOutput["Memory Size"]}"
     when "UNKNOWN"
-      console.error "### Sky is unable to parse this log. Displaying raw data.".yellow
+      console.info "### Sky is unable to parse this log. Displaying raw data.".yellow
       output = Message
     when "START", "END"
       output = space "[#{Type}]", "#{Timestamp}", "#{RequestId}"
@@ -51,8 +51,10 @@ normalize = (parsedOutput) ->
     else
       output
 
-module.exports = (isVerbose, e) ->
+print = (isVerbose, e) ->
   if isVerbose
-    console.error normalize e
+    console.info normalize e
   else if e.Type not in debugEquivalents
-    console.error normalize e
+    console.info normalize e
+
+export default print

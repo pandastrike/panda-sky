@@ -1,6 +1,5 @@
-{regexp, many, any, all, rule, grammar} = require "panda-grammar"
-{merge} = require "fairmont"
-require "colors"
+import {many, any, all, rule, grammar} from "panda-grammar"
+import {merge} from "fairmont"
 
 validTypes = ["ERROR", "WARN", "INFO", "DEBUG", "START", "END", "REPORT"]
 
@@ -59,6 +58,8 @@ fallback = (s) -> value: { Type: "UKNOWN", Message: s}, rest: ''
 
 parse = grammar any report, simple, manual, fallback
 
-module.exports = ({timestamp, message}) ->
+Parse = ({timestamp, message}) ->
   output = parse(message) || {}
   merge output, Timestamp: timestamp
+
+export default Parse

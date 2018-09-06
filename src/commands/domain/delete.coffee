@@ -1,21 +1,17 @@
-{async} = require "fairmont"
+import {bellChar, outputDuration} from "../../utils"
+import configuration from "../../configuration"
+import Domain from "../../virtual-resources/domain"
 
-{bellChar, outputDuration} = require "../../utils"
-configuration = require "../../configuration"
-
-module.exports = async (START, env, options) ->
+module.exports = (START, env, options) ->
   try
     appRoot = process.cwd()
-    console.error "Compiling configuration for API custom domain."
-    config = yield configuration.compile(appRoot, env, options.profile)
-    sky = yield require("../../aws/sky")(env, config)
+    console.log "Compiling configuration for API custom domain."
+    config = await configuration.compile appRoot, env, options.profile
+    domain = await Domain config
 
-    yield sky.domain.preDelete config.aws.hostnames[0], options
-    console.error "\nDeleting..."
-    yield sky.domain.delete config.aws.hostnames[0]
-    console.error "Done. (#{outputDuration START})\n\n"
+    await domain.delete()
+    console.log "Done. (#{outputDuration START})\n\n"
   catch e
     console.error "Delete failure:"
     console.error e.stack
-  console.error bellChar
-  sky.cfo
+  console.info bellChar

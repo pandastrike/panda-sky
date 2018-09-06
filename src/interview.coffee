@@ -1,6 +1,6 @@
 import prompt from "prompt"
 
-Interview
+Interview =
 
   # Initialize the interviewer.  Remove the default settings, start `prompt`
   setup: ->

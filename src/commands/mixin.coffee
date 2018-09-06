@@ -25,18 +25,16 @@ fail = (name) ->
   console.error """
   The mixin #{name} cannot be found within your project directory.
   Install that mixin before continuing.  This process will discontinue.
-
-  Done.
   """
+  console.log "Done."
   process.exit -1
 
 noCLI = (name) ->
   console.error """
   The mixin #{name} does not appear to have a command line interface.
   Sky cannot continue.
-
-  Done.
   """
+  console.log "Done."
   process.exit -1
 
 extractMixinArgs = (argv) ->
