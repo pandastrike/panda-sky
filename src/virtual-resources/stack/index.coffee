@@ -19,9 +19,9 @@ Stack = class Stack
 
   delete: ->
     if @config.aws.vpc?.skipConnectionDraining
-      await @eni.purge @bucket.subnetIDs,
-        (eni) -> ///#{stack.name}///.test eni.RequesterId
-    await @cfo.delete stack.name
+      await @eni.purge (await @getSubnets()),
+        (eni) -> ///#{@stack.name}///.test eni.RequesterId
+    await @cfo.delete @stack.name
     await @bucket.delete()
 
   getEndpoint: ->
