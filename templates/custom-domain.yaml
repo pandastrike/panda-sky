@@ -25,6 +25,109 @@ Resources:
           Value: {{Value}}
         {{/each}}
       TemplateURL: "https://s3.amazonaws.com/solutions-reference/aws-waf-security-automations/latest/aws-waf-security-automations.template"
+
+  ApiUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      Description: CloudFront usage only
+      UsagePlanName: CloudFront_only
+      ApiStages:
+        -
+          ApiId: {{aws.cache.api}}
+          Stage: {{env}}
+
+  ApiKey:
+    Type: "AWS::ApiGateway::ApiKey"
+    Properties:
+      Name: {{aws.stack.name}}-cloudfront
+      Description: CloudFormation Only API Key for {{aws.stack.name}}
+      Enabled: true
+      GenerateDistinctId: false
+
+  ApiKeyUsagePlan:
+    Type: "AWS::ApiGateway::UsagePlanKey"
+    Properties:
+      KeyId: !Ref ApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref ApiUsagePlan
+
+  GetApiKeyValue:
+      DependsOn: "ApiKey"
+      Type: Custom::ApiKeyValue
+      Properties:
+        ServiceToken: !GetAtt GetApiKeyValueFunction.Arn
+
+  GetApiKeyValueFunctionRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Sid: "AllowLambdaServiceToAssumeRole"
+                Effect: "Allow"
+                Action:
+                  - "sts:AssumeRole"
+                Principal:
+                  Service:
+                    - "lambda.amazonaws.com"
+          Policies:
+            -
+              PolicyName: RotateKeysPolicy
+              PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  -
+                    Effect: Allow
+                    Action: 'apigateway:GET'
+                    Resource: '*'
+
+  GetApiKeyValueFunction:
+    DependsOn:
+      - GetApiKeyValueFunctionRole
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Handler: "index.lambda_handler"
+      Role: !GetAtt GetApiKeyValueFunctionRole.Arn
+      Runtime: python3.6
+      Timeout: 120
+      Environment:
+        Variables:
+          API_KEY: !Ref ApiKey
+      Code:
+        ZipFile: !Sub |
+          import datetime
+          import os
+
+          import boto3
+          import cfnresponse
+          from botocore.exceptions import ClientError
+
+          session = boto3.Session()
+          apigw = session.client('apigateway')
+
+
+          def lambda_handler(event, context):
+            request_type = event['RequestType']
+            request_type_allowed = ["Update", "Create"]
+            from pprint import pprint
+            responseData = {}
+
+            print("Cloudformation Operation ==> ", request_type)
+
+            if request_type in request_type_allowed:
+              try:
+                api_key = apigw.get_api_key(apiKey=os.getenv("API_KEY"), includeValue=True)
+                responseData = {'Value': api_key['value']}
+                cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+              except ClientError as err:
+                responseData = {"Error": "{}".format(err)}
+                cfnresponse.send(event, context, cfnresponse.FAILED, responseData)
+            else:
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
   {{/if}}
 
   {{#each aws.hostnames}}
@@ -33,6 +136,7 @@ Resources:
     {{#if @root.aws.cache.waf}}
     DependsOn:
       - "WAF"
+      - GetApiKeyValueFunction
     {{/if}}
     Properties:
       DistributionConfig:
@@ -72,6 +176,11 @@ Resources:
               OriginProtocolPolicy: "https-only"
               OriginReadTimeout: 30
               OriginSSLProtocols: [ "TLSv1.2" ]
+            {{#if @root.aws.cache.waf}}
+            OriginCustomHeaders:
+              - HeaderName: x-api-key
+                HeaderValue: !GetAtt GetApiKeyValue.Value
+            {{/if}}
         PriceClass: PriceClass_{{@root.aws.cache.priceClass}}
         ViewerCertificate:
           AcmCertificateArn: {{@root.aws.cache.certificate}}

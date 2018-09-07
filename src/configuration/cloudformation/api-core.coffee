@@ -35,8 +35,9 @@ renderCore = (config) ->
     core[nameKey s] = render (await registerTemplate s), config
   core
 
+# This needs to be output as an object because we identify an intermediate template using this base in the stack's orchestration model.
 renderTopLevel = (config) ->
-  render (await registerTemplate tPath "top-level.yaml"), config
+  yaml render (await registerTemplate tPath "top-level.yaml"), config
 
 
 export {renderCore, renderTopLevel}

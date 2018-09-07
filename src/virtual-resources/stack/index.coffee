@@ -63,6 +63,8 @@ Stack = class Stack
 
     @bucket.sync()
     if dirtyAPI
+      console.log "Removing obsolete resources..."
+      await @cfo.update @bucket.intermediateCloudformationParameters
       console.log "Waiting for stack update to complete..."
       await @cfo.update @bucket.cloudformationParameters
     if dirtyLambda

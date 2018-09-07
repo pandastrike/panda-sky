@@ -60,6 +60,7 @@ Stack = class Stack
     @cache.endpoint = endpoint
     @cache.hostedzone = await @route53.hzGet @config.aws.hostnames[0]
     @cache.certificate = await @acm.fetch @config.aws.hostnames[0]
+    @cache.api = await @cfo.output "API", @stack.name
     @config.aws.cache = @cache
 
     # Render the custom domain stack.

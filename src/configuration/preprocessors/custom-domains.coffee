@@ -26,51 +26,46 @@ setHeaders = (headers) ->
   else
     headers
 
-# Accept the cache configuraiton and fill in any default values.
-applyDefaults = (config={}) ->
-  config.httpVersion ||= "http2"
-  config.protocol ||= "TLSv1.2_2018"
-  config.expires ||= 0
-  config.priceClass ||= 100
-  config.headers = setHeaders config.headers
-  config.originID =
+applyHostnames = (config) ->
+  names = config.aws.environments[config.env].hostnames || []
+  {domain} = config.aws
+  hostnames = []
+  hostnames.push "#{name}.#{domain}" for name in names
+  hostnames
 
-  config
+# Accept the cache configuraiton and fill in any default values.
+applyDefaults = (config) ->
+  cache = config.aws.environments[config.env].cache || {}
+  cache.httpVersion ||= "http2"
+  cache.protocol ||= "TLSv1.2_2018"
+  cache.expires ||= 0
+  cache.priceClass ||= 100
+  cache.headers = setHeaders cache.headers
+  cache.originID = "Sky-" + config.aws.stack.name
+  cache
 
 applyFirewall = (config) ->
-  if !config.waf
-    config.waf = false
+  {waf} = config.aws.cache
+  if !waf
+    false
   else
-    config.waf =
-      floodThreshold: config.waf.floodThreshold || 2000
-      errorThreshold: config.waf.errorThreshold || 50
-      blockTTL: config.waf.blockTTL || 240
-  config
-
-buildCustomDomain = (config={}) ->
-  config = applyDefaults config
-  config = applyFirewall config
+    floodThreshold: waf.floodThreshold || 2000
+    errorThreshold: waf.errorThreshold || 50
+    blockTTL: waf.blockTTL || 240
 
 Domains = (config) ->
-  # Pull config data for the requested environment.
-  {env} = config
-  desired = config.aws.environments[env]
-  {domain} = config.aws
-
   # Construct an array of full subdomains to feed the process.
-  hostnames = []
-  if desired.hostnames
-    hostnames.push "#{name}.#{domain}" for name in desired.hostnames
-  config.aws.hostnames = hostnames
+  config.aws.hostnames = applyHostnames config
 
-  # Pull CloudFront (cdn / caching) info into the config
-  config.aws.cache = buildCustomDomain desired.cache
+  # Apply smart defaults for CloudFront.
+  config.aws.cache = applyDefaults config
+
+  # Expand the firewall configuation
+  config.aws.cache.waf = applyFirewall config
 
   # Internal names for the custom domain stack.
   config.aws.cache.logBucket = "#{config.environmentVariables.fullName}-#{config.projectID}-cflogs"
   config.aws.cache.originID = "customDomain#{config.name}#{config.env}"
-
-
   config
 
 export default Domains

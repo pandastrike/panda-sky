@@ -11,6 +11,9 @@
   Properties:
     RestApiId:
       Ref: API
+    {{#if @root.aws.cache.waf}}
+    ApiKeyRequired: true
+    {{/if}}
     ResourceId:
       "Fn::Select": [ {{index}}, {"Fn::Split": [ ",", {"Ref": ResourceIDs} ]}]
     {{#if authorizationType}}

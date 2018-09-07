@@ -23,6 +23,11 @@ Metadata = class Metadata
         TemplateURL: "https://#{@src}.s3.amazonaws.com/template.yaml"
         Capabilities: ["CAPABILITY_IAM"]
         Tags: @config.tags
+      @intermediateCloudformationParameters =
+        StackName: @name
+        TemplateURL: "https://#{@src}.s3.amazonaws.com/template-intermediate.yaml"
+        Capabilities: ["CAPABILITY_IAM"]
+        Tags: @config.tags
     catch e
       return # swallow the 404 error, there's probably no bucket to read
 
@@ -58,7 +63,12 @@ Metadata = class Metadata
   stacks: =>
     update: =>
       # Upload the root stack...
-      await @s3.put @src, "template.yaml", @templates.root, "text/yaml"
+      await @s3.put @src, "template.yaml", (yaml @templates.root), "text/yaml"
+
+      # Now the intermediate based off of the root.
+      intermediate = clone @templates.root
+      intermediate.Resources.SkyCore.Properties.TemplateURL = "https://#{@src}.s3.amazonaws.com/templates/core/intermediate.yaml"
+      await @s3.put @src, "template-intermediate.yaml", (yaml intermediate), "text/yaml"
 
       # Now all the nested children...
       for key, stack of @templates.core
@@ -71,7 +81,7 @@ Metadata = class Metadata
     dirtyAPI = !(await @api().isCurrent()) || !(await @skyConfig().isCurrent()) || !@permissions().isCurrent()
 
     # See if lambda handlers are up to date.
-    dirtyLambda = !(await @handlers().isCurrent meta)
+    dirtyLambda = !(await @handlers().isCurrent())
     {dirtyAPI, dirtyLambda}
 
   create: ->

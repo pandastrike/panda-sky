@@ -78,7 +78,7 @@
   "devDependencies": {
     "amen": "^1.0.6",
     "gulp": "github:gulpjs/gulp#4.0",
-    "panda-builder": "^1.2.0",
+    "panda-builder": "1.2.0",
     "source-map-support": "^0.5.0"
   }
 }

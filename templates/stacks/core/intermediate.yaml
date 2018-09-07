@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Panda Sky Core Resources
-{{#if aws.vpc.new}}
+{{#if aws.vpc}}
 Parameters:
   SecurityGroups:
     Type: String
@@ -25,18 +25,13 @@ Resources:
   LambdaFunctions:
     Type: "AWS::CloudFormation::Stack"
     Properties:
-      {{#if aws.vpc.new}}
+      {{#if aws.vpc}}
       Parameters:
         SecurityGroups:
           Ref: SecurityGroups
         Subnets:
           Ref: Subnets
       {{/if}}
-      {{#unless aws.vpc.new}}
-      Parameters:
-        SecurityGroups: {{aws.vpc.securityGroups}}
-        Subnets: {{aws.vpc.subnets}}
-      {{/unless}}
       Tags:
         - Key: Substack Type
           Value: Core Lambda Functions

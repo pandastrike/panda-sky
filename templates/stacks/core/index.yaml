@@ -44,7 +44,6 @@ Resources:
   GatewayMainMethods:
     Type: "AWS::CloudFormation::Stack"
     DependsOn:
-      - GatewayBase
       - GatewayResources
     Properties:
       Parameters:
@@ -64,7 +63,6 @@ Resources:
   GatewayOptionsMethods:
     Type: "AWS::CloudFormation::Stack"
     DependsOn:
-      - GatewayBase
       - GatewayResources
     Properties:
       Parameters:
@@ -84,7 +82,6 @@ Resources:
   GatewayDeployment:
     Type: "AWS::CloudFormation::Stack"
     DependsOn:
-      - GatewayBase
       - GatewayMainMethods
       - GatewayOptionsMethods
     Properties:
@@ -107,13 +104,13 @@ Resources:
   LambdaFunctions:
     Type: "AWS::CloudFormation::Stack"
     Properties:
-      {{#with aws.vpc}}
+      {{#if aws.vpc}}
       Parameters:
         SecurityGroups:
           Ref: SecurityGroups
         Subnets:
           Ref: Subnets
-      {{/with}}
+      {{/if}}
       Tags:
         - Key: Substack Type
           Value: Core Lambda Functions

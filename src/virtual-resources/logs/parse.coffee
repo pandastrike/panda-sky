@@ -35,7 +35,7 @@ tabbedValue = rule (regexp /^\s?[^\t]*(\t|\n$)/), ({value}) -> value.trim()
 
 field = (valueRule) ->
   rule (all name, delimiter, valueRule),
-    ({value: [name, , value]}) -> [name.trim()]: value.trim()
+    ({value: [name, _, value]}) -> "#{name.trim()}": value.trim()
 fields = (fieldRule) ->
   rule (many fieldRule), ({value}) -> merge value...
 
