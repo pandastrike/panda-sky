@@ -6,7 +6,7 @@ List = ({profile}) ->
     appRoot = process.cwd()
     console.log "Preparing task."
     config = await configuration.compile(appRoot, false, profile)
-    cfo = config.sundog.CloudFormation
+    cfo = config.sundog.CloudFormation()
 
     # Get all stacks with the project name in their prefix.
     search = (projectName) ->

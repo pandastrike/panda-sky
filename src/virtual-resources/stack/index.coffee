@@ -8,8 +8,8 @@ Stack = class Stack
   constructor: (@config) ->
     @sundog = @config.sundog
     @stack = @config.aws.stack
-    @cfo = @sundog.CloudFormation
-    @eni = @sundog.EC2.ENI
+    @cfo = @sundog.CloudFormation()
+    @eni = @sundog.EC2.ENI()
 
   initialize: ->
     await validate @config

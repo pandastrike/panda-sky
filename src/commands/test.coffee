@@ -18,7 +18,7 @@ Test = (env, {profile}, argv) ->
     appRoot = process.cwd()
     console.log "Preparing task."
     config = await configuration.compile appRoot, env, profile
-    cfo = config.sundog.CloudFormation
+    cfo = config.sundog.CloudFormation()
 
     # Get URL for the API endpoint of an arbitrary Sky stack.
     getEndpoint = (name, env) ->
@@ -40,8 +40,8 @@ Test = (env, {profile}, argv) ->
       argv = trimARGV env, argv
       argv.unshift "test", url
       test = spawn "npm", argv
-      test.stdout.on "data", (data) -> console.log data.toString()
-      test.stderr.on "data", (data) -> console.log data.toString()
+      test.stdout.on "data", (data) -> console.info data.toString()
+      test.stderr.on "data", (data) -> console.info data.toString()
       test.on "close", (exitCode) ->
         console.log "-".repeat 40
         console.log "Done."

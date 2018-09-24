@@ -5,7 +5,7 @@ import parse from "./parse"
 Logs = class Logs
   constructor: (@config) ->
     @stack = @config.aws.stack
-    @logs = @config.sundog.CloudWatchLogs
+    @logs = @config.sundog.CloudWatchLogs()
 
   # This lays out one scan cycle.
   scan: (timeKey) ->

@@ -13,7 +13,7 @@ Metadata = class Metadata
     @apiDef = @config.aws.stack.apiDef
     @skyDef = @config.aws.stack.skyDef
     @templates = @config.aws.templates
-    @s3 = @config.sundog.S3
+    @s3 = @config.sundog.S3()
 
   initialize: ->
     try

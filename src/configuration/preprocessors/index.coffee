@@ -19,7 +19,7 @@ import extractVPC from "./vpc"
 
 Preprocessor = (config) ->
   {name, env, sundog} = config
-  config.accountID = (await sundog.STS.whoAmI()).Account
+  config.accountID = (await sundog.STS().whoAmI()).Account
 
   config.gatewayName = config.stackName = "#{name}-#{env}"
   config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"

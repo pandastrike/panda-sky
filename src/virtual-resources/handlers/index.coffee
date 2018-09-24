@@ -11,7 +11,7 @@ fail = ->
 Handlers = class Handlers
   constructor: (@config) ->
     @stack = @config.aws.stack
-    @Lambda = @config.sundog.Lambda
+    @Lambda = @config.sundog.Lambda()
 
   initialize: ->
     api = yaml await read @stack.apiDef

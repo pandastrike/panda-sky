@@ -11,10 +11,10 @@ Stack = class Stack
     @sundog = @config.sundog
     @stack = @config.aws.stack
     @name = @stack.name + "-CustomDomain"
-    @cfo = @sundog.CloudFormation
+    @cfo = @sundog.CloudFormation()
     @acm = @sundog.ACM "us-east-1" #quirk of how sky uses ACM.
-    @route53 = @sundog.Route53
-    @s3 = @sundog.S3
+    @route53 = @sundog.Route53()
+    @s3 = @sundog.S3()
 
   initialize: ->
     @bucket = await Bucket @config
