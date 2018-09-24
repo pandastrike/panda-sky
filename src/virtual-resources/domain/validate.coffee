@@ -5,7 +5,7 @@ validate = (config, bucket) ->
   name = if config.aws.hostnames then config.aws.hostnames[0] else false
   {regularlyQualify, root} = config.sundog.URL
   {hzGet} = config.sundog.Route53()
-  {fetch} = config.sundog.ACM "us-east-1" # quirk of how sky uses ACM
+  {fetch} = config.sundog.ACM {region:"us-east-1"} # quirk of how sky uses ACM
 
   # Check to make sure a hostname is specified
   fail hostnameMSG config.env if !name

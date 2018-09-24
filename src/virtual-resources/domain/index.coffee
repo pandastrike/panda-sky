@@ -12,7 +12,7 @@ Stack = class Stack
     @stack = @config.aws.stack
     @name = @stack.name + "-CustomDomain"
     @cfo = @sundog.CloudFormation()
-    @acm = @sundog.ACM "us-east-1" #quirk of how sky uses ACM.
+    @acm = @sundog.ACM {region:"us-east-1"} #quirk of how sky uses ACM.
     @route53 = @sundog.Route53()
     @s3 = @sundog.S3()
 
