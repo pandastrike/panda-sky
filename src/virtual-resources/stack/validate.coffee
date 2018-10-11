@@ -1,4 +1,4 @@
-import {exists} from "fairmont"
+import {exists} from "panda-quill"
 
 validate = (config) ->
   {pkg, apiDef, skyDef} = config.aws.stack

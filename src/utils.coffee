@@ -1,7 +1,10 @@
-import {join} from "path"
-import {isMatch, shell, exists, mkdir, isDirectory, read} from "fairmont"
 import moment from "moment"
 import "moment-duration-format"
+import {parse as _parse, relative, join} from "path"
+import {curry, binary} from "panda-garden"
+import {include, isMatch} from "panda-parchment"
+import {exists, mkdirp, isDirectory, write as _write, read} from "panda-quill"
+import {shell} from "fairmont-process"
 
 pathWithUnderscore = (path) -> isMatch /(^|\/)_/, path
 
@@ -34,13 +37,43 @@ getVersion = ->
     console.error "Unable to find package.json to determine version."
     throw e
 
-outputDuration = (start) ->
-  d = moment.duration(new Date().getTime() - start)
-  if 0 < d.asSeconds() <= 60
-    d.format("s[ s]", 1)
-  else if 60 < d.asSeconds() < 3600
-    d.format("m:ss[ min]", 0)
-  else
-    d.format("h:mm[ hr]", 0)
+stopwatch = ->
+  start = Date.now()
+  ->
+    d = moment.duration Date.now() - start
+    if 0 < d.asSeconds() <= 60
+      d.format("s[ s]", 1)
+    else if 60 < d.asSeconds() < 3600
+      d.format("m:ss[ min]", 0)
+    else
+      d.format("h:mm[ hr]", 0)
 
-export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, outputDuration}
+parse = (path) ->
+  {dir, name, ext} = _parse path
+  path: path
+  directory: dir
+  name: name
+  extension: ext
+
+context = curry (_directory, _path) ->
+  {path, directory, name, extension} = parse _path
+  path: relative _directory, (join directory, name)
+  name: name
+  source: {path, directory, name, extension}
+  target: {}
+  data: {}
+
+write = curry binary (directory, {path, target, source}) ->
+  if target.content?
+    if !target.path?
+      extension = if target.extension?
+        target.extension
+      else if source.extension?
+        source.extension
+      else ""
+      include target,
+        parse (join directory, "#{path}#{extension}")
+    await mkdirp "0777", (target.directory)
+    await _write target.path, target.content
+
+export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, outputDuration, context, write, stopwatch}

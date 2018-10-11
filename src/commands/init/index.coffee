@@ -1,7 +1,9 @@
 # This sets up an existing directory to hold a Panda Sky project. There are
 # different flavors to showcase different mixins.
+# TODO: Where are randomWords in the decendants of Fairmont?
 import Interview from "panda-interview"
-import {values, randomWords, shell, merge} from "fairmont"
+import {shell, randomWords} from "fairmont"
+import {values, merge} from "panda-process"
 import MIXINS from "./mixins"
 import render from "./render"
 

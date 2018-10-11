@@ -1,6 +1,6 @@
 import {resolve} from "path"
 import PandaTemplate from "panda-template"
-import {read, write, exists} from "fairmont"
+import {read, write, exists} from "panda-quill"
 import {safe_cp, safe_mkdir} from "../../utils"
 
 Render = (name, config) ->

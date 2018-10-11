@@ -2,7 +2,7 @@ import {bellChar, outputDuration} from "../../utils"
 import configuration from "../../configuration"
 import Domain from "../../virtual-resources/domain"
 
-module.exports = (START, env, options) ->
+module.exports = (stopwatch, env, options) ->
   console.warn "This feature is not yet implemented."
   # try
   #   appRoot = process.cwd()

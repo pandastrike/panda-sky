@@ -1,6 +1,6 @@
 # Developers may specify a VPC to be associated with their deployment's core Lambdas.  That may be specified as either a new VPC, or an existing one by referencing its subnet and security group IDs.
 
-import {merge} from "fairmont"
+import {merge} from "panda-parchment"
 
 VPC = (config) ->
   config.managedPolicies = []

@@ -1,7 +1,7 @@
 import {many, any, all, rule, grammar} from "panda-grammar"
 import {merge} from "fairmont"
 
-validTypes = ["ERROR", "WARN", "INFO", "DEBUG", "START", "END", "REPORT"]
+validTypes = ["ERROR", "WARN", "INFO", "DEBUG", "START", "END", "REPORT", "JSON"]
 
 # Temp fix for bug in Bartlett.  TODO: Make this change in Bartlett.
 regexp = (re) ->

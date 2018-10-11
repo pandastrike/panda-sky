@@ -22,7 +22,3 @@ Resources:
   {{> gateway-method index=../index}}
   {{/each}}
   {{/each}}
-
-Outputs:
-  isDone:
-    Value: "true"

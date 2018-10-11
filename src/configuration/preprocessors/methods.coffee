@@ -1,4 +1,4 @@
-import {toLower, capitalize, first, toUpper} from "fairmont"
+import {toLower, capitalize, first, toUpper} from "panda-parchment"
 
 # Cycle through the methods on every resource and generate their algorithmic
 # names.  This includes CFo template names (CamelName) as well as lambda

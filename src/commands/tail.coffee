@@ -1,4 +1,3 @@
-import {bellChar, outputDuration} from "../utils"
 import configuration from "../configuration"
 import Handlers from "../virtual-resources/handlers"
 

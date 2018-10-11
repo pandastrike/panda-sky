@@ -1,4 +1,5 @@
-import {read, merge } from "fairmont"
+import {merge} from "panda-parchment"
+import {read} from "panda-quill"
 import {yaml} from "panda-serialize"
 import JSCK from "jsck"
 

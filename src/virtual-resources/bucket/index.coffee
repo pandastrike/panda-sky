@@ -2,7 +2,9 @@
 This section of Sky models the deployment stack (which is a collection of AWS resources / services) as an AWS service.  Here is the S3 bucket used to orchestrate state and code.
 ###
 
-import {md5, read, keys, cat, empty, min, remove, toJSON, clone} from "fairmont"
+import {md5} from "fairmont"
+import {read} from "panda-quill"
+import {keys, cat, empty, min, remove, toJSON, clone} from "panda-parchment"
 import {yaml} from "panda-serialize"
 
 Metadata = class Metadata

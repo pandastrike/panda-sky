@@ -1,4 +1,4 @@
-import {cat, empty} from "fairmont"
+import {cat, empty} from "panda-parchment"
 
 Paths = (description) ->
   {resources} = description

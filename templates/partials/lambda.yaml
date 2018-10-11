@@ -9,10 +9,11 @@
     Role:
       "Fn::GetAtt" : ["{{@root.roleName}}", "Arn"]
     Runtime: {{@root.aws.runtime}}
+    MemorySize: {{@root.aws.memorySize}}
     {{#if @root.aws.vpc}}
     VpcConfig:
       SecurityGroupIds:
-        "Fn::Split" : [ ",", {"Ref": SecurityGroups} ] 
+        "Fn::Split" : [ ",", {"Ref": SecurityGroups} ]
       SubnetIds:
         "Fn::Split" : [ ",", {"Ref": Subnets} ]
     {{/if}}
@@ -24,7 +25,7 @@
   {{#if timeout}}
     Timeout: {{timeout}}
   {{else}}
-    Timeout: 15
+    Timeout: 60
   {{/if}}
     Code:
       S3Bucket: {{handler.bucket}}

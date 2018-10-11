@@ -4,9 +4,6 @@ Parameters:
   API:
     Type: String
     Description: Gateway API ID for the Sky stack HTTP endpoint.
-  LambdaDone:
-    Type: String
-    Description: Forces order dependency, Lambdas must exist before permission to access them is granted.
 Resources:
   {{#with rootResource}}
   # The root resource needs different expansion than others. Define all the Lambdas for methods on the root resource.

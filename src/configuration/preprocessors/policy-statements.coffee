@@ -1,4 +1,4 @@
-import {cat} from "fairmont"
+import {cat} from "panda-parchment"
 
 Statements = (config) ->
   {environmentVariables: {skyBucket}} = config

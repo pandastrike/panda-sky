@@ -6,7 +6,7 @@
 # TODO: For now, we just support JSON and HTML, but this is going to become quite sophisticated as we start using HTTP fully.
 # ==============================================================================
 # ==============================================================================
-import {empty, keys} from "fairmont"
+import {empty, keys} from "panda-parchment"
 
 # Lookup the velocity template to use based on the mediatype given.
 velocity =

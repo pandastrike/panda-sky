@@ -4,12 +4,6 @@ Parameters:
   API:
     Type: String
     Description: Gateway API ID for the Sky stack HTTP endpoint.
-  MainDone:
-    Type: String
-    Description: Forces order dependency, Gateway resources before deployment.
-  OptionsDone:
-    Type: String
-    Description: Forces order dependency, Gateway resources before deployment.
 
 Resources:
   Deployment:

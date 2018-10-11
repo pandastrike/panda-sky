@@ -1,4 +1,5 @@
-import {empty, collect, compact, cat, first, md5, rest} from "fairmont"
+import {md5} from "fairmont"
+import {empty, collect, compact, cat, first, rest} from "panda-parchment"
 import print from "./print"
 import parse from "./parse"
 

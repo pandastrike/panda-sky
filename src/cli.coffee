@@ -1,8 +1,7 @@
 import program from "commander"
 import "./index"
-import {bellChar, getVersion} from "./utils"
+import {bellChar, getVersion, stopwatch} from "./utils"
 import COMMANDS from "./commands"
-START = new Date().getTime()
 
 do ->
   version = await getVersion()
@@ -20,7 +19,7 @@ do ->
 
   program
     .command "build"
-    .action (options) -> COMMANDS.build START
+    .action (options) -> COMMANDS.build stopwatch()
 
   program
     .command "init [name]"
@@ -32,14 +31,14 @@ do ->
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .action (env, options) ->
       return if noEnv env
-      COMMANDS.publish START, env, options
+      COMMANDS.publish stopwatch(), env, options
 
   program
     .command "delete [env]"
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .action (env, options) ->
       return if noEnv env
-      COMMANDS.destroy START, env, options
+      COMMANDS.destroy stopwatch(), env, options
 
   program
     .command "render [env]"
@@ -53,7 +52,7 @@ do ->
   .option '-p, --profile [profile]', 'Name of AWS profile to use'
   .action (env, options) ->
     return if noEnv env
-    COMMANDS.update START, env, options
+    COMMANDS.update stopwatch(), env, options
 
   program
     .command "tail [env]"
@@ -84,7 +83,7 @@ do ->
   .action (subcommand, env, options) ->
     if COMMANDS.domain[subcommand]
       return if noEnv env
-      COMMANDS.domain[subcommand] START, env, options
+      COMMANDS.domain[subcommand] stopwatch(), env, options
     else
       console.error "ERROR: unrecognized subcommand of sky domain."
       program.help()

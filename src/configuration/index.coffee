@@ -1,9 +1,8 @@
 import {resolve} from "path"
 import JSCK from "jsck"
-import {read, merge, keys} from "fairmont"
+import {read} from "panda-quill"
+import {merge, keys} from "panda-parchment"
 import {yaml} from "panda-serialize"
-import SDK from "aws-sdk"
-import Sundog from "sundog"
 
 import API from "./api"
 import SKY from "./sky"
@@ -16,17 +15,9 @@ compile = (appRoot, env, profile="default") ->
   api = await readAPI appRoot       # api.yaml
   config = merge api, sky, {env, profile}
 
-  SDK.config =
-     credentials: new SDK.SharedIniFileCredentials {profile}
-     region: sky.aws.region
-     sslEnabled: true
-  config.sundog = Sundog(SDK).AWS
-
-  if env
-    # Run everything through preprocessors to get final config.
-    config = await preprocess config
-    config.aws.templates = await render config
-
+  # Run everything through preprocessors to get final config.
+  config = await preprocess config
+  config.aws.templates = await render config
   config
 
 readAPI = (root) ->

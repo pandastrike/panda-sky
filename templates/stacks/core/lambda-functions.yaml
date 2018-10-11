@@ -28,5 +28,6 @@ Resources:
   {{/each}}
 
 Outputs:
-  isDone:
-    Value: "true"
+  LambdaRole:
+    Value:
+      "Fn::GetAtt" : ["{{@root.roleName}}", "Arn"]

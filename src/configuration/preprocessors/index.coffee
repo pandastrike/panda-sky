@@ -2,9 +2,7 @@
 # way to AWS.  That requires building up the more detialed configuration the
 # underlying configuraiton requires.  These preprocessors do quite a bit to
 # add that layer of sophistication.
-
-import {capitalize} from "fairmont"
-
+import checkEnvironmentIntegrity from "./environment"
 import extractPaths from "./paths"
 import extractResources from "./resources"
 import extractMethods from "./methods"
@@ -18,13 +16,7 @@ import fetchMixins from "./mixins"
 import extractVPC from "./vpc"
 
 Preprocessor = (config) ->
-  {name, env, sundog} = config
-  config.accountID = (await sundog.STS().whoAmI()).Account
-
-  config.gatewayName = config.stackName = "#{name}-#{env}"
-  config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"
-  config.policyName = "#{name}-#{env}"
-
+  config = await checkEnvironmentIntegrity config
 
   # Add in default tags.
   config = addTags config

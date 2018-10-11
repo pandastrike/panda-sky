@@ -57,9 +57,11 @@ Resources:
       - SkyCore
     {{/if}}
     Properties:
+      Parameters:
+        LambdaRole:
+          "Fn::GetAtt": [SkyCore, "Outputs.LambdaRole"]
       {{#with aws.vpc}}
       {{#if new}}
-      Parameters:
         VPC:
           "Fn::GetAtt": ["SkyCoreVPC", "Outputs.VPC"]
         AvailabilityZones:
@@ -70,7 +72,6 @@ Resources:
           "Fn::GetAtt": ["SkyCoreVPC", "Outputs.Subnets"]
       {{/if}}
       {{#unless new}}
-      Parameters:
         VPC: {{vpcID}}
         AvailabilityZones: {{availabilityZones}}
         SecurityGroups: {{securityGroups}}

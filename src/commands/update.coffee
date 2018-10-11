@@ -1,21 +1,14 @@
 import {join} from "path"
-import {define, write, run} from "panda-9000"
-import {yaml} from "panda-serialize"
-import {go, tee, pull, values, shell, exists} from "fairmont"
+import {exists} from "panda-quill"
+import {shell} from "fairmont"
 
-import {bellChar, outputDuration} from "../utils"
+import {bellChar} from "../utils"
+import transpile from "./build/transpile"
 import configuration from "../configuration"
 import Handlers from "../virtual-resources/handlers"
-import Asset from "../asset"
-{render} = Asset
 
-START = 0
-Update = (start, env, {profile}) ->
-  START = start
+Update = (stopwatch, env, {profile}) ->
   console.log "Updating #{env}..."
-  run "update", [env, profile]
-
-define "update", ["survey"], (env, profile) ->
   try
     appRoot = process.cwd()
     config = await configuration.compile(appRoot, env, profile)
@@ -27,25 +20,14 @@ define "update", ["survey"], (env, profile) ->
     pkg = "deploy/package.zip"
 
     fail() if !await exists join process.cwd(), pkg
-
-    await go [
-      Asset.iterator()
-      tee (formats) ->
-        await go [
-          values formats
-          tee render
-          pull
-          tee write target
-        ]
-      pull
-    ]
+    await transpile source, target
 
     # Push code into pre-existing Zip archive.
     await shell "zip -qr -9 #{pkg} lib -x *node_modules*"
 
     # Update Sky metadata with new Zip acrhive, and republish all lambdas.
     await handlers.update()
-    console.log "Done. (#{outputDuration START})\n\n"
+    console.log "Done. (#{stopewatch()})"
   catch e
     console.error e.stack
   console.info bellChar

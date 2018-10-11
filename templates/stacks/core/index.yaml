@@ -88,10 +88,6 @@ Resources:
       Parameters:
         API:
           "Fn::GetAtt": ["GatewayBase", "Outputs.API"]
-        MainDone:
-          "Fn::GetAtt": ["GatewayMainMethods", "Outputs.isDone"]
-        OptionsDone:
-          "Fn::GetAtt": ["GatewayOptionsMethods", "Outputs.isDone"]
       Tags:
         - Key: Substack Type
           Value: Core Gateway Deployment
@@ -129,8 +125,6 @@ Resources:
       Parameters:
         API:
           "Fn::GetAtt": ["GatewayBase", "Outputs.API"]
-        LambdaDone:
-          "Fn::GetAtt": ["LambdaFunctions", "Outputs.isDone"]
       Tags:
         - Key: Substack Type
           Value: Core Lambda Function Permissions
@@ -144,3 +138,6 @@ Outputs:
   API:
     Value:
       "Fn::GetAtt": ["GatewayBase", "Outputs.API"]
+  LambdaRole:
+    Value:
+      "Fn::GetAtt": [LambdaFunctions, "Outputs.LambdaRole"]

@@ -8,7 +8,7 @@
 # We also want to gather configuration that's used in the "stack" resource used to orchestarte the deployment.
 
 import {join} from "path"
-import {merge} from "fairmont"
+import {merge} from "panda-parchment"
 
 applyStackVariables = (config) ->
     config.aws.stack =

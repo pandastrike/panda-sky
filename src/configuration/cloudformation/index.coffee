@@ -12,7 +12,7 @@
 # into one large CloudFormation Description that gets deployed together by AWS.
 
 # Libraries
-import {merge, capitalize, empty, keys} from "fairmont"
+import {merge, capitalize, empty, keys} from "panda-parchment"
 import {yaml} from "panda-serialize"
 
 # Helpers

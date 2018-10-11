@@ -1,5 +1,6 @@
 import {resolve} from "path"
-import {read, keys} from "fairmont"
+import {read} from "panda-quill"
+import {keys} from "panda-parchment"
 import {yaml} from "panda-serialize"
 import JSCK from "jsck"
 

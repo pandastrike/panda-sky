@@ -1,4 +1,4 @@
-import {keys} from "fairmont"
+import {keys} from "panda-parchment"
 import {yaml} from "panda-serialize"
 
 import {bellChar} from "../utils"

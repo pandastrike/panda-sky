@@ -1,7 +1,8 @@
 import {resolve} from "path"
 import fs from "fs"
 
-import {read, merge} from "fairmont"
+import {read} from "panda-quill"
+import {merge} from "panda-parchment"
 import {yaml} from "panda-serialize"
 import JSCK from "jsck"
 

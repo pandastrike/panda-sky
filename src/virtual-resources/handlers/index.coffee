@@ -1,4 +1,6 @@
-import {read, toLower, cat, sleep, empty, last, md5} from "fairmont"
+import {md5} from "fairmont"
+import {read} from "panda-quill"
+import {toLower, cat, sleep, empty, last} from "panda-parchment"
 import {yaml} from "panda-serialize"
 import Bucket from "../bucket"
 import Logs from "../logs"

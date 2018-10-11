@@ -1,26 +1,15 @@
-import {go, tee, pull, values, lift, shell, exists} from "fairmont"
-import {define, write, run} from "panda-9000"
-import rimraf from "rimraf"
-rmrf = lift rimraf
+import {go, tee, pull} from "panda-river"
+import {values} from "panda-parchment"
+import {exists} from "panda-quill"
+import {shell} from "fairmont"
 
-import Asset from "../asset"
-{render} = Asset
-import {safe_mkdir, bellChar, outputDuration} from "../utils"
+import transpile from "./transpile"
+import {safe_mkdir, bellChar, outputDuration} from "../../utils"
 
 START = 0
-Build = (start) ->
-  START = start
-  if await exists ".babelrc"
-    console.warn ".babelrc file detected.  Disabling default asset pipeline."
-    run "custom-build"
-  else
-    console.log "Preparing code..."
-    run "build"
+Build = (stopwatch) ->
+  console.log "Preparing code..."
 
-define "build", ["survey"], -> await build()
-define "custom-build", ["custom-survey"], -> await build()
-
-build = ->
   try
     source = "src"
     target = "lib"
@@ -30,29 +19,16 @@ build = ->
       console.error "This project does not yet have a package.json. \nRun 'npm
         init' to initialize the project \nand then make sure all dependencies
         are listed."
-      process.exit()
+      process.exit -1
 
     # To ensure consistency, wipe out the build, node_module, and deploy dirs.
     console.log "  -- Wiping out build directories"
-    await rmrf "deploy"
-    await rmrf target
-    await rmrf "node_modules"
-    await rmrf "package-lock.json"
-    await safe_mkdir target
+    await shell "rm -rf deploy #{target} node_modules package-lock.json"
 
-    # Pipeline the assets from "src" into an intermidate directory, lib.
     console.log "  -- Pipelining project code"
-    await go [
-      Asset.iterator()
-      tee (formats) ->
-        await go [
-          values formats
-          tee render
-          pull
-          tee write target
-        ]
-      pull
-    ]
+    await safe_mkdir target
+    await transpile source, target
+
 
     # Run npm install for the developer.  Only the stuff going into Lambda
     console.log "  -- Building deploy package"
@@ -67,7 +43,7 @@ build = ->
     console.log "  -- Installing local dependencies"
     await shell "npm install --silent"
 
-    console.log "Done. (#{outputDuration START})\n\n"
+    console.log "Done. (#{stopwatch()})"
   catch e
     console.error e.stack
   console.info bellChar

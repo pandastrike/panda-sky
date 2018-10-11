@@ -3,7 +3,8 @@
 
 # Libraries
 import {resolve, parse, relative} from "path"
-import {merge, ls, lsR, read} from "fairmont"
+import {merge} from "panda-parchment"
+import {ls, lsR, read} from "panda-quill"
 import {yaml} from "panda-serialize"
 
 # Helper Classes

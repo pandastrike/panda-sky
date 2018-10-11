@@ -18,7 +18,3 @@ Resources:
   {{#each resources}}
   {{> gateway-options}}
   {{/each}}
-
-Outputs:
-  isDone:
-    Value: "true"

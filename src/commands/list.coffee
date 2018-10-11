@@ -1,4 +1,4 @@
-import {empty, collect, select} from "fairmont"
+import {empty, collect, select} from "panda-parchment"
 import configuration from "../configuration"
 
 List = ({profile}) ->

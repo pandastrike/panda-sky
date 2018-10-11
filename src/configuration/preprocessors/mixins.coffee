@@ -1,5 +1,6 @@
 import {resolve} from "path"
-import {keys, exists, cat, merge} from "fairmont"
+import {keys, cat, merge} from "panda-parchment"
+import {exists} from "panda-quill"
 import YAML from "js-yaml"
 import SDK from "aws-sdk"
 

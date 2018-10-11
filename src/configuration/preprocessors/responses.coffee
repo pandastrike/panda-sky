@@ -1,6 +1,6 @@
 import possibleResponses from "./possible-responses"
 import addResponseMappingTemplates from "./content-types"
-import {cat, isArray} from "fairmont"
+import {cat, isArray} from "panda-parchment"
 
 # Gateway does not, by default, support arbitrary HTTP responses.  Each response
 # type must be explicitly specified in an API method description.  The code

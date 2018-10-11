@@ -3,7 +3,7 @@
 
 # Libraries
 import {resolve} from "path"
-import {keys, empty, capitalize, camelCase, plainText} from "fairmont"
+import {keys, empty, capitalize, camelCase, plainText, merge} from "panda-parchment"
 import {yaml} from "panda-serialize"
 import SDK from "aws-sdk"
 
@@ -27,9 +27,13 @@ finishTemplate = (resources, name, vpc) ->
     AWSTemplateFormatVersion: "2010-09-09"
     Description: "Panda Sky - #{capitalize name} Mixin Substack"
     Resources: resources
+    Parameters:
+      LambdaRole:
+        Type: "String"
+        Description: "ARN of IAM role used by Lambdas."
 
   if vpc
-    final.Parameters =
+    final.Parameters = merge final.Parameters,
       VPC:
         Type: "String"
         Description: "VPC ID for this deployment"

@@ -1,12 +1,11 @@
-import {write} from "fairmont"
 import {yaml} from "panda-serialize"
 import Stack from "../virtual-resources/stack"
 
 
-import {bellChar, outputDuration} from "../utils"
+import {bellChar} from "../utils"
 import configuration from "../configuration"
 
-Publish = (START, env, options) ->
+Publish = (stopwatch, env, options) ->
   try
     appRoot = process.cwd()
     console.log "Compiling configuration for publish"
@@ -15,7 +14,7 @@ Publish = (START, env, options) ->
 
     console.log "Publishing..."
     await stack.publish()
-    console.log "Done. (#{outputDuration START})\n\n"
+    console.log "Done. (#{stopwatch()})"
   catch e
     console.error "Publish failure:"
     console.error e.stack

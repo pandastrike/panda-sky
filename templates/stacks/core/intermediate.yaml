@@ -44,3 +44,6 @@ Resources:
 Outputs:
   API:
     Value: "true"
+  LambdaRole:
+    Value:
+      "Fn::GetAtt": [LambdaFunctions, "Outputs.LambdaRole"]

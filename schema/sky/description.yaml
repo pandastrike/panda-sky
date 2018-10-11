@@ -54,7 +54,7 @@ properties:
       simulatenously.
     type: object
     additionalProperties: false
-    required: [ region, runtime, environments ]
+    required: [ region, environments ]
     properties:
       domain:
         description: >
@@ -88,12 +88,20 @@ properties:
       runtime:
         description: >
           The Lambda runtime environment used to run your code that backs the
-          API Gateway.
+          API Gateway.  Sky defaults to Node 8.10.
         type: string
         enum:
           - nodejs8.10
           - nodejs6.10
           - nodejs4.3
+
+      memorySize:
+        description: >
+          The Lambda memory allocation in MB.  Larger values also get more CPU horsepower and superior cold-start behavior, but the specifics on that are left murky by AWS docs. Minimum value is 128, and it must be specified as multiples of 64.  Sky defaults to 256.
+        type: integer
+        minimum: 128
+        maximum: 3008
+        multipleOf: 64
 
       environments:
         description:

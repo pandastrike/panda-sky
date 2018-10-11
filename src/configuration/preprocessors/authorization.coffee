@@ -1,4 +1,4 @@
-import {merge} from "fairmont"
+import {merge} from "panda-parchment"
 
 Authorization = (description) ->
 
