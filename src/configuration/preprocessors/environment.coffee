@@ -12,11 +12,12 @@ check = (config) ->
   # Lambda defaults
   config.aws.runtime = "nodejs8.10" if !aws.runtime
   config.aws.memorySize = 256 if !aws.memorySize
+  config.aws.timeout = 60 if !aws.timeout
 
   # Sundog instanication
   SDK.config =
      credentials: new SDK.SharedIniFileCredentials {profile}
-     region: sky.aws.region
+     region: config.aws.region
      sslEnabled: true
   config.sundog = Sundog(SDK).AWS
 
@@ -25,5 +26,7 @@ check = (config) ->
   config.gatewayName = config.stackName = "#{name}-#{env}"
   config.roleName = "#{capitalize name}#{capitalize env}LambdaRole"
   config.policyName = "#{name}-#{env}"
+
+  config
 
 export default check

@@ -1,5 +1,5 @@
 import {resolve} from "path"
-import {go, map, tee, reject} from "panda-river"
+import {go, map, tee, reject, wait} from "panda-river"
 import {include} from "panda-parchment"
 import {Method} from "panda-generics"
 import {glob, read} from "panda-quill"

@@ -10,6 +10,7 @@
       "Fn::GetAtt" : ["{{@root.roleName}}", "Arn"]
     Runtime: {{@root.aws.runtime}}
     MemorySize: {{@root.aws.memorySize}}
+    Timeout: {{@root.aws.timeout}}
     {{#if @root.aws.vpc}}
     VpcConfig:
       SecurityGroupIds:
@@ -22,11 +23,6 @@
       {{#eachProperty @root.environmentVariables}}
         {{key}}: {{value}}
       {{/eachProperty}}
-  {{#if timeout}}
-    Timeout: {{timeout}}
-  {{else}}
-    Timeout: 60
-  {{/if}}
     Code:
       S3Bucket: {{handler.bucket}}
       S3Key: "package.zip"

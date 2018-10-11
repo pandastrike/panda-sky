@@ -15,7 +15,7 @@ safe_mkdir = (path, mode) ->
     return
 
   mode ||= "0777"
-  await mkdir mode, path
+  await mkdirp mode, path
 
 # Copy a file to the target, but only if it doesn't already exist.
 safe_cp = (original, target) ->
@@ -76,4 +76,4 @@ write = curry binary (directory, {path, target, source}) ->
     await mkdirp "0777", (target.directory)
     await _write target.path, target.content
 
-export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, outputDuration, context, write, stopwatch}
+export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, context, write, stopwatch}

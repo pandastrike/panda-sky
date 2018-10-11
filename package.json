@@ -71,7 +71,7 @@
     "panda-interview": "0.0.1",
     "panda-parchment": "^4.0.4",
     "panda-quill": "^3.1.1",
-    "panda-river": "^4.2.2",
+    "panda-river": "4.0.9",
     "panda-serialize": "0.2.0",
     "panda-template": "0.4.2",
     "rimraf": "2.6.2",
@@ -80,7 +80,6 @@
   },
   "devDependencies": {
     "amen": "^2.1.0",
-    "coffeescript": "^2.3.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "panda-builder": "^2.4.0",
     "source-map-support": "^0.5.0"

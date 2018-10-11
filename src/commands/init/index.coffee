@@ -3,7 +3,7 @@
 # TODO: Where are randomWords in the decendants of Fairmont?
 import Interview from "panda-interview"
 import {shell, randomWords} from "fairmont"
-import {values, merge} from "panda-process"
+import {values, merge} from "panda-parchment"
 import MIXINS from "./mixins"
 import render from "./render"
 

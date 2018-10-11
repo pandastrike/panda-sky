@@ -7,7 +7,7 @@ import transpile from "./build/transpile"
 import configuration from "../configuration"
 import Handlers from "../virtual-resources/handlers"
 
-Update = (stopwatch, env, {profile}) ->
+Update = (stopwatch, env, {profile, hard}) ->
   console.log "Updating #{env}..."
   try
     appRoot = process.cwd()
@@ -26,8 +26,8 @@ Update = (stopwatch, env, {profile}) ->
     await shell "zip -qr -9 #{pkg} lib -x *node_modules*"
 
     # Update Sky metadata with new Zip acrhive, and republish all lambdas.
-    await handlers.update()
-    console.log "Done. (#{stopewatch()})"
+    await handlers.update hard
+    console.log "Done. (#{stopwatch()})"
   catch e
     console.error e.stack
   console.info bellChar

@@ -50,6 +50,7 @@ do ->
   program
   .command "update [env]"
   .option '-p, --profile [profile]', 'Name of AWS profile to use'
+  .option '-h, --hard', "Issues a full update that includes configuration"
   .action (env, options) ->
     return if noEnv env
     COMMANDS.update stopwatch(), env, options

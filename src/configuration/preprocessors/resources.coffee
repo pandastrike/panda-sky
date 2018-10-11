@@ -1,4 +1,5 @@
-import {toLower, camelCase, capitalize, first, last, values, project, collect, cat} from "panda-parchment"
+import {toLower, camelCase, capitalize, first, last, values, cat} from "panda-parchment"
+import {collect, project} from "panda-river"
 
 # Cycle through every resource and build up a dictionary of resources that is
 # acceptable to Gateway.  In the case of nested resources or those with path

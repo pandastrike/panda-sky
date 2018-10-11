@@ -26,11 +26,20 @@ Handlers = class Handlers
     @bucket = await Bucket @config
     @logs = await Logs @config
 
-  update: ->
+  update: (hard) ->
     fail() if !@bucket.metadata
     await @bucket.syncHandlersSrc()
     await Promise.all do =>
       @Lambda.update name, @stack.src, "package.zip" for name in @names
+
+    if hard
+      await sleep 5000
+      LambdaConfig =
+        MemorySize: @config.aws.memorySize
+        Timeout: @config.aws.timeout
+        Runtime: @config.aws.runtime
+      await Promise.all do =>
+        @Lambda.updateConfig name, LambdaConfig for name in @names
 
   # Tail the logs output by the various Lambdas.
   tail: (isVerbose) ->

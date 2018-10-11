@@ -103,6 +103,13 @@ properties:
         maximum: 3008
         multipleOf: 64
 
+      timeout:
+        description: >
+          The Lambda timeout limit, in seconds.  Sky defaults to 60.
+        type: integer
+        minimum: 1
+        maximum: 300
+
       environments:
         description:
           An environment is a collection of Cloud resources that are allocated

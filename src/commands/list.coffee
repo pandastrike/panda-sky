@@ -1,4 +1,5 @@
-import {empty, collect, select} from "panda-parchment"
+import {empty} from "panda-parchment"
+import {collect, select} from "panda-river"
 import configuration from "../configuration"
 
 List = ({profile}) ->

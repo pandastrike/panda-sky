@@ -1,6 +1,6 @@
 import {createReadStream} from "fs"
 import {resolve} from "path"
-import {go, map, tee, reject} from "panda-river"
+import {go, map, tee, reject, wait} from "panda-river"
 import {include, w} from "panda-parchment"
 import {Method} from "panda-generics"
 import {glob, read} from "panda-quill"
@@ -15,7 +15,7 @@ render = ({source, target}) ->
 transpile = (sourceDir, targetDir) ->
   try
     await go [
-      glob "**/*{#{formats.join ','}}", sourceDir
+      await glob "**/*{#{formats.join ','}}", sourceDir
       map context sourceDir
       tee ({source, target}) -> target.extension = source.extension
       tee render

@@ -1,5 +1,6 @@
 import {md5} from "fairmont"
-import {empty, collect, compact, cat, first, rest} from "panda-parchment"
+import {empty, compact, cat, first, rest} from "panda-parchment"
+import {collect} from "panda-river"
 import print from "./print"
 import parse from "./parse"
 

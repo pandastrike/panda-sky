@@ -1,6 +1,7 @@
 import JSCK from "jsck"
 import {read} from "panda-quill"
-import {merge, collect, project} from "panda-parchment"
+import {merge} from "panda-parchment"
+import {collect, project} from "panda-river"
 import {yaml} from "panda-serialize"
 import pandaTemplate from "panda-template"
 
