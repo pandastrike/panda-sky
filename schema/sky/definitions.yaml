@@ -23,7 +23,7 @@ vpc:
         Use this field when you have an extant VPC with known Subnet and SecurityGroup IDs to associate with your Sky stack lambdas.  Otherwise, omit this field and have Sky create the VPC for you.
       type: object
       additionalProperties: false
-      required: [vpcID, availabilityZones, subnets, securityGroups]
+      required: [vpcID, availabilityZones, subnets, securityGroups, routeTables]
       properties:
         vpcID:
           description: >
@@ -56,6 +56,43 @@ vpc:
           items:
             type: string
             minLength: 1
+        routeTables:
+          description: >
+            A list of the routeTable IDs your Lambdas will be able to access, like access services via Gateway Endpoints
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+
+cachePath:
+  description: >
+    A object containing key-value pairing of a CloudFront distribution path pattern and its corresponding TTL in seconds.  The path may contain glob notation.
+  type: object
+  additionalProperties: false
+  required: [path, ttl]
+  properties:
+    path:
+      description: >
+       A CloudFront path pattern. For example, you can specify images/*.jpg.
+
+       When CloudFront receives an end-user request, CloudFront compares the requested path with path patterns in the order in which cache behaviors are listed in the template.
+      type: string
+    ttl:
+      description: >
+        The maximum amount of time, in seconds, that an entity stays
+        cached in the edge server before additional requests are forwarded
+        to your Gateway API to check for updates.
+
+        Setting this value to 0 gives you a custom domain with TLS
+        termination, but no caching. That configuraiton is useful for
+        development and staging environments.
+      type: integer
+      minimum: 0
+      maximum: 3153600000
+
+
 
 environment:
   description: >
@@ -98,9 +135,7 @@ environment:
       properties:
         httpVersion:
           description:
-            Determines the network protocol to serve content to clients. HTTP/2
-            is newer and more awesome, so when this value is omitted, Sky
-            deafults to that protocol.
+            Determines the network protocol to serve content to clients. Sky defaults to HTTP/2 because it is newer and more awesome.
           type: string
           enum: [ "http1.1", "http2" ]
 
@@ -108,7 +143,7 @@ environment:
           description: >
             Sets the TLS protocol version to use when serving your API over
             HTTPS. Higher versions are not supported by older clients, but they
-            leverage more robust cryptography and signalling. When this is omitted, Sky defaults to vTLSv1.2_2018.
+            leverage more robust cryptography and signalling. Sky defaults to vTLSv1.2_2018.
           type: string
           enum: [ "SSLv3", TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018" ]
 
@@ -116,14 +151,21 @@ environment:
           description: >
             The maximum amount of time, in seconds, that an entity stays
             cached in the edge server before additional requests are forwarded
-            to your Gateway API to check for updates.  When this value is omitted, Sky defaults to 0.
+            to your Gateway API to check for updates. Sky defaults to 0.
 
             Setting this value to 0 gives you a custom domain with TLS
-            termination, but no caching. This is a promising configuraiton
-            option for staging environments.
+            termination, but no caching. That configuraiton is useful for
+            development and staging environments.
           type: integer
           minimum: 0
           maximum: 3153600000
+
+        paths:
+          description: >
+            A set of cache behaviors specified as a dictionary of path patterns and their corresponding TTL, in seconds.  Sky uses the expires field as a global default cache behavior, but this dictionary allows you to set specific rules for parts of your distribution.
+          type: array
+          minItems: 1
+          items: {$ref: "#/definitions/cachePath"}
 
         priceClass:
           description: >
@@ -133,8 +175,7 @@ environment:
             less coverage.  See https://aws.amazon.com/cloudfront/pricing/ for
             a current description of what comes with each price class.
 
-            When this value is omitted, Sky defaults to 100, which is cheapest,
-            but comes with the smallest coverage area.
+            Sky defaults to 100, which is cheapest, but comes with the smallest coverage area.
           anyOf:
             - type: string
               enum: [ "100", "200", "All"]

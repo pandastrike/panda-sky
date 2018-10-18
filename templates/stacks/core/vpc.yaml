@@ -168,3 +168,10 @@ Outputs:
         - ","
         -
           - { "Ref" : SecurityGroup }
+
+  RouteTables:
+    Value:
+      "Fn::Join":
+        - ","
+        -
+          - { "Ref" : RouteTable }

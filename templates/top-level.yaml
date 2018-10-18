@@ -70,12 +70,15 @@ Resources:
           "Fn::GetAtt": ["SkyCoreVPC", "Outputs.SecurityGroups"]
         Subnets:
           "Fn::GetAtt": ["SkyCoreVPC", "Outputs.Subnets"]
+        RouteTables:
+          "Fn::GetAtt": ["SkyCoreVPC", "Outputs.RouteTables"]
       {{/if}}
       {{#unless new}}
         VPC: {{vpcID}}
         AvailabilityZones: {{availabilityZones}}
         SecurityGroups: {{securityGroups}}
         Subnets: {{subnets}}
+        RouteTables: {{routeTables}}
       {{/unless}}
       {{/with}}
       Tags:

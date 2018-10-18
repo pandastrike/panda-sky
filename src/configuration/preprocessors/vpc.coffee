@@ -18,6 +18,7 @@ VPC = (config) ->
         subnets: vpc.existing.subnets.join ","
         securityGroups: vpc.existing.securityGroups.join ","
         availabilityZones: vpc.existing.availabilityZones.join ","
+        routeTables: vpc.existing.routeTables.join ","
     else
       config.aws.vpc =
         new: true

@@ -17,6 +17,9 @@ Parameters:
   Subnets:
     Type: String
     Description: comma delimited list of subnet IDs for the core stack VPC
+  RouteTables:
+    Type: String
+    Description: comma delimited list of route table IDs for the core stack VPC
 {{/if}}
 Resources:
   {{#each mixins}}
@@ -35,6 +38,8 @@ Resources:
           Ref: SecurityGroups
         Subnets:
           Ref: Subnets
+        RouteTables:
+          Ref: RouteTables
       {{/if}}
       Tags:
         - Key: Substack Type

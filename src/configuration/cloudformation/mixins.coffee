@@ -46,6 +46,9 @@ finishTemplate = (resources, name, vpc) ->
       Subnets:
         Type: "String"
         Description: "comma delimited list of subnet IDs for the core stack VPC"
+      RouteTables:
+        Type: "String"
+        Description: "comma delimited list of route tables for the core VPC"
 
   yaml final
 
