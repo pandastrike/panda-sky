@@ -13,7 +13,7 @@ Publish = (stopwatch, env, options) ->
     stack = await Stack config
 
     console.log "Publishing..."
-    await stack.publish()
+    await stack.publish options.force
     console.log "Done. (#{stopwatch()})"
   catch e
     console.error "Publish failure:"

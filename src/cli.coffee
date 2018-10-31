@@ -29,6 +29,7 @@ do ->
     .command "publish [env]"
     .option '-o, --output [output]', 'Path to write API config file'
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
+    .option '-f, --force', 'republish environment without state checks'
     .action (env, options) ->
       return if noEnv env
       COMMANDS.publish stopwatch(), env, options

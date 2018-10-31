@@ -34,6 +34,7 @@ Build = (stopwatch) ->
     console.log "  -- Building deploy package"
     await shell "npm install --only=production --silent"
     await shell "cp -r node_modules/ #{target}/node_modules/" if await exists "node_modules"
+    await shell "cp api.yaml #{target}/api.yaml"
 
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.
     await safe_mkdir "deploy"

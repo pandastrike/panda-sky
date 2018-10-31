@@ -146,7 +146,7 @@ Resources:
         DefaultCacheBehavior:
           AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
           CachedMethods: ["GET", "HEAD", "OPTIONS"]
-          Compress: false
+          Compress: true
           DefaultTTL: {{@root.aws.cache.expires}}
           MaxTTL: {{@root.aws.cache.expires}}
           MinTTL: 0
@@ -162,6 +162,32 @@ Resources:
           SmoothStreaming: false
           TargetOriginId: {{@root.aws.cache.originID}}
           ViewerProtocolPolicy: redirect-to-https
+
+        {{#with @root.aws.cache.paths}}
+        CacheBehaviors:
+          {{#each .}}
+          - PathPattern: {{path}}
+            DefaultTTL: {{ttl}}
+            MaxTTL: {{ttl}}
+            MinTTL: 0
+            AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+            CachedMethods: ["GET", "HEAD", "OPTIONS"]
+            Compress: true
+            ForwardedValues:
+              Cookies:
+                Forward: "all"
+              Headers:
+                {{#each @root.aws.cache.headers}}
+                - {{.}}
+                {{/each}}
+              QueryString: true
+              QueryStringCacheKeys: ["*"]
+            SmoothStreaming: false
+            TargetOriginId: {{@root.aws.cache.originID}}
+            ViewerProtocolPolicy: redirect-to-https
+          {{/each}}
+        {{/with}}
+
         DefaultRootObject: ""
         Enabled: true
         HttpVersion: {{@root.aws.cache.httpVersion}}
@@ -172,7 +198,7 @@ Resources:
             OriginPath: "/{{@root.env}}"
             CustomOriginConfig:
               HTTPSPort: 443
-              OriginKeepaliveTimeout: 5
+              OriginKeepaliveTimeout: 60
               OriginProtocolPolicy: "https-only"
               OriginReadTimeout: 30
               OriginSSLProtocols: [ "TLSv1.2" ]

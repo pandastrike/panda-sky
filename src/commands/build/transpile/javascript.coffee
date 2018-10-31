@@ -37,7 +37,7 @@ transpile = (sourceDir, targetDir) ->
       map context sourceDir
       tee ({target}) -> target.extension = ".js"
       tee render
-      wait
+      wait map (x) -> x
       tee write targetDir
     ]
   catch e

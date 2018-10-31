@@ -19,7 +19,7 @@ transpile = (sourceDir, targetDir) ->
       map context sourceDir
       tee ({source, target}) -> target.extension = source.extension
       tee render
-      wait
+      wait map (x) -> x
       tee write targetDir
     ]
   catch e

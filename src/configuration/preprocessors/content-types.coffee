@@ -10,17 +10,17 @@ import {empty, keys} from "panda-parchment"
 
 # Lookup the velocity template to use based on the mediatype given.
 velocity =
-  "application/json": """$input.json('$')"""
-  "text/html": """$input.path('$')"""
+  "application/json": """$input.json('$.data')"""
+  "text/html": """$input.path('$.data')"""
+
 
 Types = (int, method) ->
-  mt = method.signatures.response.mediatype
-  if mt
-    int.headers["Content-Type"] = "'#{mt.join(",")}'"
+  mt = method.signatures.response?.mediatype || ["application/json"]
 
-    templates = {}
-    templates[k] = velocity[k] for k in mt when k in keys velocity
-    int.ResponseTemplates = templates if !empty templates
+  int.headers["Content-Type"] = "'#{mt.join(",")}'"
+  templates = {}
+  templates[k] = velocity[k] for k in mt when k in keys velocity
+  int.ResponseTemplates = templates if !empty templates
 
   int
 

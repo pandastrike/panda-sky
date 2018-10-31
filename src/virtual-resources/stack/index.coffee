@@ -55,26 +55,26 @@ Stack = class Stack
     await @cfo.create @bucket.cloudformationParameters
     await @bucket.syncState await @getEndpoint()
 
-  updatePublish: ->
+  updatePublish: (force) ->
     {dirtyAPI, dirtyLambda} = await @bucket.needsUpdate()
-    if !dirtyAPI && !dirtyLambda
+    if !force && !dirtyAPI && !dirtyLambda
       console.warn "The Sky deployment is already up to date."
       return
 
     @bucket.sync()
-    if dirtyAPI
+    if force || dirtyAPI
       console.log "Removing obsolete resources..."
       await @cfo.update @bucket.intermediateCloudformationParameters
       console.log "Waiting for stack update to complete..."
       await @cfo.update @bucket.cloudformationParameters
-    if dirtyLambda
+    if force || dirtyLambda
       console.log "Updating deployment lambdas..."
       await @handlers.update()
     await @bucket.syncState await @getEndpoint()
 
-  publish: ->
+  publish: (force) ->
     if @bucket.metadata
-      await @updatePublish()
+      await @updatePublish force
     else
       await @override() if (await @cfo.get @stack.name)
       await @newPublish()
