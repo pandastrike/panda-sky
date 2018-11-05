@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "build/npm/src/index.js",
   "files": [
@@ -52,6 +52,7 @@
   },
   "homepage": "https://github.com/pandastrike/panda-sky#readme",
   "dependencies": {
+    "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
     "aws-sdk": "^2.292.0",
     "babel-core": "^6.26.0",
