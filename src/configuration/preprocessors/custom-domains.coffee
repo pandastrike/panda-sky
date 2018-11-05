@@ -1,13 +1,11 @@
+import {isArray} from "panda-parchment"
+
 defaultHeaders = [
   "Accept",
-  "Accept-Charset",
-  "Accept-Datetime",
-  "Accept-Language",
   "Access-Control-Request-Headers",
   "Access-Control-Request-Method",
   "Authorization",
-  "Origin",
-  "Referer"
+  "Origin"
 ]
 
 setHeaders = (headers) ->
@@ -38,10 +36,20 @@ applyDefaults = (config) ->
   cache = config.aws.environments[config.env].cache || {}
   cache.httpVersion ||= "http2"
   cache.protocol ||= "TLSv1.2_2018"
-  cache.expires ||= 0
   cache.priceClass ||= 100
   cache.headers = setHeaders cache.headers
   cache.originID = "Sky-" + config.aws.stack.name
+
+  if !cache.ttl
+    cache.ttl = [0,0,0]
+  if !isArray cache.ttl
+    cache.ttl = [0, cache.ttl, cache.ttl]
+
+  if cache.paths
+    for item in cache.paths
+      if !isArray item.ttl
+        item.ttl = [0, item.ttl, item.ttl]
+
   cache
 
 applyFirewall = (config) ->

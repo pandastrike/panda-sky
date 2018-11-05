@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Panda Sky Core Resources - Gatway Methods - Main Verbs
+Description: Panda Sky Core Resources - Gateway Methods - Main Verbs
 Parameters:
   API:
     Type: String

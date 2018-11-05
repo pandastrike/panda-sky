@@ -89,10 +89,12 @@
         {{#if SelectionPattern}}
           SelectionPattern: {{SelectionPattern}}
         {{/if}}
+        {{#if headers}}
           ResponseParameters:
           {{#eachProperty headers}}
             method.response.header.{{key}}: "{{value}}"
           {{/eachProperty}}
+        {{/if}}
 
         {{#if ResponseTemplates}}
           ResponseTemplates:
@@ -106,8 +108,10 @@
     MethodResponses:
     {{#each MethodResponses}}
       - StatusCode: {{StatusCode}}
+      {{#if headers}}
         ResponseParameters:
         {{#eachProperty headers}}
           method.response.header.{{key}}: {{value}}
         {{/eachProperty}}
+      {{/if}}
     {{/each}}

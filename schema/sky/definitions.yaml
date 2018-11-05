@@ -88,9 +88,20 @@ cachePath:
         Setting this value to 0 gives you a custom domain with TLS
         termination, but no caching. That configuraiton is useful for
         development and staging environments.
-      type: integer
-      minimum: 0
-      maximum: 3153600000
+
+        You may also specify a tuple of integers
+        [minTTL, maxTTL, defaultTTL]
+      anyOf:
+        - type: integer
+          minimum: 0
+          maximum: 3153600000
+        - type: array
+          minItems: 3
+          maxItems: 3
+          items:
+            type: integer
+            minimum: 0
+            maximum: 3153600000
 
 
 
@@ -147,7 +158,7 @@ environment:
           type: string
           enum: [ "SSLv3", TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018" ]
 
-        expires:
+        ttl:
           description: >
             The maximum amount of time, in seconds, that an entity stays
             cached in the edge server before additional requests are forwarded
@@ -156,9 +167,20 @@ environment:
             Setting this value to 0 gives you a custom domain with TLS
             termination, but no caching. That configuraiton is useful for
             development and staging environments.
-          type: integer
-          minimum: 0
-          maximum: 3153600000
+
+            You may also specify a tuple of integers
+            [minTTL, maxTTL, defaultTTL]
+          anyOf:
+            - type: integer
+              minimum: 0
+              maximum: 3153600000
+            - type: array
+              minItems: 3
+              maxItems: 3
+              items:
+                type: integer
+                minimum: 0
+                maximum: 3153600000
 
         paths:
           description: >
