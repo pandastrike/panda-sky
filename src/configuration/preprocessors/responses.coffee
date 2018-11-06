@@ -51,7 +51,7 @@ Responses = (description) ->
     {maxAge, etag, lastModified} = cache if cache
 
     addDefault = ->
-      headers:
+      headers =
         "Content-Type": true
         "Access-Control-Allow-Headers": true
         "Access-Control-Allow-Methods": true
