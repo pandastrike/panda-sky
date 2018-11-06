@@ -41,14 +41,18 @@ applyDefaults = (config) ->
   cache.originID = "Sky-" + config.aws.stack.name
 
   if !cache.ttl
-    cache.ttl = [0,0,0]
-  if !isArray cache.ttl
-    cache.ttl = [0, cache.ttl, cache.ttl]
+    cache.ttl = {min: 0, max: 0, default: 0}
+  else if !isArray cache.ttl
+    cache.ttl = {min: 0, max: cache.ttl, default: cache.ttl}
+  else
+    cache.ttl = {min: cache.ttl[0], max: cache.ttl[1], default: cache.ttl[2]}
 
   if cache.paths
     for item in cache.paths
       if !isArray item.ttl
-        item.ttl = [0, item.ttl, item.ttl]
+        item.ttl = {min: 0, max: item.ttl, default: item.ttl}
+      else
+        item.ttl = {min: item.ttl[0], max: item.ttl[1], default: item.ttl[2]}
 
   cache
 

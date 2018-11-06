@@ -147,9 +147,9 @@ Resources:
           AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
           CachedMethods: ["GET", "HEAD", "OPTIONS"]
           Compress: true
-          MinTTL: {{@root.aws.cache.ttl[0]}}
-          MaxTTL: {{@root.aws.cache.ttl[1]}}
-          DefaultTTL: {{@root.aws.cache.ttl[2]}}
+          MinTTL: {{@root.aws.cache.ttl.min}}
+          MaxTTL: {{@root.aws.cache.ttl.max}}
+          DefaultTTL: {{@root.aws.cache.ttl.default}}
           ForwardedValues:
             Cookies:
               Forward: "all"
@@ -167,9 +167,9 @@ Resources:
         CacheBehaviors:
           {{#each .}}
           - PathPattern: {{path}}
-            MinTTL: {{ttl[0]}}
-            MaxTTL: {{ttl[1]}}
-            DefaultTTL: {{ttl[2]}}
+            MinTTL: {{ttl.min}}
+            MaxTTL: {{ttl.max}}
+            DefaultTTL: {{ttl.default}}
             AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
             CachedMethods: ["GET", "HEAD", "OPTIONS"]
             Compress: true
