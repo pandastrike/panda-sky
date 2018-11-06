@@ -36,7 +36,7 @@ Responses = (description) ->
       for code in rest statuses
         StatusCode: code
         SelectionPattern: "^<#{possibleResponses[code]}>.*"
-        headers =
+        headers:
           "Access-Control-Allow-Headers": "'#{allowedHeaders}'"
           "Access-Control-Allow-Methods": "'#{methodList}'"
           "Access-Control-Allow-Origin": "'*'"
@@ -51,7 +51,7 @@ Responses = (description) ->
     {maxAge, etag, lastModified} = cache if cache
 
     addDefault = ->
-      headers =
+      headers:
         "Content-Type": true
         "Access-Control-Allow-Headers": true
         "Access-Control-Allow-Methods": true
