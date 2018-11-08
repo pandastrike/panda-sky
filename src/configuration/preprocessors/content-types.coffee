@@ -15,9 +15,10 @@ velocity =
 
 
 Types = (int, method) ->
-  mt = method.signatures.response?.mediatype || ["application/json"]
+  mt = method.signatures.response?.mediatype
 
-  int.headers["Content-Type"] = "'#{mt.join(",")}'"
+  int.headers["Content-Type"] =
+    "integration.response.body.metadata.headers.Content-Type"
   templates = {}
   templates[k] = velocity[k] for k in mt when k in keys velocity
   int.ResponseTemplates = templates if !empty templates

@@ -83,6 +83,8 @@ Responses = (description) ->
   implicitResponses = (method) ->
     if 500 not in method.signatures.response.status
       method.signatures.response.status.push 500
+    if 415 not in method.signatures.response.status
+      method.signatures.response.status.push 415
     if method.signatures.response.cache
       method.signatures.response.status.push 304
     method
@@ -94,7 +96,6 @@ Responses = (description) ->
 
       resources[r].methods[httpMethod].IntegrationResponses = addIntegrationResponses method, resource.methodList
       resources[r].methods[httpMethod].MethodResponses = addMethodResponses method
-      delete method.signatures
 
   description.resources = resources
   description

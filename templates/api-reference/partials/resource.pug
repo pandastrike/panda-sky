@@ -1,0 +1,85 @@
+h3 {{name}}
+{{#if description}}
+p.
+  {{indent 6 description}}
+{{/if}}
+
+code {{template}}
+
+{{#with parameterDefinitions}}
+{{#with path}}
+h5 Path Parameter Definitions
+ul
+{{#each .}}
+  li
+    code {{@key}}
+    p {{.}}
+{{/each}}
+{{/with}}
+{{#with query}}
+h5 Query Parameter Definitions
+ul
+{{#each .}}
+  li
+    code {{@key}}
+    p {{.}}
+{{/each}}
+{{/with}}
+{{/with}}
+
+{{#with methods}}
+h4 Methods
+{{#each .}}
+ul 
+  li 
+    code {{@key}}
+    p {{description}}
+    
+{{#with signatures}}
+{{#if request.mediatype}}
+p
+  | Request content-type(s):  
+  code {{request.mediatypeString}}
+{{/if}}
+  
+p
+  | Response content-type(s):
+  code {{response.mediatypeString}}
+
+
+p 
+  | On success, returns a status code of 
+  code {{response.statusOK}} 
+
+{{#if response.statusBad}}  
+p 
+  | Has responses defined for statuses: 
+  code {{response.statusBad}}
+{{/if}}
+
+{{#with response.cache}}
+h5 Cache Headers
+p
+  | Cache Control: 
+  code max-age={{maxAge}}
+{{#with etag}}
+p
+  | ETag: 
+  code true
+{{/with}}
+{{#with lastModified}}
+p
+  | Last-Modified: 
+  code true
+{{/with}}
+{{/with}}
+  
+{{#if request.schema}}
+h5 Request Body Schema
+pre 
+  code.
+    {{indent 8 request.schemaString}}
+{{/if}}
+{{/with}}
+{{/each}}
+{{/with}}

@@ -18,8 +18,10 @@ do ->
     .version(version)
 
   program
-    .command "build"
-    .action (options) -> COMMANDS.build stopwatch()
+    .command "build [env]"
+    .action (env, options) ->
+      return if noEnv env
+      COMMANDS.build stopwatch(), env, options
 
   program
     .command "init [name]"

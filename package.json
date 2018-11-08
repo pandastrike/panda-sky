@@ -75,6 +75,7 @@
     "panda-river": "^4.4.0",
     "panda-serialize": "0.2.0",
     "panda-template": "0.4.2",
+    "pug": "^2.0.3",
     "rimraf": "2.6.2",
     "standard-error": "1.1.0",
     "sundog": "^1.0.7"

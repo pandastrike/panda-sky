@@ -1,15 +1,16 @@
 import {go, tee, pull} from "panda-river"
 import {values} from "panda-parchment"
-import {exists} from "panda-quill"
+import {exists, write} from "panda-quill"
 import {shell} from "fairmont"
+import pug from "pug"
 
 import transpile from "./transpile"
 import {safe_mkdir, bellChar, outputDuration} from "../../utils"
+import configuration from "../../configuration"
+
 
 START = 0
-Build = (stopwatch) ->
-  console.log "Preparing code..."
-
+Build = (stopwatch, env, {profile}) ->
   try
     source = "src"
     target = "lib"
@@ -29,20 +30,26 @@ Build = (stopwatch) ->
     await safe_mkdir target
     await transpile source, target
 
-
     # Run npm install for the developer.  Only the stuff going into Lambda
     console.log "  -- Building deploy package"
+    console.log "    -- Pulling production dependencies..."
     await shell "npm install --only=production --silent"
     await shell "cp -r node_modules/ #{target}/node_modules/" if await exists "node_modules"
-    await shell "cp api.yaml #{target}/api.yaml"
-
-    # Package up the lib and node_modules dirs into a ZIP archive for AWS.
-    await safe_mkdir "deploy"
-    await shell "zip -qr -9 deploy/package.zip lib"
 
     # Now install everything, including dev-dependencies
-    console.log "  -- Installing local dependencies"
+    console.log "    -- Pulling local dependencies..."
     await shell "npm install --silent"
+
+    console.log "    -- Applying environment configuration..."
+    appRoot = process.cwd()
+    config = await configuration.compile appRoot, env, profile
+    await shell "cp api.yaml #{target}/api.yaml"
+    await write "#{target}/api.html", pug.render config.apiReference
+
+    # Package up the lib and node_modules dirs into a ZIP archive for AWS.
+    console.log "    -- Compressing final deploy package..."
+    await safe_mkdir "deploy"
+    await shell "zip -qr -9 deploy/package.zip lib"
 
     console.log "Done. (#{stopwatch()})"
   catch e

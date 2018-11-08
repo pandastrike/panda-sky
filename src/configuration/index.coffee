@@ -9,6 +9,7 @@ import SKY from "./sky"
 
 import preprocess from "./preprocessors"
 import render from "./cloudformation"
+import renderAPIReference from "./api-reference"
 
 compile = (appRoot, env, profile="default") ->
   sky = await readSky appRoot, env  # sky.yaml
@@ -18,6 +19,7 @@ compile = (appRoot, env, profile="default") ->
   # Run everything through preprocessors to get final config.
   config = await preprocess config
   config.aws.templates = await render config
+  config.apiReference = await renderAPIReference config
   config
 
 readAPI = (root) ->
