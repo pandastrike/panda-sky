@@ -43,7 +43,7 @@
       Type: AWS
       IntegrationHttpMethod: POST
       {{#unless parameters}}
-      PassthroughBehavior: WHEN_NO_TEMPLATES
+      PassthroughBehavior: WHEN_NO_MATCH
       {{/unless}}
       Uri:
         "Fn::Join":
