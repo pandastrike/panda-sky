@@ -30,7 +30,7 @@ Resources:
     Type: AWS::ApiGateway::UsagePlan
     Properties:
       Description: CloudFront usage only
-      UsagePlanName: CloudFront_only
+      UsagePlanName: CloudFront_only_{{@root.environmentVariables.fullName}}
       ApiStages:
         -
           ApiId: {{aws.cache.api}}

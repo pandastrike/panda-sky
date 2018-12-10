@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "build/npm/src/index.js",
   "files": [
@@ -78,7 +78,7 @@
     "pug": "^2.0.3",
     "rimraf": "2.6.2",
     "standard-error": "1.1.0",
-    "sundog": "^1.0.7"
+    "sundog": "1.0.10"
   },
   "devDependencies": {
     "amen": "^2.1.0",
