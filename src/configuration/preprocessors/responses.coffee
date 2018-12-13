@@ -85,6 +85,8 @@ Responses = (description) ->
       method.signatures.response.status.push 500
     if 415 not in method.signatures.response.status
       method.signatures.response.status.push 415
+    if 422 not in method.signatures.response.status
+      method.signatures.response.status.push 422
     if method.signatures.response.cache
       method.signatures.response.status.push 304
     method
