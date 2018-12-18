@@ -26,6 +26,8 @@ Responses = (description) ->
         headers["ETag"] = "integration.response.body.metadata.headers.ETag"
       if lastModified
         headers["Last-Modified"] = "integration.response.body.metadata.headers.Last-Modified"
+      if (first statuses) == 201
+        headers["Location"] = "integration.response.body.metadata.headers.Location"
 
       response =
         StatusCode: first statuses
@@ -62,6 +64,8 @@ Responses = (description) ->
         headers["ETag"] = true
       if lastModified
         headers["Last-Modified"] = true
+      if (first statuses) == 201
+        headers["Location"] = true
 
       [
         StatusCode: first statuses
