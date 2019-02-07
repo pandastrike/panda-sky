@@ -57,6 +57,7 @@
       RequestTemplates:
         "application/json": >
           {
+            "path": "$context.path",
             "url": {
               "path": {
                 #foreach($param in $input.params().path.keySet())
