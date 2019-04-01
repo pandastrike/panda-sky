@@ -10,10 +10,10 @@ Resources:
         CrossSiteScriptingProtectionParam: "yes"
         ActivateReputationListsProtectionParam: "yes"
         ActivateBadBotProtectionParam: "yes"
-        SendAnonymousUsageData: "no"
         ActivateHttpFloodProtectionParam: "yes"
+        ActivateScannersProbesProtectionParam: "yes"
+        EndpointType: "CloudFront"
         RequestThreshold: "{{aws.cache.waf.floodThreshold}}"
-        ActivateScansProbesProtectionParam: "yes"
         ErrorThreshold: "{{aws.cache.waf.errorThreshold}}"
         WAFBlockPeriod: "{{aws.cache.waf.blockTTL}}"
         AccessLogBucket: {{aws.cache.logBucket}}
