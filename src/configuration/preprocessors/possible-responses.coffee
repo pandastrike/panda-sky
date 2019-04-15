@@ -29,7 +29,7 @@ export default {
   403: "forbidden"
   404: "not found"
   405: "method not allowed"
-  406: "method not acceptable"
+  406: "not acceptable"
   407: "proxy authentication required"
   408: "request timeout"
   409: "conflict"

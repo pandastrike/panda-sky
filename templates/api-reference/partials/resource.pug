@@ -1,85 +1,109 @@
-h3 {{name}}
-{{#if description}}
-p.
-  {{indent 6 description}}
-{{/if}}
+article
+  header
+    h3#{{name}}
+      a(href="#{{name}}") {{name}}
 
-code {{template}}
+    p
+      | URL Template:
+      code {{template}}
 
-{{#with parameterDefinitions}}
-{{#with path}}
-h5 Path Parameter Definitions
-ul
-{{#each .}}
-  li
-    code {{@key}}
-    p {{.}}
-{{/each}}
-{{/with}}
-{{#with query}}
-h5 Query Parameter Definitions
-ul
-{{#each .}}
-  li
-    code {{@key}}
-    p {{.}}
-{{/each}}
-{{/with}}
-{{/with}}
+    {{#if description}}
+    p.
+      {{indent 6 description}}
+    {{/if}}
 
-{{#with methods}}
-h4 Methods
-{{#each .}}
-ul 
-  li 
-    code {{@key}}
+  section
+    {{#with parameterDefinitions}}
+    h4 Parameters
+    {{#with path}}
+    h5 Path
+    ul
+    {{#each .}}
+      li
+        code {{@key}}
+        p {{.}}
+    {{/each}}
+    {{/with}}
+    {{#with query}}
+    h5 Query
+    ul
+    {{#each .}}
+      li
+        code {{@key}}
+        p {{.}}
+    {{/each}}
+    {{/with}}
+    {{/with}}
+
+  section
+    {{#with methods}}
+    {{#each .}}
+    h4.httpMethod {{@key}}
     p {{description}}
+
+    {{#with signatures}}
+    h4 Signature
+    {{#if request.mediatype}}
+    h5 Request
+    table
+      tbody
+        {{#if request.mediatype}}
+        tr
+          td Content-Type  
+          td: code {{toJSON request.mediatype}}
+        {{/if}}
+    {{/if}}
+        
+    h5 Response
+    table
+      tbody
+        {{#if response.mediatype}}
+        tr
+          td Content-Type(s)  
+          td: code {{toJSON response.mediatype}}
+        {{/if}}
+        {{#if (equal (first response.status) 201)}}
+        tr
+          td Location
+          td: code true
+        {{/if}}
+        tr
+          td Success Status
+          td: code {{first response.status}}
+        {{#if (rest response.status)}} 
+        tr
+          td Other Defined Status
+          td: code {{toJSON (rest response.status)}}
+        {{/if}}
+        {{#if response.cache}}
+        tr
+          td Cache-Control
+          td: code max-age={{response.cache.maxAge}}
+        {{#if response.cache.etag}}
+        tr
+          td ETag
+          td: code true
+        {{/if}}
+        {{#if response.cache.lastModified}}
+        tr
+          td Last-Modified
+          td: code true
+        {{/if}}
+        {{/if}}
+      
+    {{#if request.schema}}
+    h5 Request Body Schema
+    pre 
+      code.
+        {{indent 8 (yaml request.schema)}}
+    {{/if}}
     
-{{#with signatures}}
-{{#if request.mediatype}}
-p
-  | Request content-type(s):  
-  code {{request.mediatypeString}}
-{{/if}}
-  
-p
-  | Response content-type(s):
-  code {{response.mediatypeString}}
-
-
-p 
-  | On success, returns a status code of 
-  code {{response.statusOK}} 
-
-{{#if response.statusBad}}  
-p 
-  | Has responses defined for statuses: 
-  code {{response.statusBad}}
-{{/if}}
-
-{{#with response.cache}}
-h5 Cache Headers
-p
-  | Cache Control: 
-  code max-age={{maxAge}}
-{{#with etag}}
-p
-  | ETag: 
-  code true
-{{/with}}
-{{#with lastModified}}
-p
-  | Last-Modified: 
-  code true
-{{/with}}
-{{/with}}
-  
-{{#if request.schema}}
-h5 Request Body Schema
-pre 
-  code.
-    {{indent 8 request.schemaString}}
-{{/if}}
-{{/with}}
-{{/each}}
-{{/with}}
+    {{#if response.schema}}
+    h5 Response Body Schema
+    pre 
+      code.
+        {{indent 8 (yaml response.schema)}}
+    {{/if}}
+    {{/with}}
+    {{/each}}
+    {{/with}}

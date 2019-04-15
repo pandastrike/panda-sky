@@ -17,6 +17,9 @@ html(lang="en")
       body > *:last-child {
          margin-bottom: 0 !important; }
 
+      .httpMethod {
+        text-transform: uppercase; }
+
       a {
          color: #4183C4; }
       a.absent {
@@ -62,7 +65,8 @@ html(lang="en")
 
       h1 {
          font-size: 28px;
-         color: black; }
+         color: black;
+         text-transform: capitalize; }
 
       h2 {
          font-size: 24px;
@@ -70,7 +74,7 @@ html(lang="en")
          color: black; }
 
       h3 {
-         font-size: 18px; }
+         font-size: 22px; }
 
       h4 {
          font-size: 16px; }
@@ -90,6 +94,10 @@ html(lang="en")
          color: #cccccc;
          height: 4px;
          padding: 0;
+      }
+      
+      article > header > h3 {
+        text-decoration: underline;
       }
 
       body > h2:first-child {
@@ -300,16 +308,14 @@ html(lang="en")
       }
 
   body
-    h1 API Reference
-    p for 
-      code {{name}}
+    h1 {{name}} API Reference
 
     h2 Resources
     
-{{#with rootResource}}
-{{> resource name="discovery"}}
-{{/with}}
-    
-{{#each resources}}
-{{> resource name=@key}}
-{{/each}}
+    {{#with rootResource}}
+    {{> resource name="discovery"}}
+    {{/with}}
+        
+    {{#each resources}}
+    {{> resource name=@key}}
+    {{/each}}

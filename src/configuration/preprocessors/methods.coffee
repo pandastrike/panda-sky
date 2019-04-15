@@ -30,37 +30,9 @@ Methods = (description) ->
       result.push "#{capitalize(response.resource)}Model"
     result
 
-  # This applies smart defaults for the request-response signature defintion.
-  # This is for both the final stack configuration and the human-friendly API definition the api.yaml is used to build.
-  applySignatureDefaults = (method) ->
-    {signatures:{request, response}} = method
-
-    # Right now, we only have basic support for request mediatypes.
-    if request.schema
-      request.schemaString = yaml request.schema
-      if !request.mediatype
-        method.signatures.request.mediatype = ["application/json"]
-    if request.mediatype
-      method.signatures.request.mediatypeString =  "[ \"#{request.mediatype.join "\", \""}\" ]"
-
-
-    if !response.mediatype
-      response.mediatype = ["application/json"]
-    method.signatures.response.mediatypeString =  "[ \"#{response.mediatype.join "\", \""}\" ]"
-
-
-    response.statusOK = first response.status
-    if (rest response.status).length > 0
-      response.statusBad = "[ \"#{(rest response.status).join "\", \""}\" ]"
-
-    method
-
-
   for resourceName, resource of resources
     methods = ["OPTIONS"]
     for methodName, method of resource.methods
-      method = applySignatureDefaults method
-
       methods.push methodName
       method.name = toUpper methodName
       camelized = makeCamelName resourceName, methodName

@@ -1,7 +1,8 @@
 import {go, tee, pull} from "panda-river"
 import {values} from "panda-parchment"
-import {exists, write} from "panda-quill"
+import {exists, write, read} from "panda-quill"
 import {shell} from "fairmont"
+import {yaml} from "panda-serialize"
 import pug from "pug"
 
 import transpile from "./transpile"
@@ -41,9 +42,12 @@ Build = (stopwatch, env, {profile}) ->
     await shell "npm install --silent"
 
     console.log "    -- Applying environment configuration..."
+    console.log "        - Copying API definition..."
+    {resources} = yaml await read "api.yaml"
+    await write "#{target}/api.yaml", yaml {resources}
+    console.log "        - Rendering API documentation..."
     appRoot = process.cwd()
     config = await configuration.compile appRoot, env, profile
-    await shell "cp api.yaml #{target}/api.yaml"
     await write "#{target}/api.html", pug.render config.apiReference
 
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.

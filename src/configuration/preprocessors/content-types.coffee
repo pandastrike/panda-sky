@@ -9,20 +9,26 @@
 import {empty, keys} from "panda-parchment"
 
 # Lookup the velocity template to use based on the mediatype given.
-velocity =
+velocityTemplates =
   "application/json": """$input.json('$.data')"""
   "text/html": """$input.path('$.data')"""
 
 
-Types = (int, method) ->
-  mt = method.signatures.response?.mediatype
+Types = (integration, method) ->
+  mediatype = method.signatures.response?.mediatype
+  return integration unless mediatype
 
-  int.headers["Content-Type"] =
-    "integration.response.body.metadata.headers.Content-Type"
   templates = {}
-  templates[k] = velocity[k] for k in mt when k in keys velocity
-  int.ResponseTemplates = templates if !empty templates
+  for type in mediatype when type in keys velocityTemplates
+    if type in keys velocityTemplates
+      templates[type] = velocityTemplates[type]
+    else
+      throw new Error "media type #{type} does not have a supported velocity
+        template to map the lambda result to an HTTP response."
 
-  int
+  unless empty templates
+    integration.ResponseTemplates = templates
+
+  integration
 
 export default Types

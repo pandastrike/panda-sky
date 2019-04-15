@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "3.0.14",
+  "version": "3.0.15",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "build/npm/src/index.js",
   "files": [
@@ -81,9 +81,7 @@
     "sundog": "1.0.10"
   },
   "devDependencies": {
-    "amen": "^2.1.0",
-    "gulp": "github:gulpjs/gulp#v4.0.0",
-    "panda-builder": "^2.4.1",
-    "source-map-support": "^0.5.0"
+    "panda-9000": "^4.4.0",
+    "panda-builder": "^3.2.1"
   }
 }
