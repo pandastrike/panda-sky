@@ -17,6 +17,7 @@ export default '''
   "method": "$context.httpMethod",
   "headers": {
     #foreach($param in $input.params().header.keySet())
+    #set( $param = $param.toLowerCase() )
     "$param": "$util.escapeJavaScript($input.params().header.get($param))"
     #if($foreach.hasNext),#end
     #end

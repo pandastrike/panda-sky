@@ -44,13 +44,28 @@ Responses = (description) ->
 
     addOthers = ->
       for code in rest statuses
-        StatusCode: code
-        SelectionPattern: "^<#{possibleResponses[code]}>.*"
-        headers:
+        headers =
+          "Content-Type": "'application/json'"
           "Access-Control-Allow-Headers": "'#{allowedHeaders}'"
           "Access-Control-Allow-Methods": "'#{methodList}'"
           "Access-Control-Allow-Origin": "'*'"
           "Access-Control-Expose-Headers": "'#{exposedHeaders}'"
+
+        if code == 304
+          if etag
+            headers["ETag"] =
+              "integration.response.body.errorMessage.metadata.headers.ETag"
+          if lastModified
+            headers["Last-Modified"] =
+              "integration.response.body.errorMessage.metadata.headers.Last-Modified"
+
+        StatusCode: code
+        SelectionPattern: "\\{\"httpStatus\"\\:#{code}.*"
+        ResponseTemplates: "application/json": """$input.json('$.data')"""
+        headers: headers
+
+
+
 
     # First response is "default" response, then all others.
     cat [addDefault()], addOthers()
@@ -63,6 +78,7 @@ Responses = (description) ->
 
     addDefault = ->
       headers =
+        "Content-Type": true
         "Access-Control-Allow-Headers": true
         "Access-Control-Allow-Methods": true
         "Access-Control-Allow-Origin": true
@@ -85,12 +101,20 @@ Responses = (description) ->
 
     addOthers = ->
       for code in rest statuses
-        StatusCode: code
-        headers:
+        headers =
           "Access-Control-Allow-Headers": true
           "Access-Control-Allow-Methods": true
           "Access-Control-Allow-Origin": true
           "Access-Control-Expose-Headers": true
+        if code == 304
+          if etag
+            headers["ETag"] = true
+          if lastModified
+            headers["Last-Modified"] = true
+
+        StatusCode: code
+        headers: headers
+
 
     cat addDefault(), addOthers()
 

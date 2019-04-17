@@ -19,7 +19,7 @@ Types = (integration, method) ->
   return integration unless mediatype
 
   templates = {}
-  for type in mediatype when type in keys velocityTemplates
+  for type in mediatype
     if type in keys velocityTemplates
       templates[type] = velocityTemplates[type]
     else
