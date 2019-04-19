@@ -1,9 +1,10 @@
 # A scan of the current domain configuration and available AWS resources is
 # needed to confirm that Sky can accomplish the requested operation.
+import {Helpers} from "sundog"
 
 validate = (config, bucket) ->
   name = if config.aws.hostnames then config.aws.hostnames[0] else false
-  {regularlyQualify, root} = config.sundog.URL
+  {regularlyQualify, root} = Helpers
   {hzGet} = config.sundog.Route53()
   {fetch} = config.sundog.ACM {region:"us-east-1"} # quirk of how sky uses ACM
 
