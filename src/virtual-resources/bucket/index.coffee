@@ -61,7 +61,7 @@ Metadata = class Metadata
       if local == @metadata.permissions then true else false
 
     update: => await @s3.PUT.string @src, "permissions.json",
-      toJSON(@config.policyStatements), ContentType: "text/json"
+      toJSON(@config.policyStatements), ContentType: "application/json"
 
   stacks: =>
     update: =>
