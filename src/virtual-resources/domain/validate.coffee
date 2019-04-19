@@ -4,7 +4,7 @@ import {Helpers} from "sundog"
 
 validate = (config, bucket) ->
   name = if config.aws.hostnames then config.aws.hostnames[0] else false
-  {regularlyQualify, root} = Helpers
+  {regularlyQualify, root} = Helpers.url
   {hzGet} = config.sundog.Route53()
   {fetch} = config.sundog.ACM {region:"us-east-1"} # quirk of how sky uses ACM
 
