@@ -99,7 +99,7 @@ Metadata = class Metadata
     if await @s3.bucketExists @src
       console.log "-- Deleting deployment metadata."
       await @s3.bucketEmpty @src
-      await @s3.bucketDel @src
+      await @s3.bucketDelete @src
     else
       console.warn "No Sky metadata detected for this deployment. Moving on..."
 
