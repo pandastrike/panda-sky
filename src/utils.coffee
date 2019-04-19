@@ -4,7 +4,7 @@ import {parse as _parse, relative, join} from "path"
 import {curry, binary} from "panda-garden"
 import {include, isMatch} from "panda-parchment"
 import {exists, mkdirp, isDirectory, write as _write, read} from "panda-quill"
-import {shell} from "fairmont-process"
+import {shell} from "fairmont"
 
 pathWithUnderscore = (path) -> isMatch /(^|\/)_/, path
 

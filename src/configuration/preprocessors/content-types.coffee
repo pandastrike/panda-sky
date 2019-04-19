@@ -10,8 +10,8 @@ import {empty, keys} from "panda-parchment"
 
 # Lookup the velocity template to use based on the mediatype given.
 velocityTemplates =
-  "application/json": """$input.json('$.data')"""
-  "text/html": """$input.path('$.data')"""
+  "application/json":"$input.json('$.data')"
+  "text/html": "$input.path('$.data')"
 
 
 Types = (integration, method) ->

@@ -1,7 +1,7 @@
 import {resolve} from "path"
 import {keys, cat, merge} from "panda-parchment"
 import {exists} from "panda-quill"
-import YAML from "js-yaml"
+import {yaml} from "panda-serialize"
 import SDK from "aws-sdk"
 
 mixinUnavailable = (m) ->
@@ -55,7 +55,7 @@ reconcileConfigs = (mixins, config) ->
   for name, mixin of mixins when mixin.getPolicyStatements
     _config = config.aws.environments[env].mixins[name]
     s = cat s, await mixin.getPolicyStatements _config, config, SDK
-  config.policyStatements = (YAML.safeDump i for i in s)
+  config.policyStatements = (yaml i for i in s)
 
   v = config.environmentVariables
   for name, mixin of mixins when mixin.getEnvironmentVariables

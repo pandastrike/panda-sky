@@ -38,6 +38,8 @@ Handlers = class Handlers
         MemorySize: @config.aws.memorySize
         Timeout: @config.aws.timeout
         Runtime: @config.aws.runtime
+        Environment:
+          Variables: @config.environmentVariables
       await Promise.all do =>
         @Lambda.updateConfig name, LambdaConfig for name in @names
 

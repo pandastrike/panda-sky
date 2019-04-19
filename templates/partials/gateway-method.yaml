@@ -75,6 +75,7 @@
             "method": "$context.httpMethod",
             "headers": {
               #foreach($param in $input.params().header.keySet())
+              #set( $param = $param.toLowerCase() )
               "$param": "$util.escapeJavaScript($input.params().header.get($param))"
               #if($foreach.hasNext),#end
               #end
@@ -92,16 +93,17 @@
         {{/if}}
         {{#if headers}}
           ResponseParameters:
-          {{#eachProperty headers}}
-            method.response.header.{{key}}: "{{value}}"
-          {{/eachProperty}}
+          {{#each headers}}
+            method.response.header.{{@key}}: "{{this}}"
+          {{/each}}
         {{/if}}
 
         {{#if ResponseTemplates}}
           ResponseTemplates:
-          {{#eachProperty ResponseTemplates}}
-            {{key}}: "{{value}}"
-          {{/eachProperty}}
+          {{#each ResponseTemplates}}
+            {{@key}}: >
+              {{indent 14 this}}
+          {{/each}}
         {{/if}}
 
       {{/each}}
@@ -111,8 +113,8 @@
       - StatusCode: {{StatusCode}}
       {{#if headers}}
         ResponseParameters:
-        {{#eachProperty headers}}
-          method.response.header.{{key}}: {{value}}
-        {{/eachProperty}}
+        {{#each headers}}
+          method.response.header.{{@key}}: {{this}}
+        {{/each}}
       {{/if}}
     {{/each}}

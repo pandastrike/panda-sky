@@ -76,7 +76,8 @@ Stack = class Stack
       Tags: @config.tags
 
     # Upload to the orchestation bucket.
-    await @s3.put @stack.src, "custom-domain.yaml", stack, "text/yaml"
+    await @s3.PUT.string @stack.src, "custom-domain.yaml",
+      stack, ContentType: "text/yaml"
 
     # Make sure the log bucket exists.
     await @s3.bucketTouch @cache.logBucket

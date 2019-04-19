@@ -7,8 +7,8 @@ import {cat, first, rest} from "panda-parchment"
 # below adds these responses based on the enumerated response codes in the API
 # description.
 
-allowedHeaders = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,Cache-Control,ETag,Last-Modified,Location,Capability"
-exposedHeaders = "Content-Type,X-Amz-Date,Authorization,Cache-Control,ETag,Last-Modified,Location,Capability"
+allowedHeaders = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,Cache-Control,ETag,Last-Modified,Accept,Accept-Encoding, Location,Capability"
+exposedHeaders = "Content-Type,X-Amz-Date,Authorization,Cache-Control,ETag,Last-Modified,Content-Encoding,Vary,Location,Capability"
 
 within = (collection, example) -> example in collection
 without = (collection, example) -> example not in collection
@@ -29,13 +29,19 @@ Responses = (description) ->
         headers["Content-Type"] =
           "integration.response.body.metadata.headers.Content-Type"
       if cache
-        headers["Cache-Control"] = "integration.response.body.metadata.headers.Cache-Control"
+        headers["Cache-Control"] =
+          "integration.response.body.metadata.headers.Cache-Control"
+        headers["Vary"] =
+          "integration.response.body.metadata.headers.Vary"
       if etag
-        headers["ETag"] = "integration.response.body.metadata.headers.ETag"
+        headers["ETag"] =
+          "integration.response.body.metadata.headers.ETag"
       if lastModified
-        headers["Last-Modified"] = "integration.response.body.metadata.headers.Last-Modified"
+        headers["Last-Modified"] =
+          "integration.response.body.metadata.headers.Last-Modified"
       if (first statuses) == 201
-        headers["Location"] = "integration.response.body.metadata.headers.Location"
+        headers["Location"] =
+          "integration.response.body.metadata.headers.Location"
 
       response =
         StatusCode: first statuses
@@ -52,6 +58,10 @@ Responses = (description) ->
           "Access-Control-Expose-Headers": "'#{exposedHeaders}'"
 
         if code == 304
+          headers["Cache-Control"] =
+            "integration.response.body.errorMessage.metadata.headers.Cache-Control"
+          headers["Vary"] =
+            "integration.response.body.errorMessage.metadata.headers.Vary"
           if etag
             headers["ETag"] =
               "integration.response.body.errorMessage.metadata.headers.ETag"
@@ -78,7 +88,6 @@ Responses = (description) ->
 
     addDefault = ->
       headers =
-        "Content-Type": true
         "Access-Control-Allow-Headers": true
         "Access-Control-Allow-Methods": true
         "Access-Control-Allow-Origin": true
@@ -87,6 +96,7 @@ Responses = (description) ->
         headers["Content-Type"] = true
       if cache
         headers["Cache-Control"] = true
+        headers["Vary"] = true
       if etag
         headers["ETag"] = true
       if lastModified
@@ -102,11 +112,14 @@ Responses = (description) ->
     addOthers = ->
       for code in rest statuses
         headers =
+          "Content-Type": true
           "Access-Control-Allow-Headers": true
           "Access-Control-Allow-Methods": true
           "Access-Control-Allow-Origin": true
           "Access-Control-Expose-Headers": true
         if code == 304
+          headers["Cache-Control"] = true
+          headers["Vary"] = true
           if etag
             headers["ETag"] = true
           if lastModified

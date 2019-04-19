@@ -112,13 +112,11 @@ definitions:
         required: [maxAge]
         properties:
           maxAge:
-            description: The value for the Cache-Control directive max-age.  The time in seconds this resource should be cached.  You may also set this to `manual` and specify your own max-age in the handler.
-            anyOf:
-              - type: integer
-                minimum: 0
-                maximum: 31556926
-              - type: string
-                enum: [ manual ]
+            description: >
+              The value for the Cache-Control directive max-age.  The time in seconds this resource should be cached.  You may also set this to `manual` and specify your own max-age in the handler.
+            type: integer
+            minimum: 0
+            maximum: 31556926
           etag:
             description: Flag indicating that this resource should return an ETag header containing an MD5 hash of the utf-8 stringified response.
             type: boolean

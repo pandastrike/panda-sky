@@ -142,11 +142,11 @@ Resources:
       DistributionConfig:
         Aliases:
           - {{.}}
-        Comment: CloudFront Distribution for Sky API Custom Domain
+        Comment: Sky API Custom Domain for {{@root.name}}-{{@root.env}}
         DefaultCacheBehavior:
           AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
           CachedMethods: ["GET", "HEAD", "OPTIONS"]
-          Compress: true
+          Compress: false
           MinTTL: {{@root.aws.cache.ttl.min}}
           MaxTTL: {{@root.aws.cache.ttl.max}}
           DefaultTTL: {{@root.aws.cache.ttl.default}}
@@ -172,7 +172,7 @@ Resources:
             DefaultTTL: {{ttl.default}}
             AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
             CachedMethods: ["GET", "HEAD", "OPTIONS"]
-            Compress: true
+            Compress: false
             ForwardedValues:
               Cookies:
                 Forward: "all"

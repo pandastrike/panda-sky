@@ -20,9 +20,9 @@
     {{/if}}
     Environment:
       Variables:
-      {{#eachProperty @root.environmentVariables}}
-        {{key}}: {{value}}
-      {{/eachProperty}}
+      {{#each @root.environmentVariables}}
+        {{@key}}: {{this}}
+      {{/each}}
     Code:
       S3Bucket: {{handler.bucket}}
       S3Key: "package.zip"

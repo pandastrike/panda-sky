@@ -39,44 +39,49 @@ Metadata = class Metadata
       local = md5 await read @apiDef
       if local == @metadata.api then true else false
     update: =>
-      await @s3.put @src, "api.yaml", @apiDef, false
+      await @s3.PUT.file @src, "api.yaml", @apiDef
 
   handlers: =>
     isCurrent: =>
       local = md5 await read(@pkg, "buffer")
       if local == @metadata.handlers then true else false
 
-    update: => await @s3.put @src, "package.zip", @pkg, false
+    update: => await @s3.PUT.file @src, "package.zip", @pkg
 
   skyConfig: =>
     isCurrent: =>
       local = md5 await read @skyDef
       if local == @metadata.sky then true else false
 
-    update: => await @s3.put @src, "sky.yaml", @skyDef, false
+    update: => await @s3.PUT.file @src, "sky.yaml", @skyDef
 
   permissions: =>
     isCurrent: =>
       local = md5 toJSON @config.policyStatements
       if local == @metadata.permissions then true else false
 
-    update: => await @s3.put @src, "permissions.json", toJSON(@config.policyStatements), "text/json"
+    update: => await @s3.PUT.string @src, "permissions.json",
+      toJSON(@config.policyStatements), ContentType: "text/json"
 
   stacks: =>
     update: =>
       # Upload the root stack...
-      await @s3.put @src, "template.yaml", (yaml @templates.root), "text/yaml"
+      await @s3.PUT.string @src, "template.yaml", (yaml @templates.root),
+        ContentType: "text/yaml"
 
       # Now the intermediate based off of the root.
       intermediate = clone @templates.root
       intermediate.Resources.SkyCore.Properties.TemplateURL = "https://#{@src}.s3.amazonaws.com/templates/core/intermediate.yaml"
-      await @s3.put @src, "template-intermediate.yaml", (yaml intermediate), "text/yaml"
+      await @s3.PUT.string @src, "template-intermediate.yaml",
+        (yaml intermediate), ContentType: "text/yaml"
 
       # Now all the nested children...
       for key, stack of @templates.core
-        await @s3.put @src, "templates/#{key}", stack, "text/yaml"
+        await @s3.PUT.string @src, "templates/#{key}",
+          stack, ContentType: "text/yaml"
       for key, stack of @templates.mixins
-        await @s3.put @src, "templates/mixins/#{key}.yaml", stack, "text/yaml"
+        await @s3.PUT.string @src, "templates/mixins/#{key}.yaml",
+          stack, ContentType: "text/yaml"
 
   needsUpdate: ->
     # Examine core stack resources to update the CloudFormation stack.
@@ -123,7 +128,7 @@ Metadata = class Metadata
       permissions: md5 toJSON @config.policyStatements
       endpoint: endpoint
 
-    await @s3.put @src, ".sky", (yaml data), "text/yaml"
+    await @s3.PUT.string @src, ".sky", (yaml data), ContentType: "text/yaml"
 
 metadata = (config) ->
   M = new Metadata config
