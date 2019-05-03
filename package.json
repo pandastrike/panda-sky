@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "3.0.21",
+  "version": "3.0.22",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "build/npm/src/index.js",
   "files": [
@@ -71,7 +71,7 @@
     "panda-parchment": "^4.2.0",
     "panda-quill": "^3.4.1",
     "panda-river": "^4.4.0",
-    "panda-serialize": "^0.4.0",
+    "panda-serialize": "^0.6.0",
     "panda-template": "^1.0.0",
     "pug": "^2.0.3",
     "rimraf": "2.6.2",

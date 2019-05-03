@@ -97,7 +97,7 @@ properties:
 
       memorySize:
         description: >
-          The Lambda memory allocation in MB.  Larger values also get more CPU horsepower and superior cold-start behavior, but the specifics on that are left murky by AWS docs. Minimum value is 128, and it must be specified as multiples of 64.  Sky defaults to 256.
+          The Lambda memory allocation in MB.  Larger values also get more network throughput and CPU horsepower, as well as superior cold-start behavior, but the specifics on that are left murky by AWS docs. Minimum value is 128, and it must be specified as multiples of 64.  Sky defaults to 256.
         type: integer
         minimum: 128
         maximum: 3008
@@ -108,7 +108,7 @@ properties:
           The Lambda timeout limit, in seconds.  Sky defaults to 60.
         type: integer
         minimum: 1
-        maximum: 300
+        maximum: 900
 
       environments:
         description:
