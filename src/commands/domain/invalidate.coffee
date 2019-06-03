@@ -10,7 +10,7 @@ module.exports = (stopwatch, env, options) ->
     domain = await Domain config
 
     await domain.invalidate()
-    console.log "Done. (#{outputDuration START})\n\n"
+    console.log "Done. (#{stopwatch()})"
   catch e
     console.error "Invalidation failure:"
     console.error e.stack
