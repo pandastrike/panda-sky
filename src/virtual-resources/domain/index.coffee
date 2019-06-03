@@ -1,7 +1,7 @@
 import {resolve} from "path"
 import Interview from "panda-interview"
 import questions from "./questions"
-import validate from "./validate"
+import validateOperation from "./validate"
 import Bucket from "../bucket"
 import Templater from "../../templater"
 
@@ -12,13 +12,14 @@ Stack = class Stack
     @stack = @config.aws.stack
     @name = @stack.name + "-CustomDomain"
     @cfo = @sundog.CloudFormation()
+    @cfr = @sundog.CloudFront()
     @acm = @sundog.ACM {region:"us-east-1"} #quirk of how sky uses ACM.
     @route53 = @sundog.Route53()
     @s3 = @sundog.S3()
 
   initialize: ->
     @bucket = await Bucket @config
-    await validate @config, @bucket
+    await validateOperation @config, @bucket
 
   # Ask politely if a stack override is neccessary.
   confirm: (action, domain) ->
@@ -50,6 +51,9 @@ Stack = class Stack
     await @confirm "delete", "https://#{@config.aws.hostnames[0]}"
     console.log "Deleting custom domain stack..."
     await @cfo.delete @name
+
+  invalidate: ->
+    await @cfr.invalidate await @cfr.get @config.aws.hostnames[0]
 
   # Render the custom domain CloudFormation template.
   prepare: ->
