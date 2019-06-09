@@ -144,10 +144,9 @@ Responses = (description) ->
       response.mediatype = ["application/json"]
 
     status.push 304 if response.cache && (without status, 304)
-    #status.push 400 if without status, 400
+    status.push 400 if (without status, 400)
     status.push 406 if response.mediatype && (without status, 406)
     status.push 415 if request.mediatype && (without status, 415)
-    status.push 422 if request.schema && (without status, 422)
     status.push 500 if (without status, 500)
 
     method

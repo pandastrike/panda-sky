@@ -1,12 +1,4 @@
-{{gateway.name}}:
-  {{#unless resource.rootResource}}
-  {{#if dependencies}}
-  DependsOn:
-    {{#each dependencies}}
-    - {{this}}
-    {{/each}}
-  {{/if}}
-  {{/unless}}
+{{templateName}}:
   Type: "AWS::ApiGateway::Method"
   Properties:
     RestApiId:
@@ -15,7 +7,7 @@
     ApiKeyRequired: true
     {{/if}}
     ResourceId:
-      "Fn::Select": [ {{index}}, {"Fn::Split": [ ",", {"Ref": ResourceIDs} ]}]
+      "Fn::Select": [ {{resourceIndex}}, {"Fn::Split": [ ",", {"Ref": ResourceIDs} ]}]
     {{#if authorizationType}}
     AuthorizationType: {{authorizationType}}
     {{else}}

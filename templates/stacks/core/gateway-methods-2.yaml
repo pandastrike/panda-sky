@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Core Resources - Gateway Methods - Main Verbs
+Parameters:
+  API:
+    Type: String
+    Description: Gateway API ID for the Sky stack HTTP endpoint.
+  ResourceIDs:
+    Type: String
+    Description: Forces order dependency, Gateway resources before methods.
+
+Resources:
+  # Define all the main Gateway methods (GET, PUT, DELETE, POST)
+  {{#if methodSets2}}
+  {{#each methodSets2}}
+  {{> gateway-method}}
+  {{/each}}
+  {{/if}}

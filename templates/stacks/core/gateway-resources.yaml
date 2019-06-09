@@ -11,7 +11,7 @@ Parameters:
 Resources:
   # Define all the non-root Gateway resources
   {{#each resources}}
-  {{> gateway-resource }}
+  {{> gateway-resource gateway}}
   {{/each}}
 
 Outputs:
@@ -22,5 +22,5 @@ Outputs:
         -
           - {'Ref': RootResourceId}
           {{#orderedEach resources}}
-          - {'Ref': {{gateway.name}} }
+          - {'Ref': {{gateway.name}}Resource }
           {{/orderedEach}}

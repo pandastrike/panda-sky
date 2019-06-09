@@ -41,7 +41,8 @@ Resources:
         {{/each}}
       TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-resources.yaml"
 
-  GatewayMainMethods:
+  {{#each methodSets}}
+  GatewayMainMethods{{@index}}:
     Type: "AWS::CloudFormation::Stack"
     DependsOn:
       - GatewayResources
@@ -54,11 +55,12 @@ Resources:
       Tags:
         - Key: Substack Type
           Value: Core Gateway Main Methods
-        {{#each tags}}
+        {{#each @root.tags}}
         - Key: {{Key}}
           Value: {{Value}}
         {{/each}}
-      TemplateURL: "https://{{environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-methods.yaml"
+      TemplateURL: "https://{{@root.environmentVariables.skyBucket}}.s3.amazonaws.com/templates/core/gateway-methods-{{@index}}.yaml"
+  {{/each}}
 
   GatewayOptionsMethods:
     Type: "AWS::CloudFormation::Stack"
@@ -82,7 +84,9 @@ Resources:
   GatewayDeployment:
     Type: "AWS::CloudFormation::Stack"
     DependsOn:
-      - GatewayMainMethods
+      {{#each methodSets}}
+      - GatewayMainMethods{{@index}}
+      {{/each}}
       - GatewayOptionsMethods
     Properties:
       Parameters:

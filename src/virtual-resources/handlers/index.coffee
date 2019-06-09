@@ -1,6 +1,7 @@
 import {md5} from "fairmont"
 import {read} from "panda-quill"
-import {toLower, cat, sleep, empty, last} from "panda-parchment"
+import {toLower, cat, sleep, empty, last, dashed} from "panda-parchment"
+import {partition} from "panda-river"
 import {yaml} from "panda-serialize"
 import Bucket from "../bucket"
 import Logs from "../logs"
@@ -20,7 +21,7 @@ Handlers = class Handlers
     names =
       for r, resource of api.resources
         for m, method of resource.methods
-          "#{@stack.name}-#{r}-#{toLower m}"
+          dashed "#{@config.name} #{@config.env} #{r} #{m}"
 
     @names = cat names...
     @bucket = await Bucket @config
@@ -29,8 +30,11 @@ Handlers = class Handlers
   update: (hard) ->
     fail() if !@bucket.metadata
     await @bucket.syncHandlersSrc()
-    await Promise.all do =>
-      @Lambda.update name, @stack.src, "package.zip" for name in @names
+    await do =>
+      for batch from partition 20, @names
+        await Promise.all(
+          @Lambda.update name, @stack.src, "package.zip" for name in batch
+        )
 
     if hard
       await sleep 5000
@@ -40,8 +44,11 @@ Handlers = class Handlers
         Runtime: @config.aws.runtime
         Environment:
           Variables: @config.environmentVariables
-      await Promise.all do =>
-        @Lambda.updateConfig name, LambdaConfig for name in @names
+      await do =>
+        for batch from partition 20, @names
+          await Promise.all(
+            @Lambda.updateConfig name, LambdaConfig for name in batch
+          )
 
   # Tail the logs output by the various Lambdas.
   tail: (isVerbose) ->

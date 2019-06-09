@@ -1,4 +1,4 @@
-{{gateway.name}}:
+{{name}}Resource:
   Type: "AWS::ApiGateway::Resource"
   Properties:
     RestApiId:

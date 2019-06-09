@@ -1,4 +1,4 @@
-{{name}}OptionsMethod:
+{{gateway.name}}OptionsMethod:
   Type: "AWS::ApiGateway::Method"
   Properties:
     RestApiId:

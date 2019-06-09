@@ -12,6 +12,7 @@ import addAuthorization from "./authorization"
 import addResponses from "./responses"
 import addVariables from "./variables"
 import addPolicyStatements from "./policy-statements"
+import splitTemplates from "./split"
 import fetchMixins from "./mixins"
 import extractVPC from "./vpc"
 
@@ -48,10 +49,8 @@ Preprocessor = (config) ->
   # Add base Sky policy statements that give Lambdas access to AWS resources.
   config = addPolicyStatements config
 
-  # Remove the root resource, because it needs special handling
-  rootKey = config.rootResourceKey
-  delete config.resources[rootKey]
-  delete config.rootResourceKey
+  # Final odds and ends for applying these resources to the template.
+  config = await splitTemplates config
 
   # Fetch the declared mixins installed in the project directory and instantiate
   # their CLI and render interfaces.
