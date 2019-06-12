@@ -1,7 +1,7 @@
 article
   header
-    h3#{{name}}
-      a(href="#{{name}}") {{name}}
+    h3#{{camelCase name}}
+      a(href="#{{camelCase name}}") {{name}}
 
     p
       | URL Template:
@@ -38,7 +38,8 @@ article
   section
     {{#with methods}}
     {{#each .}}
-    h4.httpMethod {{@key}}
+    h4.httpMethod#{{camelCase ../../name}}{{capitalize @key}} 
+      a(href="#{{camelCase ../../name}}{{capitalize @key}} ") {{@key}}
     p {{description}}
 
     {{#with signatures}}

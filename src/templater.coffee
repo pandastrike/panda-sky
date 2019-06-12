@@ -1,6 +1,6 @@
 import JSCK from "jsck"
 import {read} from "panda-quill"
-import {merge, first, rest, toJSON, empty, keys, length} from "panda-parchment"
+import {merge, first, rest, toJSON, empty, keys, length, dashed, camelCase, capitalize} from "panda-parchment"
 import {collect, project} from "panda-river"
 import {yaml} from "panda-serialize"
 import pandaTemplate from "panda-template"
@@ -29,6 +29,9 @@ Templater = class Templater
       toJSON: (input) -> toJSON input
       equal: (A, B) -> A == B
       empty: (input) -> empty input
+      dashed: (input) -> dashed input
+      camelCase: (input) -> camelCase input
+      capitalize: (input) -> capitalize input
 
   @read: (templatePath, schemaPath) ->
     template = await read templatePath

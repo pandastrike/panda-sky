@@ -19,6 +19,47 @@ html(lang="en")
 
       .httpMethod {
         text-transform: uppercase; }
+        
+      #tocLink {
+        position: fixed;
+        left: 10px;
+        top: 10px;
+      }
+        
+      body > section > ul.toc {
+        list-style-type: none;
+        text-decoration: none;
+        color: black;
+      }
+      body > section > ul.toc > li > h4 > a {
+        margin: 0.5rem;
+        padding: 0.5rem;
+        color: white;
+        border-radius: 2rem;
+        font-size: 14px;
+        min-width: 2rem;
+      }
+      body > section > ul.toc > li > h4 > a.entry {
+        color: black;
+        margin-right: 1rem;
+        font-size: 20px;
+      }
+      body > section > ul.toc > li > h4 > a.get {
+        background-color: green;
+      }
+      body > section > ul.toc > li > h4 > a.post {
+        background-color: blue;
+      }
+      body > section > ul.toc > li > h4 > a.put {
+        background-color: orange;
+      }
+      body > section > ul.toc > li > h4 > a.patch {
+        background-color: purple;
+      }
+      body > section > ul.toc > li > h4 > a.delete {
+        background-color: #A52A2A;
+      }
+
 
       a {
          color: #4183C4; }
@@ -308,14 +349,30 @@ html(lang="en")
       }
 
   body
+    div#tocLink 
+      a(href="#toc") TOC
+    
     h1 {{name}} API Reference
 
-    h2 Resources
-    
-    {{#with rootResource}}
-    {{> resource }}
-    {{/with}}
-        
-    {{#each resources}}
-    {{> resource }}
-    {{/each}}
+    section 
+      h2#toc Table of Contents
+      h3 Resources
+      ul.toc
+        {{#with rootResource}}
+        {{> toc-entry }}
+        {{/with}}
+          
+        {{#each resources}}
+        {{> toc-entry }}
+        {{/each}}
+
+    section
+      h2 Resources
+      
+      {{#with rootResource}}
+      {{> resource }}
+      {{/with}}
+          
+      {{#each resources}}
+      {{> resource }}
+      {{/each}}

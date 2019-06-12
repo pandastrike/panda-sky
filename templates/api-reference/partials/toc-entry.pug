@@ -1,0 +1,9 @@
+li 
+  h4
+    a(href="#{{camelCase name}}").entry {{name}}
+    
+    {{#with methods}}
+    {{#each .}}
+      a(href="#{{camelCase ../../name}}{{capitalize @key}}").{{@key}} {{@key}}
+    {{/each}}
+    {{/with}}
