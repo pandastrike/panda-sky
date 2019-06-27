@@ -200,7 +200,7 @@ Resources:
               HTTPSPort: 443
               OriginKeepaliveTimeout: 60
               OriginProtocolPolicy: "https-only"
-              OriginReadTimeout: 30
+              OriginReadTimeout: 60
               OriginSSLProtocols: [ "TLSv1.2" ]
             {{#if @root.aws.cache.waf}}
             OriginCustomHeaders:
