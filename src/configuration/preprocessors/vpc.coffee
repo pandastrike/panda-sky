@@ -1,31 +1,14 @@
-# Developers may specify a VPC to be associated with their deployment's core Lambdas.  That may be specified as either a new VPC, or an existing one by referencing its subnet and security group IDs.
-
-import {merge} from "panda-parchment"
+# Developers may specify a VPC to be associated with a partition.
 
 VPC = (config) ->
-  config.managedPolicies = []
-  config.aws.vpc = false
-  if vpc = config.aws.environments[config.env].vpc
-    config.managedPolicies.push "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-    if vpc.existing
-      # Since this VPC already exists, we need to put the input subnets and security groups into a form that CloudFormation can consume directly.
-      for zone, index in vpc.existing.availabilityZones
-        vpc.existing.availabilityZones[index] = config.aws.region + zone
+  for _, partition of config.environment.partitions
+    if {vpc} = partition
+      partition.managedPolicies ?= []
+      partition.managedPolicies.push "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 
-      config.aws.vpc =
-        new: false
-        vpcID: vpc.existing.vpcID
-        subnets: vpc.existing.subnets.join ","
-        securityGroups: vpc.existing.securityGroups.join ","
-        availabilityZones: vpc.existing.availabilityZones.join ","
-        routeTables: vpc.existing.routeTables.join ","
-    else
-      config.aws.vpc =
-        new: true
-        zone1: config.aws.region + vpc.availabilityZones[0]
-        zone2: config.aws.region + vpc.availabilityZones[1]
-
-
+      partition.vpc =
+        zone1: config.region + vpc.availabilityZones[0]
+        zone2: config.region + vpc.availabilityZones[1]
 
   config
 

@@ -24,26 +24,7 @@ properties:
     description: >
       Optional tags attached to your deployed resources when possible to make
       it easier to track and monitor. These are applied to all environments.
-    type: array
-    minItems: 1
-    uniqueItems: true
-    items:
-      type: object
-      additionalProperties: false
-      required: [ Key, Value ]
-      properties:
-        Key:
-          description: >
-            Name of tag. This is an arbitrary string you provide to track
-            resource groupings of interest.
-          type: string
-        Value:
-          description: >
-            The value that goes with the matching tag type. This is an
-            aribitrary string you provide to track resource groupings of
-            interest.
-          type: string
-
+    type: object
 
   aws:
     description: >

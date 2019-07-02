@@ -1,4 +1,4 @@
-import {isArray} from "panda-parchment"
+import {isArray, camelCase} from "panda-parchment"
 
 defaultHeaders = [
   "Accept",
@@ -25,20 +25,17 @@ setHeaders = (headers) ->
     headers
 
 applyHostnames = (config) ->
-  names = config.aws.environments[config.env].hostnames || []
-  {domain} = config.aws
-  hostnames = []
-  hostnames.push "#{name}.#{domain}" for name in names
-  hostnames
+  for name in config.environment.hostnames ? []
+    "#{name}.#{config.domain}"
 
 # Accept the cache configuraiton and fill in any default values.
 applyDefaults = (config) ->
-  cache = config.aws.environments[config.env].cache || {}
-  cache.httpVersion ||= "http2"
-  cache.protocol ||= "TLSv1.2_2018"
-  cache.priceClass ||= 100
+  cache = config.environment.cache || {}
+  cache.httpVersion ?= "http2"
+  cache.protocol ?= "TLSv1.2_2018"
+  cache.priceClass ?= 100
   cache.headers = setHeaders cache.headers
-  cache.originID = "Sky-" + config.aws.stack.name
+  cache.originID = "Sky-" + config.stack.name
 
   if !cache.ttl
     cache.ttl = {min: 0, max: 0, default: 0}
@@ -57,27 +54,27 @@ applyDefaults = (config) ->
   cache
 
 applyFirewall = (config) ->
-  {waf} = config.aws.cache
-  if !waf
+
+  if !config.cache.waf
     false
   else
-    floodThreshold: waf.floodThreshold || 2000
-    errorThreshold: waf.errorThreshold || 50
-    blockTTL: waf.blockTTL || 240
+    name = config.environment.variables.fullName
+
+    logBucket: "#{name}-#{config.projectID}-cflogs"
+    floodThreshold: waf.floodThreshold ? 2000
+    errorThreshold: waf.errorThreshold ? 50
+    blockTTL: waf.blockTTL ? 240
 
 Domains = (config) ->
   # Construct an array of full subdomains to feed the process.
-  config.aws.hostnames = applyHostnames config
+  config.environment.hostnames = applyHostnames config
 
   # Apply smart defaults for CloudFront.
-  config.aws.cache = applyDefaults config
+  config.environment.cache = applyDefaults config
 
   # Expand the firewall configuation
-  config.aws.cache.waf = applyFirewall config
+  config.environment.cache.waf = applyFirewall config
 
-  # Internal names for the custom domain stack.
-  config.aws.cache.logBucket = "#{config.environmentVariables.fullName}-#{config.projectID}-cflogs"
-  config.aws.cache.originID = "customDomain#{config.name}#{config.env}"
   config
 
 export default Domains

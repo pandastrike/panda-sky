@@ -1,44 +1,48 @@
-# Set the environment variables that are injected into each Lambda.  Default
-# variables are always injected so that the user's Lambda will know to what
-# project it belongs.
-
-# TODO: AWS provides default encryption to variables set here upon their upload
-# but we should consider how to encrypt these client side so AWS never sees plaintext.
-
-# We also want to gather configuration that's used in the "stack" resource used to orchestarte the deployment.
-
+# Set the environment variables that are injected into each Lambda and tags for AWS resources.  The developer may add or overwrite default values.
 import {join} from "path"
 import {merge} from "panda-parchment"
+import {go} from "panda-river"
 
 applyStackVariables = (config) ->
-    config.aws.stack =
-      name: "#{config.name}-#{config.env}"
-      src: "#{config.name}-#{config.env}-#{config.projectID}"
-      pkg: join process.cwd(), "deploy", "package.zip"
-      apiDef: join process.cwd(), "api.yaml"
-      skyDef: join process.cwd(), "sky.yaml"
-    config
+  config.stack =
+    name: "#{config.name}-#{config.env}"
+    src: "#{config.name}-#{config.env}-#{config.projectID}"
+    pkg: join process.cwd(), "deploy", "package.zip"
+    apiDef: join process.cwd(), "api.yaml"
+    skyDef: join process.cwd(), "sky.yaml"
+  config
 
 applyEnvironmentVariables = (config) ->
-  {env, aws:{environments}} = config
-  {variables} = environments[env]
+  for _, partition of config.environment.partitions
+    partition.variables = merge config.environment.variables,
+      partition.variables,
+      environment: config.env
+      skyBucket: config.stack.src # S3 Bucket that orchastrates state
 
-  variables = {} if !variables
-  variables = merge variables,
-    baseName: config.name
+  config
+
+applyTags = (config) ->
+  values =
+    project: config.name
     environment: config.env
-    projectID: config.projectID
-    fullName: config.aws.stack.name
 
-    # Root bucket used to orchastrate Panda Sky state.
-    skyBucket: config.aws.stack.src
+  # Apply explicit tags, deleteing defaults if there is an override.
+  values = merge values, config.tags
+  for name, partition of config.environment.partitions
+    partition.tags = merge values, partition: name, partition.tags
 
-  config.environmentVariables = variables
+  # Format as "Key" and "Value" for CloudFormation
+  config.tags = {Key, Value} for Key, Value of values
+  for _, partition of config.environment.partitions
+    partition.tags = {Key, Value} for Key, Value of partition.tags
+
   config
 
 Variables = (config) ->
-  config = applyStackVariables config
-  config = applyEnvironmentVariables config
-  config
+  go [
+    applyStackVariables config
+    applyEnvironmentVariables
+    applyTags
+  ]
 
 export default Variables
