@@ -4,7 +4,17 @@ import {go} from "panda-river"
 import {cat, merge} from "panda-parchment"
 import {exists} from "panda-quill"
 
-fetchModule = (name) ->
+class Mixin
+  @create: ({name, policy, varaibles, template, cli}) ->
+    @policy ?=  []
+    @variables ?= {}
+    @cli ?= false
+
+    new Mixin {name, policy, varaibles, template, cli}
+
+  constructor: ({@name, @policy, @variables, @template, @cli}) ->
+
+fetch = (name) ->
   path = resolve process.cwd(), "node_modules", "sky-mixin-#{name}"
   unless await exists path
     console.error """
@@ -29,7 +39,7 @@ expandMixinConfigurations = (config) ->
 
   for name, mixin of config.environment.mixins
     {type} = mixin
-    mixin = await (await fetchModule type) SDK, config, mixin.config
+    mixin = Mixin.create await (await fetch type) SDK, config, mixin.config
 
   config
 
