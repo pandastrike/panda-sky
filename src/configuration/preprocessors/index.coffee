@@ -1,7 +1,5 @@
-# Sky tries to accept only simple configuration and then apply them in a clever
-# way to AWS.  That requires building up the more detialed configuration the
-# underlying configuraiton requires.  These preprocessors do quite a bit to
-# add that layer of sophistication.
+# Sky accepts a simple configuration and then applies inference and best
+# practices to build up a more detailed configuration to send to AWS.
 import {go} from "panda-river"
 
 import checkEnvironment from "./environment"
