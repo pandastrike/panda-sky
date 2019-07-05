@@ -1,6 +1,6 @@
 import {spawn} from "child_process"
 import {shell, empty} from "fairmont"
-import configuration from "../configuration"
+import compile from "../configuration"
 
 # Remove arguments from the CLI input and only enter those beyond the environment name into npm test command.
 trimARGV = (env, argv) ->
@@ -17,7 +17,7 @@ Test = (env, {profile}, argv) ->
   try
     appRoot = process.cwd()
     console.log "Preparing task."
-    config = await configuration.compile appRoot, env, profile
+    config = await compile appRoot, env, profile
     cfo = config.sundog.CloudFormation()
 
     # Get URL for the API endpoint of an arbitrary Sky stack.

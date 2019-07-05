@@ -1,16 +1,15 @@
-import JSCK from "jsck"
 import {read} from "panda-quill"
-import {merge, first, rest, toJSON, empty, keys, length, dashed, camelCase, capitalize} from "panda-parchment"
-import {collect, project} from "panda-river"
+import {first, rest, toJSON, empty, dashed, camelCase,
+  capitalize} from "panda-parchment"
 import {yaml} from "panda-serialize"
-import pandaTemplate from "panda-template"
+import PandaTemplate from "panda-template"
 
-join = (d, array) -> array.join d
+class Templater
+  @read: (path) ->
+    new Templater await read path
 
-Templater = class Templater
-  constructor: (@template, @schema) ->
-    @validator = new JSCK.draft4 @schema
-    @T = new pandaTemplate()
+  constructor: (@template) ->
+    @T = new PandaTemplate()
     @T.handlebars().registerHelper
       # Specially modified version of "each" that maps a dictionary to an array using an explicit index.  The index is off by one because the root resource always goes first.
       orderedEach: (context, options) ->
@@ -33,35 +32,6 @@ Templater = class Templater
       camelCase: (input) -> camelCase input
       capitalize: (input) -> capitalize input
 
-  @read: (templatePath, schemaPath) ->
-    template = await read templatePath
-    if schemaPath
-      schema = yaml await read schemaPath
-    else
-      schema =
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        minProperties: 1
-
-    new @ template, schema
-
-  registerPartial: (name, template) ->
-    @T.registerPartial name, template
-
-  render: (config) ->
-    @validate config
-    @T.render @template, config
-
-  validate: (config) ->
-    {valid, errors} = @validator.validate config
-    if not valid
-      if @schema.title?
-        message = "Invalid config for template: '#{@schema.title}'"
-      else
-        message = "Invalid config for template"
-      error = new Error message
-      error.errors = errors
-      throw error
-    config
+  render: (config) -> @T.render @template, config
 
 export default Templater

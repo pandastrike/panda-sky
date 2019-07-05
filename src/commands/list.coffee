@@ -1,12 +1,13 @@
 import {empty} from "panda-parchment"
 import {collect, select} from "panda-river"
-import configuration from "../configuration"
+import compile from "../configuration"
 
 List = ({profile}) ->
+  throw new Error "This command is currently unavailable"
   try
     appRoot = process.cwd()
     console.log "Preparing task."
-    config = await configuration.compile(appRoot, false, profile)
+    config = await compile appRoot, false, profile
     cfo = config.sundog.CloudFormation()
 
     # Get all stacks with the project name in their prefix.

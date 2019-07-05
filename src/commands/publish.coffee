@@ -1,15 +1,12 @@
-import {yaml} from "panda-serialize"
 import Stack from "../virtual-resources/stack"
-
-
 import {bellChar} from "../utils"
-import configuration from "../configuration"
+import compile from "../configuration"
 
 Publish = (stopwatch, env, options) ->
   try
     appRoot = process.cwd()
     console.log "Compiling configuration for publish"
-    config = await configuration.compile(appRoot, env, options.profile)
+    config = await compile appRoot, env, options.profile
     stack = await Stack config
 
     console.log "Publishing..."

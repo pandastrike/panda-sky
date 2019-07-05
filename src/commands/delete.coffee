@@ -1,13 +1,13 @@
 import {first, sleep} from "panda-parchment"
 
 import {bellChar} from "../utils"
-import configuration from "../configuration"
+import compile from "../configuration"
 import Stack from "../virtual-resources/stack"
 
 Delete = (stopwatch, env, {profile}) ->
   try
     appRoot = process.cwd()
-    config = await configuration.compile(appRoot, env, profile)
+    config = await compile appRoot, env, profile
     stack = await Stack config
 
     console.log "Deleting Sky deployment..."

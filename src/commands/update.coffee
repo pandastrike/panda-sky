@@ -4,14 +4,14 @@ import {shell} from "fairmont"
 
 import {bellChar} from "../utils"
 import transpile from "./build/transpile"
-import configuration from "../configuration"
+import compile from "../configuration"
 import Handlers from "../virtual-resources/handlers"
 
 Update = (stopwatch, env, {profile, hard}) ->
   console.log "Updating #{env}..."
   try
     appRoot = process.cwd()
-    config = await configuration.compile(appRoot, env, profile)
+    config = await compile appRoot, env, profile
     handlers = await Handlers config
 
     # Push code through asset pipeline.

@@ -1,14 +1,12 @@
 import {keys} from "panda-parchment"
-import {yaml} from "panda-serialize"
-
 import {bellChar} from "../utils"
-import configuration from "../configuration"
+import complile from "../configuration"
 
 Mixins = (name, env, {profile}, argv) ->
   try
     console.log "Compiling configuration for mixin..."
     appRoot = process.cwd()
-    config = await configuration.compile(appRoot, env, profile)
+    config = await compile appRoot, env, profile
     {AWS} = await require("../aws")(config.aws.region)
 
     {mixins} = config

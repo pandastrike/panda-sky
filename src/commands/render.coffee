@@ -1,10 +1,9 @@
-import {yaml} from "panda-serialize"
-import configuration from "../configuration"
+import compile from "../configuration"
 
 render = (env, {profile}) ->
   try
     appRoot = process.cwd()
-    config = await configuration.compile appRoot, env, profile
+    config = await compile appRoot, env, profile
     for key, stack of config.aws.templates.core
       console.log "=".repeat 80
       console.log "templates/#{key}"
