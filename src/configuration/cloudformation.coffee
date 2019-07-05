@@ -1,66 +1,63 @@
-import {resolve as _resolve, parse, relative} from "path"
-import {merge} from "panda-parchment"
+import {resolve as _resolve, parse} from "path"
+import {flow, wrap, curry, ternary} from "panda-garden"
+import {include, first, pairs} from "panda-parchment"
+import {map, reduce} from "panda-river"
 import {glob, read} from "panda-quill"
 import {yaml} from "panda-serialize"
 
 import PandaTemplate from "panda-template"
 
-T = new PandaTemplate()
-@T.handlebars().registerHelper
-  yaml: (input) -> yaml input
-
 resolve = (parts...) -> _resolve __dirname, "..", "..", "..", "..",
   "templates", parts...
 
-nameFile = (path) -> parse(path).name
+name = (path) -> parse(path).name
 
-render = (paths..., config) ->
-  yaml T.render (await read resolve paths...), config
+render = curry ternary (T, config, path) ->
+  "#{name path}": T.render (await read path), config
 
+renderDir = (T, config, dir) ->
+  await do flow [
+    wrap glob "**/*.yaml", dir
+    map render T, config
+    reduce include, {}
+  ]
 
-registerPartials = (T) ->
-  components = await ls tPath "partials"
-  for c in components when parse(c).ext == ".yaml"
-    T.registerPartial(parse(c).name, await read c)
+setup = (config) ->
+  T = new PandaTemplate()
+  {T, config}
 
-registerTemplate = (path) ->
-  templater = await Templater.read path
-  await registerPartials templater
-  templater
+registerHelpers = ({T, config}) ->
+  T.handlebars().registerHelper
+    yaml: (input) -> yaml input
+  {T, config}
 
-render = (template, config) ->
-  T.render template, config
-
-nameKey = (path) -> relative (resolve skyRoot, "templates", "stacks"), path
-
-renderCore = (config) ->
-  core = {}
-  stacks = await lsR tPath "stacks/core"
-  for s in stacks when parse(s).ext == ".yaml"
-    core[nameKey s] = render (await registerTemplate s), config
-  core
-
-# This needs to be output as an object because we identify an intermediate template using this base in the stack's orchestration model.
-renderTopLevel = (config) ->
-  yaml render (await registerTemplate tPath "top-level.yaml"), config
-
-
-Render = (config) ->
-
+registerPartials = ({T, config}) ->
   for path in await glob "**/*.yaml", resolve "main", "partials"
-    T.registerPartial (nameFile path), await read c
+    T.registerPartial (name path), await read path
+  {T, config}
 
-  config.environment.templates =
-    main:
-      root: render "main", "root.yaml", config
+renderCore = ({T, config}) ->
+  config.environment.templates = include {},
+    await render T, config, resolve "main", "root.yaml"
+    core: await renderDir T, config, resolve "main", "core"
+  {T, config}
 
-
-
-  config.environment.templates.core = await go [
-    glob "**/*.yaml", resolve "templates", "stacks", "core"
+addMixins = ({config}) ->
+  config.environment.templates.mixins = await do flow [
+    wrap pairs config.environment.mixins
+    map ([_name, {template}]) ->
+      if template then "#{_name}": template else {}
+    reduce include, {}
   ]
-    map
-  ]
 
+  config
+
+Render = flow [
+  setup
+  registerHelpers
+  registerPartials
+  renderCore
+  addMixins
+]
 
 export default Render
