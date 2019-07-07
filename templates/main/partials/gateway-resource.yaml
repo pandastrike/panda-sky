@@ -1,8 +1,0 @@
-{{name}}Resource:
-  Type: "AWS::ApiGateway::Resource"
-  Properties:
-    RestApiId:
-      Ref: API
-    ParentId:
-      {{parentID}}
-    PathPart: "{{pathPart}}"

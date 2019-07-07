@@ -48,7 +48,8 @@ Build = (stopwatch, env, {profile}) ->
     console.log "        - Rendering API documentation..."
     appRoot = process.cwd()
     config = await configuration.compile appRoot, env, profile
-    await write "#{target}/api.html", pug.render config.apiReference
+    await write "#{target}/api.html",
+      pug.render config.environment.templates.apiDocs
 
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.
     console.log "    -- Compressing final deploy package..."
