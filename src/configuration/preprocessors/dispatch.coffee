@@ -13,7 +13,9 @@ Dispatch = (config) ->
     memorySize: memorySize ? 256
     timeout: timeout ? 60
     variables: merge environment: env, variables
-    package: "dispatch.zip"
+    code:
+      bucket: stack.bucket
+      key: "dispatch.zip"
     arn: "arn:aws:lambda:#{region}:#{accountID}:function:#{name}"
     hostname: "alb-#{environment.hostnames[0]}"
     hostedzone: environment.hostedzone

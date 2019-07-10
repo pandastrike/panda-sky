@@ -1,6 +1,6 @@
 import {resolve} from "path"
 import SDK from "aws-sdk"
-import {go} from "panda-river"
+import {flow} from "panda-garden"
 import {cat, merge} from "panda-parchment"
 import {exists} from "panda-quill"
 
@@ -55,11 +55,9 @@ updatePartitions = (config) ->
 
   config
 
-Mixins = (config) ->
-
-  await go [
-    expandMixinConfigurations config
-    updatePartitions
-  ]
+Mixins = flow [
+  expandMixinConfigurations
+  updatePartitions
+]
 
 export default Mixins

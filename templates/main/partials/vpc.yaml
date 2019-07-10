@@ -1,177 +1,128 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: Panda Sky VPC Resources
-Resources:
-  VPC:
-    Type: "AWS::EC2::VPC"
-    Properties:
-      CidrBlock: "10.0.0.0/16"
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      InstanceTenancy: default
-      Tags:
-        - Key: Name
-          Value: {{environmentVariables.fullName}}
-        {{#each tags}}
-        - Key: {{Key}}
-          Value: {{Value}}
-        {{/each}}
+{{#if vpc}}
+VPC:
+  Type: "AWS::EC2::VPC"
+  Properties:
+    CidrBlock: "10.0.0.0/16"
+    EnableDnsSupport: true
+    EnableDnsHostnames: true
+    InstanceTenancy: default
+    Tags:
+      {{#each vpc.tags}}
+      - Key: {{Key}}
+        Value: {{Value}}
+      {{/each}}
 
-  Subnet1:
-    DependsOn:
-      - VPC
-    Type: "AWS::EC2::Subnet"
-    Properties:
-      AvailabilityZone: {{aws.vpc.zone1}}
-      CidrBlock: "10.0.0.0/17"
-      VpcId:
-        Ref: VPC
+Subnet1:
+  DependsOn:
+    - VPC
+  Type: "AWS::EC2::Subnet"
+  Properties:
+    AvailabilityZone: {{vpc.zone1}}
+    CidrBlock: "10.0.0.0/17"
+    VpcId: !Ref VPC
 
-  Subnet2:
-    DependsOn:
-      - VPC
-    Type: "AWS::EC2::Subnet"
-    Properties:
-      AvailabilityZone: {{aws.vpc.zone2}}
-      CidrBlock: "10.0.128.0/17"
-      VpcId:
-        Ref: VPC
+Subnet2:
+  DependsOn:
+    - VPC
+  Type: "AWS::EC2::Subnet"
+  Properties:
+    AvailabilityZone: {{vpc.zone2}}
+    CidrBlock: "10.0.128.0/17"
+    VpcId: !Ref VPC
 
-  RouteTable:
-    DependsOn:
-      - VPC
-    Type: "AWS::EC2::RouteTable"
-    Properties:
-      VpcId:
-        Ref: VPC
+RouteTable:
+  DependsOn:
+    - VPC
+  Type: "AWS::EC2::RouteTable"
+  Properties:
+    VpcId: !Ref VPC
 
+Gateway:
+  Type: "AWS::EC2::InternetGateway"
 
-  Gateway:
-    Type: "AWS::EC2::InternetGateway"
+GatewayAttachment:
+  DependsOn:
+    - VPC
+    - Gateway
+  Type: "AWS::EC2::VPCGatewayAttachment"
+  Properties:
+    InternetGatewayId: !Ref Gateway
+    VpcId: !Ref VPC
 
-  GatewayAttachment:
-    DependsOn:
-      - VPC
-      - Gateway
-    Type: "AWS::EC2::VPCGatewayAttachment"
-    Properties:
-      InternetGatewayId:
-        Ref: Gateway
-      VpcId:
-        Ref: VPC
+RouteRuleInternal:
+  DependsOn:
+    - RouteTable
+    - GatewayAttachment
+  Type: "AWS::EC2::Route"
+  Properties:
+    DestinationCidrBlock: "10.0.0.0/8"
+    GatewayId: !Ref Gateway
+    RouteTableId: !Ref RouteTable
 
-  RouteRuleInternal:
-    DependsOn:
-      - RouteTable
-      - GatewayAttachment
-    Type: "AWS::EC2::Route"
-    Properties:
-      DestinationCidrBlock: "10.0.0.0/8"
-      GatewayId:
-        Ref: "Gateway"
-      RouteTableId:
-        Ref: "RouteTable"
+RouteTableSubnet1:
+  DependsOn:
+    - RouteTable
+    - Subnet1
+  Type: "AWS::EC2::SubnetRouteTableAssociation"
+  Properties:
+    RouteTableId: !Ref RouteTable
+    SubnetId: !Ref Subnet1
 
-  RouteTableSubnet1:
-    DependsOn:
-      - RouteTable
-      - Subnet1
-    Type: "AWS::EC2::SubnetRouteTableAssociation"
-    Properties:
-      RouteTableId:
-        Ref: RouteTable
-      SubnetId:
-        Ref: Subnet1
+RouteTableSubnet2:
+  DependsOn:
+    - RouteTable
+    - Subnet2
+  Type: "AWS::EC2::SubnetRouteTableAssociation"
+  Properties:
+    RouteTableId: !Ref RouteTable
+    SubnetId: !Ref Subnet2
 
-  RouteTableSubnet2:
-    DependsOn:
-      - RouteTable
-      - Subnet2
-    Type: "AWS::EC2::SubnetRouteTableAssociation"
-    Properties:
-      RouteTableId:
-        Ref: RouteTable
-      SubnetId:
-        Ref: Subnet2
+SecurityGroup:
+  DependsOn:
+    - VPC
+  Type: "AWS::EC2::SecurityGroup"
+  Properties:
+    GroupName: {{variables.name}}
+    GroupDescription: {{variables.name}} Core Security Group
+    VpcId: !Ref VPC
 
-  SecurityGroup:
-    DependsOn:
-      - VPC
-    Type: "AWS::EC2::SecurityGroup"
-    Properties:
-      GroupName: {{environmentVariables.fullName}}
-      GroupDescription: {{environmentVariables.fullName}} Core Security Group
-      VpcId:
-        Ref: VPC
+SecurityGroupEgressRule:
+  DependsOn:
+    - SecurityGroup
+  Type: "AWS::EC2::SecurityGroupEgress"
+  Properties:
+    CidrIp: "0.0.0.0/0"
+    Description: Allow all outbound traffic
+    IpProtocol: "-1"
+    FromPort: 0
+    ToPort: 65535
+    GroupId: !Ref SecurityGroup
 
-  SecurityGroupEgressRule:
-    DependsOn:
-      - SecurityGroup
-    Type: "AWS::EC2::SecurityGroupEgress"
-    Properties:
-      CidrIp: "0.0.0.0/0"
-      Description: Allow all outbound traffic
-      IpProtocol: "-1"
-      FromPort: 0
-      ToPort: 65535
-      GroupId:
-        Ref: SecurityGroup
+SecurityGroupIngressRule:
+  DependsOn:
+    - SecurityGroup
+  Type: "AWS::EC2::SecurityGroupIngress"
+  Properties:
+    Description: Allows Lambdas full access to VPC resources
+    FromPort: 0
+    ToPort: 65535
+    IpProtocol: tcp
+    SourceSecurityGroupId: !Ref SecurityGroup
+    GroupId: !Ref SecurityGroup
 
-  SecurityGroupIngressRule:
-    DependsOn:
-      - SecurityGroup
-    Type: "AWS::EC2::SecurityGroupIngress"
-    Properties:
-      Description: Allows Lambdas full access to VPC resources
-      FromPort: 0
-      ToPort: 65535
-      IpProtocol: tcp
-      SourceSecurityGroupId:
-        Ref: SecurityGroup
-      GroupId:
-        Ref: SecurityGroup
-
-  EndpointS3:
-    DependsOn:
-      - VPC
-      - RouteTable
-    Type: "AWS::EC2::VPCEndpoint"
-    Properties:
-      VpcId:
-        Ref: VPC
-      RouteTableIds:
-        - Ref: RouteTable
-      ServiceName: com.amazonaws.{{aws.region}}.s3
-      VpcEndpointType: Gateway
-
-
-Outputs:
-  VPC:
-    Value:
-      Ref: "VPC"
-  Subnets:
-    Value:
-      "Fn::Join":
-        - ","
-        -
-          - {"Ref": Subnet1}
-          - {"Ref": Subnet2}
-  AvailabilityZones:
-    Value:
-      "Fn::Join":
-        - ","
-        -
-          - { "Fn::GetAtt" : [ "Subnet1", "AvailabilityZone" ] }
-          - { "Fn::GetAtt" : [ "Subnet2", "AvailabilityZone" ] }
-  SecurityGroups:
-    Value:
-      "Fn::Join":
-        - ","
-        -
-          - { "Ref" : SecurityGroup }
-
-  RouteTables:
-    Value:
-      "Fn::Join":
-        - ","
-        -
-          - { "Ref" : RouteTable }
+EndpointS3:
+  DependsOn:
+    - VPC
+    - RouteTable
+  Type: "AWS::EC2::VPCEndpoint"
+  Properties:
+    VpcId: !Ref VPC
+    RouteTableIds:
+      - !Ref RouteTable
+    VpcEndpointType: Gateway
+    ServiceName: !Join
+      - ""
+      - - com.amazonaws.
+        - !Ref "AWS::Region"
+        - .s3
+{{/if}}

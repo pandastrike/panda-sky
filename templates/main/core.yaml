@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Panda Sky Core Resources - Gateway Base API
+Description: Panda Sky Core Resources - Dispatcher
 Resources:
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -39,26 +39,28 @@ Resources:
               - {{indent 16 .}}
             {{/each}}
 
+  {{#with environment.dispatch}}
   DispatchLambda:
     Type: "AWS::Lambda::Function"
     DependsOn:
       - DispatchRole
     Properties:
-      Description: "Dispatch for {{environment.stack.name}}"
-      FunctionName: {{environment.dispatch.name}}
+      Description: "Dispatch for {{name}}"
+      FunctionName: {{name}}
       Handler: "lib/dispatch.handler"
       Role: !GetAtt [ Dispatchrole, Arn ]
-      Runtime: {{environment.dispatch.runtime}}
-      MemorySize: {{environment.dispatch.memorySize}}
-      Timeout: {{environment.dispatch.timeout}}
+      Runtime: {{runtime}}
+      MemorySize: {{memorySize}}
+      Timeout: {{timeout}}
       Environment:
         Variables:
-        {{#each environment.dispatch.variables}}
+        {{#each variables}}
           {{@key}}: {{this}}
         {{/each}}
       Code:
-        S3Bucket: {{environment.stack.src}}
-        S3Key: {{environment.dispatch.package}}
+        S3Bucket: {{code.bucket}}
+        S3Key: {{code.key}}
+  {{/with}}
 
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup

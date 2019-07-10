@@ -1,44 +1,37 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Panda Sky Partition
+Description: Panda Sky Partition {{name}}
 Resources:
-  {{#if aws.vpc}}
-  {{> vpc }}
-  Parameters:
-    SecurityGroups:
-      Type: String
-      Description: comma delimited list of security groups for the core stack VPC
-    Subnets:
-      Type: String
-      Description: comma delimited list of subnet IDs for the core stack VPC
-  {{/if}}
 
-  # IAM (Identity and Access Management), granting functions acccess to other stack resources.
+  {{> vpc }}
+
   {{> iamrole}}
 
-  {{#with rootResource}}
-  # The root resource needs different expansion than others. Define all the Lambdas for methods on the root resource.
-  {{#each methods}}
   {{> lambda }}
-  {{/each}}
-  {{/with}}
 
-  # Define all Lambdas for methods on all non-root resources
-  {{#each resources}}
-  {{#each methods}}
-  {{> lambda }}
-  {{/each}}
-  {{/each}}
+Outputs:
+{{#if vpc}}
+  VPC:
+    Value: !Ref VPC
 
-  {{#with rootResource}}
-  # The root resource needs different expansion than others. Define all the Lambdas for methods on the root resource.
-  {{#each methods}}
-  {{> lambda-permissions}}
-  {{/each}}
-  {{/with}}
+  Subnets:
+    Value: !Join
+      - ","
+      - - !Ref Subnet1
+        - !Ref Subnet2
 
-  # Define all Lambdas for methods on all non-root resources
-  {{#each resources}}
-  {{#each methods}}
-  {{> lambda-permissions}}
-  {{/each}}
-  {{/each}}
+  AvailabilityZones:
+    Value: !Join
+      - ","
+      - - !GetAtt [ Subnet1, AvailabilityZone ]
+        - !GetAtt [ Subnet2, AvailabilityZone ]
+
+  SecurityGroups:
+    Value: !Join
+      - ","
+      - - !Ref SecurityGroup
+
+  RouteTables:
+    Value: !Join
+      - ","
+      - - !Ref RouteTable
+{{/if}}

@@ -1,29 +1,26 @@
 {{#with lambda}}
-{{handler.name}}:
+Handler:
   Type: "AWS::Lambda::Function"
   Properties:
-    Description: "Handler for API {{@root.name}}"
-    FunctionName: {{function.name}}
+    Description: "Handler for parition {{name}}"
+    FunctionName: {{name}}
 
     Handler: "lib/sky.API"
-    Role:
-      "Fn::GetAtt" : ["{{@root.roleName}}", "Arn"]
-    Runtime: {{@root.aws.runtime}}
-    MemorySize: {{@root.aws.memorySize}}
-    Timeout: {{@root.aws.timeout}}
-    {{#if @root.aws.vpc}}
+    Role: !GetAtt [ IAMRole, Arn ]
+    Runtime: {{runtime}}
+    MemorySize: {{memorySize}}
+    Timeout: {{timeout}}
+    {{#if ../vpc}}
     VpcConfig:
-      SecurityGroupIds:
-        "Fn::Split" : [ ",", {"Ref": SecurityGroups} ]
-      SubnetIds:
-        "Fn::Split" : [ ",", {"Ref": Subnets} ]
+      SecurityGroupIds: !Split [ ",", !Ref SecurityGroups ]
+      SubnetIds: !Split [ ",", !Ref Subnets ]
     {{/if}}
     Environment:
       Variables:
-      {{#each @root.environmentVariables}}
+      {{#each ../variables}}
         {{@key}}: {{this}}
       {{/each}}
     Code:
-      S3Bucket: {{handler.bucket}}
-      S3Key: "package.zip"
+      S3Bucket: {{code.bucket}}
+      S3Key: {{code.key}}
 {{/with}}

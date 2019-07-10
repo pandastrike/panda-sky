@@ -1,4 +1,4 @@
-{{roleName}}:
+IAMRole:
   Type: "AWS::IAM::Role"
   Properties:
     AssumeRolePolicyDocument:
@@ -10,17 +10,17 @@
               - lambda.amazonaws.com
           Action:
             - "sts:AssumeRole"
-    {{#if managedPolicies}}
+    {{#if lambda.managedPolicies}}
     ManagedPolicyArns:
-      {{#each managedPolicies}}
+      {{#each lambda.managedPolicies}}
       - {{.}}
       {{/each}}
     {{/if}}
     Policies:
-      - PolicyName: {{policyName}}
+      - PolicyName: {{lambda.name}}
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
-          {{#each policyStatements}}
-            - {{indent 14 .}}
+          {{#each policy}}
+            - {{indent 14 (yaml .)}}
           {{/each}}
