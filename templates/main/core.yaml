@@ -1,18 +1,152 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Panda Sky Core Resources - Gateway Base API
 Resources:
-  API:
-    Type: "AWS::ApiGateway::RestApi"
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: {{gatewayName}}
-      MinimumCompressionSize: 1000
-      EndpointConfiguration:
-        Types: [REGIONAL]
+      Type: application
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      LoadBalancerAttributes:
+        - Key: routing.http2.enabled
+          Value: true
+        - Key: idle_timeout.timeout_seconds
+          Value: 300
+      Tags:
+        {{#each environment.tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
 
-Outputs:
-  API:
-    Value:
-      Ref: API
-  RootResourceId:
-    Value:
-      "Fn::GetAtt": ["API", "RootResourceId"]
+  DispatchRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: {{environment.dispatch.name}}
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            {{#each environment.dispatch.policy}}
+              - {{indent 16 .}}
+            {{/each}}
+
+  DispatchLambda:
+    Type: "AWS::Lambda::Function"
+    DependsOn:
+      - DispatchRole
+    Properties:
+      Description: "Dispatch for {{environment.stack.name}}"
+      FunctionName: {{environment.dispatch.name}}
+      Handler: "lib/dispatch.handler"
+      Role: !GetAtt [ Dispatchrole, Arn ]
+      Runtime: {{environment.dispatch.runtime}}
+      MemorySize: {{environment.dispatch.memorySize}}
+      Timeout: {{environment.dispatch.timeout}}
+      Environment:
+        Variables:
+        {{#each environment.dispatch.variables}}
+          {{@key}}: {{this}}
+        {{/each}}
+      Code:
+        S3Bucket: {{environment.stack.src}}
+        S3Key: {{environment.dispatch.package}}
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn:
+      - DispatchLambda
+    Properties:
+      TargetType: lambda
+      HealthCheckEnabled: false
+      Targets:
+        - Id: !GetAtt [ DispatchLambda, Arn ]
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - LoadBalancer
+      - TargetGroup
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      {{!-- From https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html It is the most restrictive policy supported as of this writing --}}
+      SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
+      Certificates:
+        - CertificateArn: {{environment.dispatch.certificate}}
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+
+  {{#unless environment.isDev}}
+  APIKeyMatchSet:
+    Type: AWS::WAFRegional::ByteMatchSet
+    Properties:
+      Name: API Key Match Set for {{environment.stack.name}}
+      ByteMatchTuples:
+        - FieldToMatch:
+            Type: HEADER
+            Data: x-api-key
+          PositionalConstraint: EXACTLY
+          TargetStringBase64: {{environment.apiKey}}
+          TextTransformation: NONE
+
+  APIKeyRule:
+    Type: AWS::WAFRegional::Rule
+    DependsOn:
+      - APIKeyMatchSet
+    Properties:
+      Name: API Key Rule for {{environment.stack.name}} ALB
+      MetricName: APIKeyRule{{templateCase environment.stack.name}}
+      Predicates:
+        - Type: ByteMatch
+          Negated: false
+          DataId: !Ref APIKeyMatchSet
+
+  WAF:
+    Type: AWS::WAFRegional::WebACL
+    DependsOn:
+      - APIKeyRule
+    Properties:
+      Name: WAF for {{environment.stack.name}} ALB
+      MetricName: {{templateCase environment.stack.name}}
+      DefaultAction:
+        Type: BLOCK
+      Rules:
+        - Action: ALLOW
+          Priority: 1
+          RuleId: !Ref APIKeyRule
+
+  WAFAssociation:
+    Type: AWS::WAFRegional::WebACLAssociation
+    DependsOn:
+      - Listener
+      - WAF
+    Properties:
+      ResourceArn: !Ref Listener
+      WebACLId: !Ref WAF
+  {{/unless}}
+
+  DNS:
+    Type: "AWS::Route53::RecordSetGroup"
+    DependsOn:
+      - Listener
+    Properties:
+      Comment: Direct endpoint for Sky API {{environment.stack.name}}
+      HostedZoneId: {{environment.dispatch.hostedzone}}
+      RecordSets:
+        - Name: {{environment.dispatch.hostname}}
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt [ LoadBalancer, DNSName ]
+            EvaluateTargetHealth: false
+            HostedZoneId: !GetAtt [ LoadBalancer, CanonicalHostedZoneID ]

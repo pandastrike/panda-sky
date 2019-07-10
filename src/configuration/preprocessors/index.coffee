@@ -4,19 +4,19 @@ import {flow} from "panda-garden"
 
 import checkEnvironment from "./environment"
 import setVariables from "./variables"
-import setVPC from "./vpc"
+import setDomains from "./domains"
 import setPartitions from "./partitions"
+import setDispatch from "./dispatch"
 import setSignatures from "./signatures"
-import setDomains from "./custom-domains"
 import fetchMixins from "./mixins"
 
 Preprocessor = flow [
   checkEnvironment
   setVariables
-  setVPC
-  setPartitions
-  setSignatures
   setDomains
+  setPartitions
+  setDispatch
+  setSignatures
   fetchMixins
 ]
 

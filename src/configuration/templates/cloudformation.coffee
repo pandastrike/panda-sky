@@ -11,29 +11,26 @@ renderCore = ({T, config}) ->
 
   {T, config}
 
-renderPartition = ([name, partition]) -> do flow [
-    wrap resolve "main", "partition.yaml"
-    render T, partition
-    (result) -> "#{name}": result
-  ]
+renderPartition = (T, path = resolve "main", "partition.yaml") ->
+  ([name, partition]) -> [name]: render T, partition, path
 
 renderPartitions = ({T, config}) ->
   config.environment.templates.partitions =
     await do flow [
       wrap pairs config.environment.partitions
-      map renderPartition
+      map renderPartition T
       reduce include, {}
     ]
 
   {T, config}
 
 addMixins = ({config}) ->
-  config.environment.templates.mixins = await do flow [
-    wrap pairs config.environment.mixins
-    map ([name, {template}]) ->
-      if template then "#{name}": template else {}
-    reduce include, {}
-  ]
+  config.environment.templates.mixins =
+    await do flow [
+      wrap pairs config.environment.mixins
+      map ([name, {template}]) -> [name]: template if template
+      reduce include, {}
+    ]
 
   config
 

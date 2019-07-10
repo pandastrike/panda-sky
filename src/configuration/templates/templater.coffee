@@ -1,7 +1,7 @@
 import {resolve as _resolve, parse} from "path"
 import PandaTemplate from "panda-template"
 import {curry, memoize} from "panda-garden"
-import {first} from "panda-parchment"
+import {first, capitalize, camelCase, plaintext} from "panda-parchment"
 import {read, glob} from "panda-quill"
 import {yaml} from "panda-serialize"
 
@@ -18,6 +18,7 @@ setup = (config) ->
   T = new PandaTemplate()
   T.handlebars().registerHelper
     yaml: (input) -> yaml input
+    templateCase: (input) -> capitalize camelCase plaintext input
   {T, config}
 
 registerPartials = (dir) ->

@@ -1,4 +1,5 @@
 import {isArray, camelCase} from "panda-parchment"
+import {flow} from "panda-garden"
 
 defaultHeaders = [
   "Accept",
@@ -25,8 +26,9 @@ setHeaders = (headers) ->
     headers
 
 applyHostnames = (config) ->
-  for name in config.environment.hostnames ? []
-    "#{name}.#{config.domain}"
+  config.environment.hostnames = do ->
+    "#{name}.#{config.domain}" for name in config.environment.hostnames
+  config
 
 # Accept the cache configuraiton and fill in any default values.
 applyDefaults = (config) ->
@@ -51,30 +53,27 @@ applyDefaults = (config) ->
       else
         item.ttl = {min: item.ttl[0], max: item.ttl[1], default: item.ttl[2]}
 
-  cache
+  config.environment.cache = cache
+  config
 
 applyFirewall = (config) ->
-
-  if !config.cache.waf
-    false
+  {waf} = config.environment.cache
+  if !waf
+    config.environment.cache.waf = false
   else
-    name = config.environment.variables.fullName
-
-    logBucket: "#{name}-#{config.projectID}-cflogs"
-    floodThreshold: waf.floodThreshold ? 2000
-    errorThreshold: waf.errorThreshold ? 50
-    blockTTL: waf.blockTTL ? 240
-
-Domains = (config) ->
-  # Construct an array of full subdomains to feed the process.
-  config.environment.hostnames = applyHostnames config
-
-  # Apply smart defaults for CloudFront.
-  config.environment.cache = applyDefaults config
-
-  # Expand the firewall configuation
-  config.environment.cache.waf = applyFirewall config
+    {name} = config.environment.variables
+    config.environment.cache.waf =
+      logBucket: "#{name}-#{config.projectID}-cflogs"
+      floodThreshold: waf.floodThreshold ? 2000
+      errorThreshold: waf.errorThreshold ? 50
+      blockTTL: waf.blockTTL ? 240
 
   config
+
+Domains = flow [
+  applyHostnames
+  applyDefaults
+  applyFirewall
+]
 
 export default Domains

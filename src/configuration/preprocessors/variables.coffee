@@ -4,7 +4,7 @@ import {merge} from "panda-parchment"
 import {go} from "panda-river"
 
 applyStackVariables = (config) ->
-  config.stack =
+  config.environment.stack =
     name: "#{config.name}-#{config.env}"
     src: "#{config.name}-#{config.env}-#{config.projectID}"
     pkg: join process.cwd(), "deploy", "package.zip"
@@ -17,8 +17,7 @@ applyEnvironmentVariables = (config) ->
     partition.variables = merge config.environment.variables,
       partition.variables,
       environment: config.env
-      skyBucket: config.stack.src # S3 Bucket that orchastrates state
-
+      skyBucket: config.environment.stack.src # Orchestration Bucket
   config
 
 applyTags = (config) ->
@@ -32,9 +31,9 @@ applyTags = (config) ->
     partition.tags = merge values, partition: name, partition.tags
 
   # Format as "Key" and "Value" for CloudFormation
-  config.tags = {Key, Value} for Key, Value of values
+  config.tags = ({Key, Value} for Key, Value of values)
   for _, partition of config.environment.partitions
-    partition.tags = {Key, Value} for Key, Value of partition.tags
+    partition.tags = ({Key, Value} for Key, Value of partition.tags)
 
   config
 
