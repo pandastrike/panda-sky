@@ -1,7 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "{{env}} {{name}} custom domain - deployed by Panda Sky"
 Resources:
-  {{#if aws.cache.waf}}
+
+  {{#with environment.cache}}
   WAF:
     Type: "AWS::CloudFormation::Stack"
     Properties:
@@ -13,157 +14,51 @@ Resources:
         ActivateHttpFloodProtectionParam: "yes"
         ActivateScannersProbesProtectionParam: "yes"
         EndpointType: "CloudFront"
-        RequestThreshold: "{{aws.cache.waf.floodThreshold}}"
-        ErrorThreshold: "{{aws.cache.waf.errorThreshold}}"
-        WAFBlockPeriod: "{{aws.cache.waf.blockTTL}}"
-        AccessLogBucket: {{aws.cache.logBucket}}
+        RequestThreshold: "{{waf.floodThreshold}}"
+        ErrorThreshold: "{{waf.errorThreshold}}"
+        WAFBlockPeriod: "{{waf.blockTTL}}"
+        AccessLogBucket: {{logBucket}}
       Tags:
         - Key: Substack Type
           Value: Custom Domain Firewall
-        {{#each tags}}
+        {{#each ../tags}}
         - Key: {{Key}}
           Value: {{Value}}
         {{/each}}
       TemplateURL: "https://s3.amazonaws.com/solutions-reference/aws-waf-security-automations/latest/aws-waf-security-automations.template"
+  {{/with}}
 
-  ApiUsagePlan:
-    Type: AWS::ApiGateway::UsagePlan
-    Properties:
-      Description: CloudFront usage only
-      UsagePlanName: CloudFront_only_{{@root.environmentVariables.fullName}}
-      ApiStages:
-        -
-          ApiId: {{aws.cache.api}}
-          Stage: {{env}}
-
-  ApiKey:
-    Type: "AWS::ApiGateway::ApiKey"
-    Properties:
-      Name: {{aws.stack.name}}-cloudfront
-      Description: CloudFormation Only API Key for {{aws.stack.name}}
-      Enabled: true
-      GenerateDistinctId: false
-
-  ApiKeyUsagePlan:
-    Type: "AWS::ApiGateway::UsagePlanKey"
-    Properties:
-      KeyId: !Ref ApiKey
-      KeyType: API_KEY
-      UsagePlanId: !Ref ApiUsagePlan
-
-  GetApiKeyValue:
-      DependsOn: "ApiKey"
-      Type: Custom::ApiKeyValue
-      Properties:
-        ServiceToken: !GetAtt GetApiKeyValueFunction.Arn
-
-  GetApiKeyValueFunctionRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-          Path: "/"
-          ManagedPolicyArns:
-              - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-          AssumeRolePolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              -
-                Sid: "AllowLambdaServiceToAssumeRole"
-                Effect: "Allow"
-                Action:
-                  - "sts:AssumeRole"
-                Principal:
-                  Service:
-                    - "lambda.amazonaws.com"
-          Policies:
-            -
-              PolicyName: RotateKeysPolicy
-              PolicyDocument:
-                Version: '2012-10-17'
-                Statement:
-                  -
-                    Effect: Allow
-                    Action: 'apigateway:GET'
-                    Resource: '*'
-
-  GetApiKeyValueFunction:
-    DependsOn:
-      - GetApiKeyValueFunctionRole
-    Type: "AWS::Lambda::Function"
-    Properties:
-      Handler: "index.lambda_handler"
-      Role: !GetAtt GetApiKeyValueFunctionRole.Arn
-      Runtime: python3.6
-      Timeout: 120
-      Environment:
-        Variables:
-          API_KEY: !Ref ApiKey
-      Code:
-        ZipFile: !Sub |
-          import datetime
-          import os
-
-          import boto3
-          import cfnresponse
-          from botocore.exceptions import ClientError
-
-          session = boto3.Session()
-          apigw = session.client('apigateway')
-
-
-          def lambda_handler(event, context):
-            request_type = event['RequestType']
-            request_type_allowed = ["Update", "Create"]
-            from pprint import pprint
-            responseData = {}
-
-            print("Cloudformation Operation ==> ", request_type)
-
-            if request_type in request_type_allowed:
-              try:
-                api_key = apigw.get_api_key(apiKey=os.getenv("API_KEY"), includeValue=True)
-                responseData = {'Value': api_key['value']}
-                cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
-              except ClientError as err:
-                responseData = {"Error": "{}".format(err)}
-                cfnresponse.send(event, context, cfnresponse.FAILED, responseData)
-            else:
-              cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
-  {{/if}}
-
-  {{#each aws.hostnames}}
+  {{#each environment.hostnames}}
   CustomDomainCF{{@index}}:
     Type: "AWS::CloudFront::Distribution"
-    {{#if @root.aws.cache.waf}}
     DependsOn:
-      - "WAF"
-      - GetApiKeyValueFunction
-    {{/if}}
+      - WAF
     Properties:
       DistributionConfig:
         Aliases:
           - {{.}}
-        Comment: Sky API Custom Domain for {{@root.name}}-{{@root.env}}
+        Comment: Sky API Domain for {{@root.environment.stack.name}}
         DefaultCacheBehavior:
           AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
           CachedMethods: ["GET", "HEAD", "OPTIONS"]
           Compress: false
-          MinTTL: {{@root.aws.cache.ttl.min}}
-          MaxTTL: {{@root.aws.cache.ttl.max}}
-          DefaultTTL: {{@root.aws.cache.ttl.default}}
+          MinTTL: {{@root.environment.cache.ttl.min}}
+          MaxTTL: {{@root.environment.cache.ttl.max}}
+          DefaultTTL: {{@root.environment.cache.ttl.default}}
           ForwardedValues:
             Cookies:
               Forward: "all"
             Headers:
-              {{#each @root.aws.cache.headers}}
+              {{#each @root.environment.cache.headers}}
               - {{.}}
               {{/each}}
             QueryString: true
             QueryStringCacheKeys: ["*"]
           SmoothStreaming: false
-          TargetOriginId: {{@root.aws.cache.originID}}
+          TargetOriginId: {{@root.environment.cache.originID}}
           ViewerProtocolPolicy: redirect-to-https
 
-        {{#with @root.aws.cache.paths}}
+        {{#with @root.environment.cache.paths}}
         CacheBehaviors:
           {{#each .}}
           - PathPattern: {{path}}
@@ -177,49 +72,43 @@ Resources:
               Cookies:
                 Forward: "all"
               Headers:
-                {{#each @root.aws.cache.headers}}
+                {{#each @root.environment.cache.headers}}
                 - {{.}}
                 {{/each}}
               QueryString: true
               QueryStringCacheKeys: ["*"]
             SmoothStreaming: false
-            TargetOriginId: {{@root.aws.cache.originID}}
+            TargetOriginId: {{@root.environment.cache.originID}}
             ViewerProtocolPolicy: redirect-to-https
           {{/each}}
         {{/with}}
 
         DefaultRootObject: ""
         Enabled: true
-        HttpVersion: {{@root.aws.cache.httpVersion}}
+        HttpVersion: {{@root.environment.cache.httpVersion}}
         IPV6Enabled: false
         Origins:
-          - Id: {{@root.aws.cache.originID}}
-            DomainName: {{@root.aws.cache.endpoint}}
-            OriginPath: "/{{@root.env}}"
+          - Id: {{@root.environment.cache.originID}}
+            DomainName: {{@root.environment.cache.endpoint}}
             CustomOriginConfig:
               HTTPSPort: 443
               OriginKeepaliveTimeout: 60
               OriginProtocolPolicy: "https-only"
               OriginReadTimeout: 60
               OriginSSLProtocols: [ "TLSv1.2" ]
-            {{#if @root.aws.cache.waf}}
             OriginCustomHeaders:
               - HeaderName: x-api-key
-                HeaderValue: !GetAtt GetApiKeyValue.Value
-            {{/if}}
-        PriceClass: PriceClass_{{@root.aws.cache.priceClass}}
+                HeaderValue: {{@root.environment.apiKey}}
+        PriceClass: PriceClass_{{@root.environment.cache.priceClass}}
         ViewerCertificate:
-          AcmCertificateArn: {{@root.aws.cache.certificate}}
-          MinimumProtocolVersion: {{@root.aws.cache.protocol}}
+          AcmCertificateArn: {{@root.environment.cache.certificate}}
+          MinimumProtocolVersion: {{@root.environment.cache.protocol}}
           SslSupportMethod: "sni-only"
         Logging:
-          Bucket: {{@root.aws.cache.logBucket}}.s3.amazonaws.com
+          Bucket: {{@root.environment.cache.logBucket}}.s3.amazonaws.com
           IncludeCookies: true
           Prefix: ""
-        {{#if @root.aws.cache.waf}}
-        WebACLId:
-          "Fn::GetAtt": ["WAF", "Outputs.WAFWebACL"]
-        {{/if}}
+        WebACLId: !GetAtt [ WAF, Outputs.WAFWebACL ]
       Tags:
       {{#each @root.tags}}
         - Key: {{Key}}
@@ -230,19 +119,18 @@ Resources:
   CustomDomainDNS:
     Type: "AWS::Route53::RecordSetGroup"
     DependsOn:
-      {{#each aws.hostnames}}
+      {{#each environment.hostnames}}
       - "CustomDomainCF{{@index}}"
       {{/each}}
     Properties:
-      Comment: Sky API endpoint for {{name}}-{{env}}
-      HostedZoneId: {{aws.cache.hostedzone}}
+      Comment: Sky API Endpoint for {{environment.stack.name}}
+      HostedZoneId: {{environment.cache.hostedzone}}
       RecordSets:
-        {{#each aws.hostnames}}
+        {{#each environment.hostnames}}
         - Name: {{.}}
           Type: A
           AliasTarget:
-            DNSName:
-              "Fn::GetAtt": ["CustomDomainCF{{@index}}", "DomainName"]
+            DNSName: !GetAtt [ CustomDomainCF{{@index}}, "DomainName" ]
             EvaluateTargetHealth: false
             HostedZoneId: Z2FDTNDATAQYW2
         {{/each}}

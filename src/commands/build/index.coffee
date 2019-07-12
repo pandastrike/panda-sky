@@ -7,7 +7,7 @@ import pug from "pug"
 
 import transpile from "./transpile"
 import {safe_mkdir, bellChar, outputDuration} from "../../utils"
-import configuration from "../../configuration"
+import compile from "../../configuration"
 
 
 START = 0
@@ -47,7 +47,7 @@ Build = (stopwatch, env, {profile}) ->
     await write "#{target}/api.yaml", yaml {resources}
     console.log "        - Rendering API documentation..."
     appRoot = process.cwd()
-    config = await configuration.compile appRoot, env, profile
+    config = await compile appRoot, env, profile
     await write "#{target}/api.html",
       pug.render config.environment.templates.apiDocs
 

@@ -42,7 +42,7 @@ Partitions = (config) ->
         zone1: region + vpc.availabilityZones[0]
         zone2: region + vpc.availabilityZones[1]
         tags: do ->
-          values = merge {name, environment: config.env}, vpc.tags
+          values = merge Name:name, environment:config.env, vpc.tags
           {Key, Value} for Key, Value of values
 
 

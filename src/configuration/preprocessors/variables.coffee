@@ -1,16 +1,5 @@
-# Set the environment variables that are injected into each Lambda and tags for AWS resources.  The developer may add or overwrite default values.
-import {join} from "path"
-import {merge} from "panda-parchment"
 import {flow} from "panda-garden"
-
-applyStackVariables = (config) ->
-  config.environment.stack =
-    name: "#{config.name}-#{config.env}"
-    bucket: "#{config.name}-#{config.env}-#{config.projectID}"
-    package: join process.cwd(), "deploy", "package.zip"
-    api: join process.cwd(), "api.yaml"
-    sky: join process.cwd(), "sky.yaml"
-  config
+import {merge} from "panda-parchment"
 
 applyEnvironmentVariables = (config) ->
   for _, partition of config.environment.partitions
@@ -40,7 +29,6 @@ applyTags = (config) ->
   config
 
 Variables = flow [
-  applyStackVariables config
   applyEnvironmentVariables
   applyTags
 ]

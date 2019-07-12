@@ -38,6 +38,8 @@ applyDefaults = (config) ->
   cache.priceClass ?= 100
   cache.headers = setHeaders cache.headers
   cache.originID = "Sky-" + config.stack.name
+  cache.hostedzone = config.environment.hostedzone
+  cache.certificate =  config.environment.certificate
 
   if !cache.ttl
     cache.ttl = {min: 0, max: 0, default: 0}
