@@ -1,18 +1,22 @@
 import {flow} from "panda-garden"
-import {establishBucket, uploadTemplates, deleteBucket} from "../bucket"
-import {updateLambdas} from "../lambdas"
-import {publishStacks, deleteStacks} from "../stacks"
+import {establishBucket, teardownBucket, scanBucket} from "../bucket"
+import {syncLambdas} from "../lambdas"
+import {syncStacks, teardownStacks} from "../stacks"
 
 publish = flow [
   establishBucket
-  syncTemplates
-  publishStacks
-  updateLambdas
+  scanBucket
+  syncStacks
+  syncLambdas
 ]
 
 _delete = flow [
-  deleteStacks
-  deleteBucket
+  teardownStacks
+  teardownBucket
 ]
 
-export {publish, delete:_delete, updateLambdas}
+export {
+  publish
+  delete:_delete
+  syncLambdas
+}

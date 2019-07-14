@@ -6,9 +6,6 @@ applyStackVariables = (config) ->
   config.environment.stack =
     name: "#{config.name}-#{config.env}"
     bucket: "#{config.name}-#{config.env}-#{config.projectID}"
-    package: join process.cwd(), "deploy", "package.zip"
-    api: join process.cwd(), "api.yaml"
-    sky: join process.cwd(), "sky.yaml"
 
   config
 

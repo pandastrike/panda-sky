@@ -25,7 +25,7 @@ readAPI = (config) ->
     console.error toJSON ajv.errors, true
     throw new Error "invalid Panda api.yaml configuration"
 
-  merge config, api
+  merge config, api, {api}
 
 readSky = (config) ->
   path = resolve config.root, "sky.yaml"

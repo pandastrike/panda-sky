@@ -1,7 +1,5 @@
 # The API is divided into partitions, where multiple API resources are dispatched by instances of the same lambda.  Configure each partition.
-import {dashed, capitalize, plainText, camelCase, merge} from "panda-parchment"
-
-templateCase = (string) -> capitalize camelCase plainText string
+import {dashed, merge} from "panda-parchment"
 
 Partitions = (config) ->
   {region, accountID} = config
@@ -14,12 +12,12 @@ Partitions = (config) ->
 
     name = dashed "#{config.name} #{config.env} #{_name}"
 
+    partition.stack = name
     partition.lambda =
       name: name
       runtime: runtime ? "nodejs8.10"
       memorySize: memorySize ? 256
       timeout: timeout ? 60
-      template: templateCase "#{name}Lambda"
       arn: "arn:aws:lambda:#{region}:#{accountID}:function:#{name}"
       code:
         bucket: stack.bucket

@@ -1,72 +1,109 @@
+import {resolve} from "path"
 import {flow, wrap} from "panda-garden"
 import {map, reduce} from "panda-river"
 import {include, toJSON} from "panda-parchment"
+import {s3} from "./bucket"
 
-publishStack = (sundog) ->
-  do (get=undefined, create=undefined, update=undefined) ->
-    {get, create, update, outputs} = sundog.CloudFormation()
-    (stack) ->
-      if await get stack.StackName
-        try
-          await update stack
-        catch e
-          if e.name == "ValidationError" &&
-            e.message == "No updates are to be performed."
-          else
-            throw e
-      else
-        await create stack
+cloudformation = (config) ->
+  {get, create, put, outputs, delete:_delete} = config.sundog.CloudFormation()
+  {bucket} = config.environment.stack
 
-      await do flow [
-        wrap outputs stack.StackName
-        map ({OutputKey, OutputValue}) -> [OutputKey]: OutputValue
-        reduce include, {}
-      ]
+  publish: (stack) -> await put stack
+  teardown: (name) -> _delete name
+  format: (name, paths...) ->
+      StackName: name
+      TemplateURL: resolve "https://#{bucket}.s3.amazonaws.com", paths...
+      Capabilities: ["CAPABILITY_IAM"]
+  read: flow [
+    outputs
+    map ({OutputKey, OutputValue}) -> [OutputKey]: OutputValue
+    reduce include, {}
+  ]
 
-publishStacks = (config) ->
-  {sundog, environment} = config
-  {templates} = environment
-  _publish = publishStack sundog
+teardownStacks = (config) ->
+  {teardown} = cloudformation config
+  {dispatch, partitions, mixins} = config.environment
 
-  for name, partition of templates.partitions
-    console.log "Publishing partition #{name}..."
-    parameters = await _publish partition
-    config.environment.partitions[name].stackParameters = parameters
-    console.log "Outputs:", toJSON parameters, true
+  console.log "Mixin Teardown"
+  await Promise.all (teardown stack for name, {stack} of mixins)
 
-  console.log "Publishing Dispatcher..."
-  await _publish templates.core
+  console.log "Dispatcher Teardown"
+  await teardown dispatch.name
 
-  for name, mixin of templates.mixins
-    console.log "Publishing mixin #{name}..."
-    console.log "Outputs:", toJSON (await _publish mixin), true
+  console.log "Partition Teardown"
+  await Promise.all (teardown stack for name, {stack} of partitions)
 
   config
 
-deleteStack = (sundog) ->
-  do (get=undefined, destroy=undefined) ->
-    {get, delete:destroy} = sundog.CloudFormation()
-    (name) ->
-      await destroy name if await get name
+teardownOld = (config) ->
+  {teardown} = cloudformation config
+  {remove} = s3 config
+  {stack:{remote}, partitions, mixins} = config.environment
 
-deleteStacks = (config) ->
-  {sundog, environment:{templates}} = config
-  {templates} = environment
-  _delete = deleteStack sundog
+  # Remove stacks removed from the configuration.
+  for name, {stack} of mixins when name not in remote.mixins
+    console.log "Mixin Teardown: #{name}"
+    await teardown stack
+    await remove "mixins", name
 
-  for name, partition of templates.partitions
-    console.log "Publishing partition #{name}..."
-    parameters = await _publish partition
-    config.environment.partitions[name].stackParameters = parameters
-    console.log "Outputs:", toJSON parameters, true
-
-  console.log "Publishing Dispatcher..."
-  await _publish templates.core
-
-  for name, mixin of templates.mixins
-    console.log "Publishing mixin #{name}..."
-    console.log "Outputs:", toJSON (await _publish mixin), true
+  for name, {stack} of partitions when name not in remote.partitions
+    console.log "Partition Teardown: #{name}"
+    await teardown stack
+    await remove "partitions", name
 
   config
 
-export {publishStacks, deleteStacks}
+upsertParitions = (config) ->
+  {publish, read, format} = cloudformation config
+  {upload} = s3 config
+  {partitions, templates} = config.environment
+
+  for name, template of templates.partitions
+    console.log "Partition Deploy: #{name}"
+    {stack} = partitions[name]
+    path = resolve "partitions", name, "index.yaml"
+    await upload template, path
+    await publish format stack, path
+    parameters = await read stack
+    config.environment.partitions[name].stackParameters = parameters
+    console.log "Outputs:", toJSON parameters, true
+
+  config
+
+upsertDispatch = (config) ->
+  {publish, format} = cloudformation config
+  {upload, remove} = s3 config
+  {dispatch, templates} = config.environment
+
+  console.log "Dispatcher Deploy"
+  await remove "main"
+  await upload templates.dispatch, "main", "dispatch.yaml"
+  await publish format dispatch.name, "main", "dispatch.yaml"
+
+  config
+
+upsertMixins = (config) ->
+  {publish, read, format} = cloudformation config
+  {upload} = s3 config
+  {mixins, templates} = config.environment
+
+  for name, template of templates.mixins
+    console.log "Mixin Deploy: #{name}"
+    {stack} = mixins[name]
+    path = resolve "mixins", name, "index.yaml"
+    await upload template, path
+    await publish format stack, path
+    parameters = await read stack
+    config.environment.mixins[name].stackParameters = parameters
+    console.log "Outputs:", toJSON parameters, true
+
+  config
+
+syncStacks = flow [
+  teardownOld
+  upsertPartitions
+  upsertDispatch
+  upsertMixins
+]
+
+export {syncStacks, teardownStacks}

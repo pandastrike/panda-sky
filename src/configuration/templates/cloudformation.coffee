@@ -3,9 +3,9 @@ import {include, pairs} from "panda-parchment"
 import {map, reduce} from "panda-river"
 import {setup, registerPartials, resolve, render} from "./templater"
 
-renderCore = ({T, config}) ->
-  config.environment.templates.core = await do flow [
-      wrap resolve "main", "core.yaml"
+renderDispatch = ({T, config}) ->
+  config.environment.templates.dispatch = await do flow [
+      wrap resolve "main", "dispatch.yaml"
       render T, config
     ]
 
@@ -37,7 +37,7 @@ addMixins = ({config}) ->
 Render = flow [
   setup
   registerPartials resolve "main", "partials"
-  renderCore
+  renderDispatch
   renderPartitions
   addMixins
 ]

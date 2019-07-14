@@ -40,6 +40,7 @@ expandMixinConfigurations = (config) ->
   for name, mixin of config.environment.mixins
     {type, configuration} = mixin
     mixin = Mixin.create await (await fetch type) SDK, config, configuration
+    mixin.stack = dashed "#{config.name} #{config.env} mixin #{mixin.name}"
 
   config
 
