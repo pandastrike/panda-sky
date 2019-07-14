@@ -1,4 +1,4 @@
-import {resolve} from "path"
+import {join} from "path"
 import {flow, wrap} from "panda-garden"
 import {map, reduce} from "panda-river"
 import {include, toJSON} from "panda-parchment"
@@ -10,9 +10,9 @@ cloudformation = (config) ->
 
   publish: (stack) -> await put stack
   teardown: (name) -> _delete name
-  format: (name, paths...) ->
+  format: (name, key) ->
       StackName: name
-      TemplateURL: resolve "https://#{bucket}.s3.amazonaws.com", paths...
+      TemplateURL: join "https://#{bucket}.s3.amazonaws.com", key
       Capabilities: ["CAPABILITY_IAM"]
   read: flow [
     outputs
@@ -44,12 +44,12 @@ teardownOld = (config) ->
   for name, {stack} of mixins when name not in remote.mixins
     console.log "Mixin Teardown: #{name}"
     await teardown stack
-    await remove "mixins", name
+    await remove join "mixins", name
 
   for name, {stack} of partitions when name not in remote.partitions
     console.log "Partition Teardown: #{name}"
     await teardown stack
-    await remove "partitions", name
+    await remove join "partitions", name
 
   config
 
@@ -61,9 +61,9 @@ upsertParitions = (config) ->
   for name, template of templates.partitions
     console.log "Partition Deploy: #{name}"
     {stack} = partitions[name]
-    path = resolve "partitions", name, "index.yaml"
-    await upload template, path
-    await publish format stack, path
+    key = join "partitions", name, "index.yaml"
+    await upload key, template
+    await publish format stack, key
     parameters = await read stack
     config.environment.partitions[name].stackParameters = parameters
     console.log "Outputs:", toJSON parameters, true
@@ -77,8 +77,9 @@ upsertDispatch = (config) ->
 
   console.log "Dispatcher Deploy"
   await remove "main"
-  await upload templates.dispatch, "main", "dispatch.yaml"
-  await publish format dispatch.name, "main", "dispatch.yaml"
+  key = join "main", "dispatch.yaml"
+  await upload key, templates.dispatch
+  await publish format dispatch.name, key
 
   config
 
@@ -90,9 +91,9 @@ upsertMixins = (config) ->
   for name, template of templates.mixins
     console.log "Mixin Deploy: #{name}"
     {stack} = mixins[name]
-    path = resolve "mixins", name, "index.yaml"
-    await upload template, path
-    await publish format stack, path
+    key = join "mixins", name, "index.yaml"
+    await upload key, template
+    await publish format stack, key
     parameters = await read stack
     config.environment.mixins[name].stackParameters = parameters
     console.log "Outputs:", toJSON parameters, true

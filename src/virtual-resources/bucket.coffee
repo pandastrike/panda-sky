@@ -6,8 +6,9 @@ s3 = (config) ->
   {bucket} = config.environment.stack
   {PUT, rmDir, list} = config.sundog.S3()
   list: -> list bucket
-  upload: (string, paths...) -> PUT.string bucket, (resolve paths...), string
-  remove: (paths...) -> rmDir bucket, resolve paths...
+  upload: (key, string) -> PUT.string bucket, key, string
+  uploadFromFile: (key, filePath) -> PUT.file bucket, key, filePath
+  remove: (key) -> rmDir bucket, key
 
 establishBucket = (config) ->
   {bucketTouch} = config.sundog.S3()
@@ -41,5 +42,12 @@ scanBucket = (config) ->
   config.environment.stack.remote = remote
   config
 
+syncPackage = (config) ->
+  {uploadFromFile} = s3 config
+  uploadFromFile "package.zip",
+    resolve process.cwd(), "deploy", "package.zip"
 
-export {establishBucket, teardownBucket, scanBucket, s3}
+  config
+
+
+export {establishBucket, teardownBucket, scanBucket, syncPackage, s3}
