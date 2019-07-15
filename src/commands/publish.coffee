@@ -7,10 +7,9 @@ Publish = (stopwatch, env, options) ->
     appRoot = process.cwd()
     console.log "Compiling configuration for publish"
     config = await compile appRoot, env, options.profile
-    stack = await Stack config
 
     console.log "Publishing..."
-    await stack.publish options.force
+    await publishStack config
     console.log "Done. (#{stopwatch()})"
   catch e
     console.error "Publish failure:"

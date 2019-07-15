@@ -17,7 +17,7 @@ Dispatch = (config) ->
       bucket: stack.bucket
       key: "dispatch.zip"
     arn: "arn:aws:lambda:#{region}:#{accountID}:function:#{name}"
-    hostname: "alb-#{environment.hostnames[0]}"
+    hostname: config.environment.cache.origin
     hostedzone: environment.hostedzone
     certificate: environment.certificate
     policy: [

@@ -1,12 +1,11 @@
 import {go, tee, pull} from "panda-river"
 import {values} from "panda-parchment"
 import {exists, write, read} from "panda-quill"
-import {shell} from "fairmont"
 import {yaml} from "panda-serialize"
 import pug from "pug"
 
 import transpile from "./transpile"
-import {safe_mkdir, bellChar, outputDuration} from "../../utils"
+import {safe_mkdir, bellChar, outputDuration, shell} from "../../utils"
 import compile from "../../configuration"
 
 

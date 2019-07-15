@@ -1,32 +1,30 @@
 import {join} from "path"
 import {exists} from "panda-quill"
-import {shell} from "fairmont"
 
-import {bellChar} from "../utils"
+import {bellChar, shell} from "../utils"
 import transpile from "./build/transpile"
 import compile from "../configuration"
-import Handlers from "../virtual-resources/handlers"
+import {syncLambdas, syncLambdaCode} from "../virtual-resources"
 
 Update = (stopwatch, env, {profile, hard}) ->
   console.log "Updating #{env}..."
   try
     appRoot = process.cwd()
     config = await compile appRoot, env, profile
-    handlers = await Handlers config
 
     # Push code through asset pipeline.
-    source = "src"
-    target = "lib"
-    pkg = "deploy/package.zip"
-
     fail() if !await exists join process.cwd(), pkg
-    await transpile source, target
+    await transpile "src", "lib"
 
     # Push code into pre-existing Zip archive.
-    await shell "zip -qr -9 #{pkg} lib -x *node_modules*"
+    await shell "zip -qr -9 deploy/package.zip lib -x *node_modules*"
 
     # Update Sky metadata with new Zip acrhive, and republish all lambdas.
-    await handlers.update hard
+    if hard
+      await syncLambdas config
+    else
+      await syncLambdaCode config
+
     console.log "Done. (#{stopwatch()})"
   catch e
     console.error e.stack

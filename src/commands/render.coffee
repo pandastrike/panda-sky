@@ -4,7 +4,7 @@ render = (env, {profile}) ->
   try
     appRoot = process.cwd()
     config = await compile appRoot, env, profile
-    for key, stack of config.aws.templates.core
+    for key, stack of config.environment.templates.dispatch
       console.log "=".repeat 80
       console.log "templates/#{key}"
       console.log "=".repeat 80

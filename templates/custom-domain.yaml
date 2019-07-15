@@ -89,7 +89,7 @@ Resources:
         IPV6Enabled: false
         Origins:
           - Id: {{@root.environment.cache.originID}}
-            DomainName: {{@root.environment.cache.endpoint}}
+            DomainName: {{@root.environment.cache.origin}}
             CustomOriginConfig:
               HTTPSPort: 443
               OriginKeepaliveTimeout: 60

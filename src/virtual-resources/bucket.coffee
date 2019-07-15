@@ -6,7 +6,8 @@ s3 = (config) ->
   {bucket} = config.environment.stack
   {PUT, rmDir, list} = config.sundog.S3()
   list: -> list bucket
-  upload: (key, string) -> PUT.string bucket, key, string
+  upload: (key, string) ->
+    PUT.string bucket, key, string, ContentType: "text/yaml"
   uploadFromFile: (key, filePath) -> PUT.file bucket, key, filePath
   remove: (key) -> rmDir bucket, key
 

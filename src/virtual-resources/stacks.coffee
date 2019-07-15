@@ -76,8 +76,8 @@ upsertDispatch = (config) ->
   {dispatch, templates} = config.environment
 
   console.log "Dispatcher Deploy"
-  await remove "main"
-  key = join "main", "dispatch.yaml"
+  await remove "dispatch"
+  key = join "dispatch", "index.yaml"
   await upload key, templates.dispatch
   await publish format dispatch.name, key
 

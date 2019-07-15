@@ -1,9 +1,11 @@
 import {flow} from "panda-garden"
-import {establishBucket, teardownBucket, scanBucket, syncPackage} from "../bucket"
-import {syncLambdas, syncLambdaCode} from "../lambdas"
-import {syncStacks, teardownStacks} from "../stacks"
+import {establishBucket, teardownBucket, scanBucket,
+  syncPackage} from "./bucket"
+import {syncLambdas, syncLambdaCode} from "./lambdas"
+import {syncStacks, teardownStacks} from "./stacks"
+import {publishDomain, teardownDomain, invalidateDomain} from "./domain"
 
-publish = flow [
+publishStack = flow [
   establishBucket
   scanBucket
   syncPackage
@@ -11,14 +13,17 @@ publish = flow [
   syncLambdas
 ]
 
-_delete = flow [
+teardownStack = flow [
   teardownStacks
   teardownBucket
 ]
 
 export {
-  publish
-  delete:_delete
+  publishStack
+  teardownStack
   syncLambdas
   syncLambdaCode
+  publishDomain
+  teardownDomain
+  invalidateDomain
 }

@@ -4,8 +4,9 @@ import {syncPackage, s3} from "./bucket"
 
 _syncCode = (config) ->
   {update} = config.sundog.Lambda()
-  {stack, partitions} = config.environment
+  {stack, partitions, dispatch} = config.environment
 
+  await update dispatch.name, stack.bucket, "package.zip"
   for _, {lambda:{name}} of partitions
     await update name, stack.bucket, "package.zip"
 
@@ -14,7 +15,14 @@ _syncCode = (config) ->
 _syncConfig = (config) ->
   await sleep 5000
   {updateConfig} = config.sundog.Lambda()
-  {stack, partitions} = config.environment
+  {stack, partitions, dispatch} = config.environment
+
+  await updateConfig dispatch.name,
+    MemorySize: dispatch.memorySize
+    Timeout: dispatch.timeout
+    Runtime: dispatch.runtime
+    Environment:
+      Variables: dispatch.variables
 
   for _, {lambda} of partitions
     await updateConfig lambda.name,

@@ -4,7 +4,15 @@ import {parse as _parse, relative, join} from "path"
 import {curry, binary} from "panda-garden"
 import {include, isMatch} from "panda-parchment"
 import {exists, mkdirp, isDirectory, write as _write, read} from "panda-quill"
-import {shell} from "fairmont"
+
+shell = (command) ->
+  {exec} = require "child_process"
+  new Promise (resolve, reject) ->
+    exec command, (error, stdout, stderr) ->
+      if error
+        reject error
+      else
+        resolve {stdout, stderr}
 
 pathWithUnderscore = (path) -> isMatch /(^|\/)_/, path
 
@@ -76,4 +84,4 @@ write = curry binary (directory, {path, target, source}) ->
     await mkdirp "0777", (target.directory)
     await _write target.path, target.content
 
-export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, context, write, stopwatch}
+export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, context, write, stopwatch, shell}
