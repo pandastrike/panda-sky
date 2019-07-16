@@ -21,9 +21,7 @@ renderCustomDomain = ({T, config}) ->
 
 renderPartition = (T, path = resolve "main", "partition.yaml") ->
   ([name, partition]) ->
-    foo = [name]: await render T, partition, path
-    console.log foo
-    foo
+    [name]: await render T, partition, path
 
 renderPartitions = ({T, config}) ->
   config.environment.templates.partitions =
