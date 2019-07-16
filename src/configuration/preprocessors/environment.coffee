@@ -36,8 +36,10 @@ check = (config) ->
   # Confirm we have API key for this environment in ASM.
   try
     asm = config.sundog.ASM()
-    {ARN} = await asm.get dashed "#{name} #{env} api key"
-    config.environment.apiKey = "{{resolve:secretsmanager:#{ARN}:SecretString:api}}"
+    name = dashed "#{name} #{env} api key"
+    {ARN} = await asm.get name
+    config.environment.apiKey =
+      "{{resolve:secretsmanager:#{name}:SecretString:api}}"
   catch e
     console.log e
     throw new Error "unable to find API Key secret for #{env}"

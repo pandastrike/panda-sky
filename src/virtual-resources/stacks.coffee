@@ -1,18 +1,23 @@
 import {join} from "path"
 import {flow, wrap} from "panda-garden"
 import {map, reduce} from "panda-river"
-import {include, toJSON} from "panda-parchment"
+import {keys, dashed, include, toJSON} from "panda-parchment"
 import {s3} from "./bucket"
 
 cloudformation = (config) ->
   {get, create, put, outputs, delete:_delete} = config.sundog.CloudFormation()
   {bucket} = config.environment.stack
 
-  publish: (stack) -> await put stack
+  publish: (stack) ->
+    if result = await get stack.StackName
+      if result.StackStatus == "ROLLBACK_COMPLETE"
+        await _delete stack.StackName
+
+    await put stack
   teardown: (name) -> _delete name
   format: (name, key) ->
       StackName: name
-      TemplateURL: join "https://#{bucket}.s3.amazonaws.com", key
+      TemplateURL: "https://#{bucket}.s3.amazonaws.com/#{key}"
       Capabilities: ["CAPABILITY_IAM"]
   read: flow [
     outputs
@@ -41,14 +46,14 @@ teardownOld = (config) ->
   {stack:{remote}, partitions, mixins} = config.environment
 
   # Remove stacks removed from the configuration.
-  for name, {stack} of mixins when name not in remote.mixins
+  for name in remote.mixins when name not in keys mixins
     console.log "Mixin Teardown: #{name}"
-    await teardown stack
+    await teardown dashed "#{config.name} #{config.env} mixin #{name}"
     await remove join "mixins", name
 
-  for name, {stack} of partitions when name not in remote.partitions
+  for name in remote.partitions when name not in keys partitions
     console.log "Partition Teardown: #{name}"
-    await teardown stack
+    await teardown dashed "#{config.name} #{config.env} #{name}"
     await remove join "partitions", name
 
   config
@@ -100,11 +105,16 @@ upsertMixins = (config) ->
 
   config
 
+announce = (config) ->
+  console.log "Deploy ready at https://#{config.environment.dispatch.hostname}"
+  config
+
 syncStacks = flow [
   teardownOld
   upsertPartitions
   upsertDispatch
   upsertMixins
+  announce
 ]
 
 export {syncStacks, teardownStacks}

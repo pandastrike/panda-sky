@@ -1,12 +1,129 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Panda Sky Core Resources - Dispatcher
 Resources:
+  VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+
+  Subnet1:
+    DependsOn:
+      - VPC
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: {{environment.dispatch.zone1}}
+      CidrBlock: "10.0.0.0/17"
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref VPC
+
+  Subnet2:
+    DependsOn:
+      - VPC
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: {{environment.dispatch.zone2}}
+      CidrBlock: "10.0.128.0/17"
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref VPC
+
+  RouteTable:
+    DependsOn:
+      - VPC
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VPC
+
+  Gateway:
+    Type: "AWS::EC2::InternetGateway"
+
+  GatewayAttachment:
+    DependsOn:
+      - VPC
+      - Gateway
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      InternetGatewayId: !Ref Gateway
+      VpcId: !Ref VPC
+
+  RouteRuleInternal:
+    DependsOn:
+      - RouteTable
+      - GatewayAttachment
+    Type: "AWS::EC2::Route"
+    Properties:
+      DestinationCidrBlock: "10.0.0.0/8"
+      GatewayId: !Ref Gateway
+      RouteTableId: !Ref RouteTable
+
+  RouteTableSubnet1:
+    DependsOn:
+      - RouteTable
+      - Subnet1
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet1
+
+  RouteTableSubnet2:
+    DependsOn:
+      - RouteTable
+      - Subnet2
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet2
+
+  SecurityGroup:
+    DependsOn:
+      - VPC
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: {{environment.dispatch.name}}
+      GroupDescription: {{environment.dispatch.name}} Core Security Group
+      VpcId: !Ref VPC
+
+  SecurityGroupEgressRule:
+    DependsOn:
+      - SecurityGroup
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      CidrIp: "0.0.0.0/0"
+      Description: Allow all outbound traffic
+      IpProtocol: "-1"
+      FromPort: 0
+      ToPort: 65535
+      GroupId: !Ref SecurityGroup
+
+  SecurityGroupIngressRule:
+    DependsOn:
+      - SecurityGroup
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      Description: Opens the listener port
+      CidrIp: "0.0.0.0/0"
+      FromPort: 443
+      ToPort: 443
+      IpProtocol: tcp
+      GroupId: !Ref SecurityGroup
+
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn:
+      - Subnet1
+      - Subnet2
+      - SecurityGroup
     Properties:
       Type: application
       Scheme: internet-facing
       IpAddressType: ipv4
+      Subnets:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      SecurityGroups:
+        - !Ref SecurityGroup
       LoadBalancerAttributes:
         - Key: routing.http2.enabled
           Value: true
@@ -48,7 +165,7 @@ Resources:
       Description: "Dispatch for {{name}}"
       FunctionName: {{name}}
       Handler: "lib/dispatch.handler"
-      Role: !GetAtt [ Dispatchrole, Arn ]
+      Role: !GetAtt [ DispatchRole, Arn ]
       Runtime: {{runtime}}
       MemorySize: {{memorySize}}
       Timeout: {{timeout}}
@@ -62,10 +179,20 @@ Resources:
         S3Key: {{code.key}}
   {{/with}}
 
+  TargetPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+      - DispatchLambda
+    Properties:
+      FunctionName: {{environment.dispatch.arn}}
+      Action: 'lambda:InvokeFunction'
+      Principal: elasticloadbalancing.amazonaws.com
+
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     DependsOn:
       - DispatchLambda
+      - TargetPermission
     Properties:
       TargetType: lambda
       HealthCheckEnabled: false
@@ -99,7 +226,7 @@ Resources:
             Type: HEADER
             Data: x-api-key
           PositionalConstraint: EXACTLY
-          TargetStringBase64: {{environment.apiKey}}
+          TargetString: '{{environment.apiKey}}'
           TextTransformation: NONE
 
   APIKeyRule:
@@ -124,17 +251,18 @@ Resources:
       DefaultAction:
         Type: BLOCK
       Rules:
-        - Action: ALLOW
+        - Action:
+            Type: ALLOW
           Priority: 1
           RuleId: !Ref APIKeyRule
 
   WAFAssociation:
     Type: AWS::WAFRegional::WebACLAssociation
     DependsOn:
-      - Listener
+      - LoadBalancer
       - WAF
     Properties:
-      ResourceArn: !Ref Listener
+      ResourceArn: !Ref LoadBalancer
       WebACLId: !Ref WAF
   {{/unless}}
 

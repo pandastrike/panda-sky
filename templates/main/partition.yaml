@@ -8,8 +8,8 @@ Resources:
 
   {{> lambda }}
 
-Outputs:
 {{#if vpc}}
+Outputs:
   VPC:
     Value: !Ref VPC
 

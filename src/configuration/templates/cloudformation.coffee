@@ -31,8 +31,6 @@ renderPartitions = ({T, config}) ->
       reduce include, {}
     ]
 
-  console.log config.environment.templates.partitions
-
   {T, config}
 
 addMixins = ({config}) ->

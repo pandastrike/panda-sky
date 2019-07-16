@@ -20,6 +20,8 @@ Dispatch = (config) ->
     hostname: config.environment.cache.origin
     hostedzone: environment.hostedzone
     certificate: environment.certificate
+    zone1: region + "a"#vpc.availabilityZones[0]
+    zone2: region + "b"#vpc.availabilityZones[1]
     policy: [
       Effect: "Allow"
       Action: [

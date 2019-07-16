@@ -98,7 +98,7 @@ Resources:
               OriginSSLProtocols: [ "TLSv1.2" ]
             OriginCustomHeaders:
               - HeaderName: x-api-key
-                HeaderValue: {{@root.environment.apiKey}}
+                HeaderValue: "'{{@root.environment.apiKey}}'"
         PriceClass: PriceClass_{{@root.environment.cache.priceClass}}
         ViewerCertificate:
           AcmCertificateArn: {{@root.environment.cache.certificate}}

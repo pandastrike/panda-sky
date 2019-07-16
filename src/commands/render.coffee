@@ -1,26 +1,23 @@
 import compile from "../configuration"
 
+banner = (str, stack) ->
+  console.log "=".repeat 80
+  console.log str
+  console.log "=".repeat 80
+  console.log stack
+
 render = (env, {profile}) ->
   try
     appRoot = process.cwd()
     config = await compile appRoot, env, profile
 
-    console.log "=".repeat 80
-    console.log "dispatch/index.yaml"
-    console.log "=".repeat 80
-    console.log config.environment.templates.dispatch
+    banner "dispatch/index.yaml", config.environment.templates.dispatch
 
     for key, stack of config.environment.templates.partitions
-      console.log "=".repeat 80
-      console.log "partitions/#{key}/index.yaml"
-      console.log "=".repeat 80
-      console.log stack
+      banner "partitions/#{key}/index.yaml", stack
 
     for key, stack of config.environment.templates.mixins
-      console.log "=".repeat 80
-      console.log "mixins/#{key}/index.yaml"
-      console.log "=".repeat 80
-      console.log stack
+      banner "mixins/#{key}/index.yaml", stack
 
   catch e
     console.error e
