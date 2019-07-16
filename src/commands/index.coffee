@@ -7,6 +7,7 @@ import list from "./list"
 import mixin from "./mixin"
 import publish from "./publish"
 import render from "./render"
+import secret from "./secret"
 import tail from "./tail"
 import test from "./test"
 import update from "./update"
@@ -26,4 +27,5 @@ export default {
   tail
   test
   update
+  secret
 }

@@ -7,9 +7,9 @@ import AJV from "ajv"
 
 ajv = new AJV()
 
-readSchema = (parts...)
+readSchema = (parts...) ->
   yaml await _read resolve __dirname,
-    "..", "..", "..", "schema", parts...
+    "..", "..", "..", "..", "schema", parts...
 
 startConfig = (root, env, profile="default") -> {root, env, profile}
 
@@ -42,9 +42,9 @@ readSky = (config) ->
   merge config, sky
 
 validate = flow [
-  startConfig env, profile
-  readAPI root
-  readSky root
+  startConfig
+  readAPI
+  readSky
 ]
 
 export default validate

@@ -44,9 +44,9 @@ Build = (stopwatch, env, {profile}) ->
     console.log "        - Copying API definition..."
     {resources} = yaml await read "api.yaml"
     await write "#{target}/api.yaml", yaml {resources}
+
     console.log "        - Rendering API documentation..."
-    appRoot = process.cwd()
-    config = await compile appRoot, env, profile
+    config = await compile process.cwd(), env, profile
     await write "#{target}/api.html",
       pug.render config.environment.templates.apiDocs
 

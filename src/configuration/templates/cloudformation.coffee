@@ -1,6 +1,6 @@
 import {flow, wrap, compose} from "panda-garden"
 import {include, pairs} from "panda-parchment"
-import {map, reduce} from "panda-river"
+import {map, reduce, wait} from "panda-river"
 import {setup, registerPartials, resolve, render} from "./templater"
 
 renderDispatch = ({T, config}) ->
@@ -20,15 +20,20 @@ renderCustomDomain = ({T, config}) ->
   {T, config}
 
 renderPartition = (T, path = resolve "main", "partition.yaml") ->
-  ([name, partition]) -> [name]: render T, partition, path
+  ([name, partition]) ->
+    foo = [name]: await render T, partition, path
+    console.log foo
+    foo
 
 renderPartitions = ({T, config}) ->
   config.environment.templates.partitions =
     await do flow [
       wrap pairs config.environment.partitions
-      map renderPartition T
+      wait map renderPartition T
       reduce include, {}
     ]
+
+  console.log config.environment.templates.partitions
 
   {T, config}
 

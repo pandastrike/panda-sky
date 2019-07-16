@@ -1,6 +1,6 @@
 type: object
 additionalProperties: false
-required: [ name, projectID, region, environments ]
+required: [ name, projectID, region, domain, environments ]
 properties:
   name:
     description: >
@@ -31,10 +31,7 @@ properties:
       The base domain for any custom hostname you wish to publish.  All
       environment hostnames will be published as subdomains to this.  You must have a public hostedzone previously setup in AWS matching the
       provided domain to successfully publish.
-    type: array
-    minItems: 1
-    maxItems: 1
-    uniqueItems: true
+    type: string
 
   region:
     description: >

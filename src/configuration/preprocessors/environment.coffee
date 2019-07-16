@@ -1,7 +1,7 @@
 # This checks that the developer's selected environment is valid and sets some smart defaults for the Lambda resources.
 import SDK from "aws-sdk"
 import Sundog from "sundog"
-import {keys, captialize, camelCase} from "panda-parchment"
+import {keys, dashed} from "panda-parchment"
 
 check = (config) ->
   {name, env, profile} = config
@@ -36,10 +36,10 @@ check = (config) ->
   # Confirm we have API key for this environment in ASM.
   try
     asm = config.sundog.ASM()
-    _name = capitalize camelCase "#{name} #{env} api key"
-    {ARN} = await asm.get _name
-    config.environment.apiKey = "{{resolve:secretsmanager:#{ARN}:SecretString}}"
+    {ARN} = await asm.get dashed "#{name} #{env} api key"
+    config.environment.apiKey = "{{resolve:secretsmanager:#{ARN}:SecretString:api}}"
   catch e
+    console.log e
     throw new Error "unable to find API Key secret for #{env}"
 
   # Top level IDs.

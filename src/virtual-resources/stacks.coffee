@@ -53,7 +53,7 @@ teardownOld = (config) ->
 
   config
 
-upsertParitions = (config) ->
+upsertPartitions = (config) ->
   {publish, read, format} = cloudformation config
   {upload} = s3 config
   {partitions, templates} = config.environment

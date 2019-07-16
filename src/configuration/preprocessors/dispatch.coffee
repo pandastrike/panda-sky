@@ -2,7 +2,7 @@ import {dashed, merge} from "panda-parchment"
 
 Dispatch = (config) ->
   {region, accountID, name, env, environment} = config
-  {partitions, dispatch} = environment
+  {stack, partitions, dispatch} = environment
   {runtime, memorySize, timeout, variables} = dispatch if dispatch?
 
   name = dashed "#{name} #{env} dispatch"
@@ -15,7 +15,7 @@ Dispatch = (config) ->
     variables: merge environment: env, variables
     code:
       bucket: stack.bucket
-      key: "dispatch.zip"
+      key: "package.zip"
     arn: "arn:aws:lambda:#{region}:#{accountID}:function:#{name}"
     hostname: config.environment.cache.origin
     hostedzone: environment.hostedzone

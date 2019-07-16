@@ -13,7 +13,7 @@ Resources:
         - Key: idle_timeout.timeout_seconds
           Value: 300
       Tags:
-        {{#each environment.tags}}
+        {{#each tags}}
         - Key: {{Key}}
           Value: {{Value}}
         {{/each}}
@@ -36,7 +36,7 @@ Resources:
             Version: "2012-10-17"
             Statement:
             {{#each environment.dispatch.policy}}
-              - {{indent 16 .}}
+              - {{indent 16 (yaml .)}}
             {{/each}}
 
   {{#with environment.dispatch}}

@@ -101,6 +101,11 @@ do ->
       COMMANDS.mixin name, env, options, process.argv
 
   program
+    .command "secret"
+    .action  ->
+      COMMANDS.secret()
+
+  program
     .command('*')
     .action -> program.help()
 

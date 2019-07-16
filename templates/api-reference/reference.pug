@@ -357,21 +357,13 @@ html(lang="en")
     section 
       h2#toc Table of Contents
       h3 Resources
-      ul.toc
-        {{#with rootResource}}
-        {{> toc-entry }}
-        {{/with}}
-          
+      ul.toc  
         {{#each resources}}
         {{> toc-entry }}
         {{/each}}
 
     section
       h2 Resources
-      
-      {{#with rootResource}}
-      {{> resource }}
-      {{/with}}
           
       {{#each resources}}
       {{> resource }}

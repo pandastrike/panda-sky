@@ -57,7 +57,7 @@ cachePath:
             maximum: 3153600000
 
 
-partitions:
+partition:
   description: >
   type: object
   properties:
@@ -70,7 +70,8 @@ partitions:
       description: >
         This is an array of names assigned to Sky mixin configuration declared at the environment level.  Listing names here grants the lamba in this partition permission to relevant resources via the policy exposed in the mixin.
       type: array
-      items: string
+      items:
+        type: string
 
     runtime:
       description: >
@@ -101,7 +102,7 @@ environment:
     A collection of Cloud resources allocated on your behalf to deploy the
     serverless Sky stack.
   type: object
-  required: [ partitions ]
+  required: [ partitions, hostnames ]
   additionalProperties: false
   properties:
     variables:
@@ -134,7 +135,7 @@ environment:
         A dictionary of API handler resources that have similar code, resource allocation, and permission needs.
       type: object
       minProperties: 1
-      additionalProperties: {$ref: "#/definitions/environment"}
+      additionalProperties: {$ref: "#/definitions/partition"}
 
     cache:
       description: >

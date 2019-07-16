@@ -1,6 +1,6 @@
-import Stack from "../virtual-resources/stack"
 import {bellChar} from "../utils"
 import compile from "../configuration"
+import {publishStack} from "../virtual-resources"
 
 Publish = (stopwatch, env, options) ->
   try

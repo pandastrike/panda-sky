@@ -5,7 +5,7 @@ Handler:
     Description: "Handler for parition {{name}}"
     FunctionName: {{name}}
 
-    Handler: "lib/sky.API"
+    Handler: "lib/sky.handler"
     Role: !GetAtt [ IAMRole, Arn ]
     Runtime: {{runtime}}
     MemorySize: {{memorySize}}

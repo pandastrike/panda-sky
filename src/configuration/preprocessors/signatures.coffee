@@ -1,3 +1,4 @@
+import {flow} from "panda-garden"
 import {first} from "panda-parchment"
 
 within = (collection, example) -> example in collection
@@ -20,7 +21,7 @@ expandSignature = (method) ->
   status.push 415 if request.mediatype && (without status, 415)
   status.push 500 if (without status, 500)
 
-Responses = (config) ->
+expandSignatures = (config) ->
 
   for r, resource of config.resources
     for httpMethod, method of resource.methods
@@ -28,4 +29,16 @@ Responses = (config) ->
 
   config
 
-export default Responses
+expandResources = (config) ->
+
+  for name, resource of config.resources
+    config.resources[name].name = name
+
+  config
+
+expand = flow [
+  expandResources
+  expandSignatures
+]
+
+export default expand

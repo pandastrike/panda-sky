@@ -1,5 +1,4 @@
 import compile from "../configuration"
-import Handlers from "../virtual-resources/handlers"
 
 Tail = (env, {verbose, profile}) ->
   throw new Error "This command is currently unavailable"

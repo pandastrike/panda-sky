@@ -43,6 +43,8 @@ Partitions = (config) ->
           values = merge Name:name, environment:config.env, vpc.tags
           {Key, Value} for Key, Value of values
 
+    config.environment.partitions[_name] = partition
+
 
   config
 

@@ -4,7 +4,7 @@ import {include} from "panda-parchment"
 import {Method} from "panda-generics"
 import {glob, read} from "panda-quill"
 
-import babel from "babel-core"
+import babel from "@babel/core"
 import "@babel/preset-env"
 import {pathWithUnderscore, context, write} from "../../../utils"
 

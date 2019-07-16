@@ -1,6 +1,7 @@
 import {resolve} from "path"
 import {flow} from "panda-garden"
 import {keys} from "panda-parchment"
+import {exists} from "panda-quill"
 
 s3 = (config) ->
   {bucket} = config.environment.stack
@@ -35,9 +36,9 @@ scanBucket = (config) ->
   remote = partitions: [], mixins: []
 
   for {Key, ETag} in await list()
-    else if found = Key.match /partitions\/(.*?)\/$/
+    if found = Key.match /partitions\/(.*?)\/$/
       remote.partitions.push found[1]
-    else if found = Key.match /mixins\/(.*?)\/$/
+    if found = Key.match /mixins\/(.*?)\/$/
       remote.mixins.push found[1]
 
   config.environment.stack.remote = remote
@@ -45,8 +46,11 @@ scanBucket = (config) ->
 
 syncPackage = (config) ->
   {uploadFromFile} = s3 config
-  uploadFromFile "package.zip",
-    resolve process.cwd(), "deploy", "package.zip"
+  path = resolve process.cwd(), "deploy", "package.zip"
+  if await exists path
+    uploadFromFile "package.zip", path
+  else
+    throw new Error "Unable to find #{path}"
 
   config
 
