@@ -8,6 +8,9 @@ Resources:
       EnableDnsSupport: true
       EnableDnsHostnames: true
       InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: {{environment.dispatch.name}}
 
   Subnet1:
     DependsOn:
@@ -38,6 +41,16 @@ Resources:
 
   Gateway:
     Type: "AWS::EC2::InternetGateway"
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - RouteTable
+      - Gateway
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref Gateway
+      RouteTableId: !Ref RouteTable
 
   GatewayAttachment:
     DependsOn:
