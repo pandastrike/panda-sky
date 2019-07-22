@@ -4,6 +4,7 @@ import {merge} from "panda-parchment"
 applyEnvironmentVariables = (config) ->
   for _, partition of config.environment.partitions
     partition.variables = merge
+      name: config.name
       environment: config.env
       skyBucket: config.environment.stack.bucket,
       config.environment.variables,

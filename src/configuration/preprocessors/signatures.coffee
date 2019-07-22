@@ -11,9 +11,11 @@ expandSignature = (method) ->
 
   if request.schema && !request.mediatype
     request.mediatype = ["application/json"]
+    request.encoding = ["gzip", "identity"] unless request.encoding
 
   if !response.mediatype && (within [200, 201], first status)
     response.mediatype = ["application/json"]
+    response.encoding = ["gzip", "identity"] unless response.encoding      
 
   status.push 304 if response.cache && (without status, 304)
   status.push 400 if (without status, 400)

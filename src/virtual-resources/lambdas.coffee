@@ -6,6 +6,7 @@ _syncCode = (config) ->
   {update} = config.sundog.Lambda()
   {stack, partitions, dispatch} = config.environment
 
+  console.log "syncing lambda code"
   await update dispatch.name, stack.bucket, "package.zip"
   for _, {lambda:{name}} of partitions
     await update name, stack.bucket, "package.zip"
@@ -17,6 +18,7 @@ _syncConfig = (config) ->
   {updateConfig} = config.sundog.Lambda()
   {stack, partitions, dispatch} = config.environment
 
+  console.log "syncing lambda configurations"
   await updateConfig dispatch.name,
     MemorySize: dispatch.memorySize
     Timeout: dispatch.timeout

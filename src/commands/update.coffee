@@ -1,4 +1,4 @@
-import {join} from "path"
+import {resolve} from "path"
 import {exists} from "panda-quill"
 
 import {bellChar, shell} from "../utils"
@@ -13,7 +13,7 @@ Update = (stopwatch, env, {profile, hard}) ->
     config = await compile appRoot, env, profile
 
     # Push code through asset pipeline.
-    fail() if !await exists join process.cwd(), pkg
+    fail() if !await exists resolve process.cwd(), "deploy", "package.zip"
     await transpile "src", "lib"
 
     # Push code into pre-existing Zip archive.

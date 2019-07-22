@@ -25,17 +25,17 @@ resource:
 method:
   type: object
   required:
+    - partition
     - signatures
   properties:
     parameterDefinitions:
       description: >
         A place to record documentation for path and querystring parameters in a resource URL template.  This is a single level dictionary where the key is the parameter name and the value is string that describes that parameter.
       type: object
-    pragma:
+    partition:
       description: >
-        Place to record configurations unrelated to HTTP concerns.
-        For example, integration details specific to a particular backend service.
-      type: object
+        Name of the Sky partition you wish to run this handler in.
+      type: string
     signatures:
       description: >
         A dictionary of "request signatures" to provide more granular dispatching
@@ -63,6 +63,10 @@ request:
       type: array
       items:
         type: string
+    encoding:
+      type: array
+      items:
+        type: string
 
 response:
   type: object
@@ -77,6 +81,10 @@ response:
         minimum: 200
         maximum: 599
     mediatype:
+      type: array
+      items:
+        type: string
+    encoding:
       type: array
       items:
         type: string

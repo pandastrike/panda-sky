@@ -48,7 +48,8 @@ syncPackage = (config) ->
   {uploadFromFile} = s3 config
   path = resolve process.cwd(), "deploy", "package.zip"
   if await exists path
-    uploadFromFile "package.zip", path
+    console.log "uploading #{path}"
+    await uploadFromFile "package.zip", path
   else
     throw new Error "Unable to find #{path}"
 

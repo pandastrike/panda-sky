@@ -12,7 +12,7 @@ Dispatch = (config) ->
     runtime: runtime ? "nodejs8.10"
     memorySize: memorySize ? 256
     timeout: timeout ? 60
-    variables: merge environment: env, variables
+    variables: merge name: config.name, environment: env, variables
     code:
       bucket: stack.bucket
       key: "package.zip"

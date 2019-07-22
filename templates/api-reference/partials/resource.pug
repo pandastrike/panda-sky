@@ -53,6 +53,11 @@ article
           td Content-Type  
           td: code {{toJSON request.mediatype}}
         {{/if}}
+        {{#if request.encoding}}
+        tr
+          td Content-Encoding 
+          td: code {{toJSON request.encoding}}
+        {{/if}}
     {{/if}}
         
     h5 Response
@@ -62,6 +67,11 @@ article
         tr
           td Content-Type(s)  
           td: code {{toJSON response.mediatype}}
+        {{/if}}
+        {{#if response.encoding}}
+        tr
+          td Content-Encoding 
+          td: code {{toJSON response.encoding}}
         {{/if}}
         {{#if (equal (first response.status) 201)}}
         tr

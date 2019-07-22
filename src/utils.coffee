@@ -1,6 +1,7 @@
 import moment from "moment"
 import "moment-duration-format"
 import {parse as _parse, relative, join} from "path"
+import zlib from "zlib"
 import {curry, binary} from "panda-garden"
 import {include, isMatch} from "panda-parchment"
 import {exists, mkdirp, isDirectory, write as _write, read} from "panda-quill"
@@ -84,4 +85,22 @@ write = curry binary (directory, {path, target, source}) ->
     await mkdirp "0777", (target.directory)
     await _write target.path, target.content
 
-export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, context, write, stopwatch, shell}
+isCompressible = (buffer) -> buffer.length > 1000
+
+gzip = (buffer, level=9) ->
+  new Promise (resolve, reject) ->
+    zlib.gzip buffer, {level}, (error, result) ->
+      if error
+        reject error
+      else
+        resolve result
+
+brotli = (buffer, level=10) ->
+  new Promise (resolve, reject) ->
+    zlib.brotliCompress buffer, {level}, (error, result) ->
+      if error
+        reject error
+      else
+        resolve result
+
+export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, context, write, stopwatch, shell, isCompressible, gzip, brotli}

@@ -1,11 +1,11 @@
 import {go, tee, pull} from "panda-river"
-import {values} from "panda-parchment"
+import {values, toJSON} from "panda-parchment"
 import {exists, write, read} from "panda-quill"
 import {yaml} from "panda-serialize"
 import pug from "pug"
 
 import transpile from "./transpile"
-import {safe_mkdir, bellChar, outputDuration, shell} from "../../utils"
+import {safe_mkdir, bellChar, outputDuration, shell, isCompressible, gzip, brotli} from "../../utils"
 import compile from "../../configuration"
 
 
@@ -41,14 +41,25 @@ Build = (stopwatch, env, {profile}) ->
     await shell "npm install --silent"
 
     console.log "    -- Applying environment configuration..."
-    console.log "        - Copying API definition..."
-    {resources} = yaml await read "api.yaml"
-    await write "#{target}/api.yaml", yaml {resources}
-
-    console.log "        - Rendering API documentation..."
+    console.log "        - Compiling environment configuration..."
     config = await compile process.cwd(), env, profile
-    await write "#{target}/api.html",
-      pug.render config.environment.templates.apiDocs
+
+    console.log "        - Packaging API definition..."
+    {resources} = yaml await read "api.yaml"
+    file = Buffer.from toJSON {resources}
+    await safe_mkdir "#{target}/api/json"
+    await write "#{target}/api/json/identity", file
+    await write "#{target}/api/json/gzip", await gzip file
+    await write "#{target}/api/json/brotli", await brotli file
+
+    console.log "        - Packaging API documentation..."
+    file = pug.render config.environment.templates.apiDocs
+    await safe_mkdir "#{target}/api/html"
+    await write "#{target}/api/html/identity", file
+    await write "#{target}/api/html/gzip", await gzip file
+    await write "#{target}/api/html/brotli", await brotli file
+
+
 
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.
     console.log "    -- Compressing final deploy package..."
