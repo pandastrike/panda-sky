@@ -73,28 +73,43 @@ partition:
       items:
         type: string
 
-    runtime:
+    lambda:
       description: >
-        The Lambda runtime environment used to run your code. Sky defaults to Node 8.10.
-      type: string
-      enum:
-        - nodejs10.x
-        - nodejs8.10
+        Configuration object for the lambda that dispatches requests to this partition.
+      type: object
+      additionalProperties: false
+      properties:
+        runtime:
+          description: >
+            The Lambda runtime environment used to run your code. Sky defaults to Node 8.10.
+          type: string
+          enum:
+            - nodejs10.x
+            - nodejs8.10
 
-    memorySize:
-      description: >
-        The Lambda memory allocation in MB.  Larger values also get more network throughput and CPU horsepower, as well as superior cold-start behavior, but the specifics on that are left murky by AWS docs. Minimum value is 128, and it must be specified as multiples of 64.  Sky defaults to 256.
-      type: integer
-      minimum: 128
-      maximum: 3008
-      multipleOf: 64
+        memorySize:
+          description: >
+            The Lambda memory allocation in MB.  Larger values also get more network throughput and CPU horsepower, as well as superior cold-start behavior, but the specifics on that are left murky by AWS docs. Minimum value is 128, and it must be specified as multiples of 64.  Sky defaults to 256.
+          type: integer
+          minimum: 128
+          maximum: 3008
+          multipleOf: 64
 
-    timeout:
-      description: >
-        The Lambda timeout limit, in seconds.  Sky defaults to 60.
-      type: integer
-      minimum: 1
-      maximum: 900
+        timeout:
+          description: >
+            The Lambda timeout limit, in seconds.  Sky defaults to 60.
+          type: integer
+          minimum: 1
+          maximum: 900
+
+        managedPolicies:
+          description: >
+            An array of ARNs to IAM Role policies managed by AWS.  You can include them to give the partition access to a given resource.
+
+            Sky automatically adds "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole" to VPC enabled partitions to grant them access to construct ENIs to reach the VPC. 
+          type: array
+          items:
+            type: string
 
 
 environment:

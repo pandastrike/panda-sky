@@ -50,6 +50,7 @@ expandMixinConfigurations = (config) ->
 updatePartitions = (config) ->
   {mixins, partitions} = config.environment
   for name, partition of partitions
+    partition.mixins ?= []
     include config.environment.partitions[name],
       policy: cat partition.lambda.policy,
         (mixins[m].policy for m in partition.mixins)...

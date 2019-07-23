@@ -12,8 +12,11 @@ Handler:
     Timeout: {{timeout}}
     {{#if ../vpc}}
     VpcConfig:
-      SecurityGroupIds: !Split [ ",", !Ref SecurityGroups ]
-      SubnetIds: !Split [ ",", !Ref Subnets ]
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
     {{/if}}
     Environment:
       Variables:
