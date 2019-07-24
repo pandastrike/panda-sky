@@ -2,26 +2,26 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "{{env}} {{name}} custom domain - deployed by Panda Sky"
 Resources:
 
-  {{#with environment.cache}}
+  {{#with environment.cache.waf}}
   WAF:
     Type: "AWS::CloudFormation::Stack"
     Properties:
       Parameters:
-        SqlInjectionProtectionParam: "yes"
-        CrossSiteScriptingProtectionParam: "yes"
+        ActivateSqlInjectionProtectionParam: "yes"
+        ActivateCrossSiteScriptingProtectionParam: "yes"
         ActivateReputationListsProtectionParam: "yes"
         ActivateBadBotProtectionParam: "yes"
-        ActivateHttpFloodProtectionParam: "yes"
-        ActivateScannersProbesProtectionParam: "yes"
+        ActivateHttpFloodProtectionParam: 'yes - AWS WAF rate based rule'
+        ActivateScannersProbesProtectionParam: 'yes - AWS Lambda log parser'
         EndpointType: "CloudFront"
-        RequestThreshold: "{{waf.floodThreshold}}"
-        ErrorThreshold: "{{waf.errorThreshold}}"
-        WAFBlockPeriod: "{{waf.blockTTL}}"
-        AccessLogBucket: {{logBucket}}
+        RequestThreshold: "{{floodThreshold}}"
+        ErrorThreshold: "{{errorThreshold}}"
+        WAFBlockPeriod: "{{blockTTL}}"
+        AppAccessLogBucket: {{logBucket}}
       Tags:
         - Key: Substack Type
           Value: Custom Domain Firewall
-        {{#each ../tags}}
+        {{#each @root.tags}}
         - Key: {{Key}}
           Value: {{Value}}
         {{/each}}
@@ -31,8 +31,10 @@ Resources:
   {{#each environment.hostnames}}
   CustomDomainCF{{@index}}:
     Type: "AWS::CloudFront::Distribution"
+    {{#if @root.environment.cache.waf}}
     DependsOn:
       - WAF
+    {{/if}}
     Properties:
       DistributionConfig:
         Aliases:
@@ -48,10 +50,12 @@ Resources:
           ForwardedValues:
             Cookies:
               Forward: "all"
+            {{#if @root.environment.cache.headers.length}}
             Headers:
               {{#each @root.environment.cache.headers}}
               - {{.}}
               {{/each}}
+            {{/if}}
             QueryString: true
             QueryStringCacheKeys: ["*"]
           SmoothStreaming: false
@@ -98,17 +102,19 @@ Resources:
               OriginSSLProtocols: [ "TLSv1.2" ]
             OriginCustomHeaders:
               - HeaderName: x-api-key
-                HeaderValue: "'{{@root.environment.apiKey}}'"
+                HeaderValue: '{{@root.environment.apiKey}}'
         PriceClass: PriceClass_{{@root.environment.cache.priceClass}}
         ViewerCertificate:
           AcmCertificateArn: {{@root.environment.cache.certificate}}
           MinimumProtocolVersion: {{@root.environment.cache.protocol}}
           SslSupportMethod: "sni-only"
+        {{#if @root.environment.cache.waf}}
         Logging:
-          Bucket: {{@root.environment.cache.logBucket}}.s3.amazonaws.com
+          Bucket: {{@root.environment.cache.waf.logBucket}}.s3.amazonaws.com
           IncludeCookies: true
           Prefix: ""
         WebACLId: !GetAtt [ WAF, Outputs.WAFWebACL ]
+        {{/if}}
       Tags:
       {{#each @root.tags}}
         - Key: {{Key}}

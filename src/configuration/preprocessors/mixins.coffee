@@ -40,9 +40,9 @@ expandMixinConfigurations = (config) ->
     sslEnabled: true
 
   for name, mixin of config.environment.mixins
-    {type, configuration} = mixin
+    {type, vpc, configuration} = mixin
     config.environment.mixins[name] =
-      Mixin.create await (await fetch type) SDK, config, configuration
+      Mixin.create await (await fetch type) SDK, config, {vpc}, configuration
 
   config
 

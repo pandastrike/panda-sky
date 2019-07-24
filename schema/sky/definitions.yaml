@@ -106,10 +106,28 @@ partition:
           description: >
             An array of ARNs to IAM Role policies managed by AWS.  You can include them to give the partition access to a given resource.
 
-            Sky automatically adds "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole" to VPC enabled partitions to grant them access to construct ENIs to reach the VPC. 
+            Sky automatically adds "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole" to VPC enabled partitions to grant them access to construct ENIs to reach the VPC.
           type: array
           items:
             type: string
+
+mixin:
+  description: >
+    This is a Sky mixins definition.
+  type: object
+  additionalProperties: false
+  required: [type]
+  properties:
+    type:
+      description: >
+        The name of the mixin to be looked up in the project's module library, not the reference name used by partitions.  That is, "s3" rather than "myBucket".
+      type: string
+    vpc:
+      description: A flag to indicate to the mixin to expect VPC-related parameters when published in the stack.
+      type: boolean
+    configuration:
+      description: The schemas for this configuration are held within the mixins themselves.
+      type: object
 
 
 environment:
@@ -140,10 +158,10 @@ environment:
 
     mixins:
       description: >
-        This is a dictionary of Sky mixins.  The keys are the names, and the
-        values are the mixin-specific configuration.  The schemas for those
-        configurations are held within the mixins themselves.
+        This is a dictionary of Sky mixins.  The keys are the names, referenced
+        in the partition definitions.
       type: object
+      additionalProperties: {$ref: "#/definitions/mixin"}
 
     partitions:
       description: >
@@ -223,27 +241,20 @@ environment:
 
         headers:
           description: >
-            This sets the list of headers forwarded and cached by the CloudFront
-            distribution. Omitting this field will cause Sky to forward and
-            cache the *default* headers.
+            This sets the list of headers forwarded and used to form a cache key by the CloudFront distribution.
 
-            The *default* headers are: Accept, Accept-Charset, Accept-Datetime,
+            Omitting this field will cause Sky to forward and
+            cache against the following headers: Accept, Accept-Encoding,
+            Access-Control-Request-Headers, Access-Control-Request-Method,
+            Authorization
+
+            You may specify an empty array, [].  In this case, Sky will set no
+            headers and CloudFront defaults to forwarding but NOT caching against the following: Accept, Accept-Charset, Accept-Datetime,
             Accept-Language, Access-Control-Request-Headers,
             Access-Control-Request-Method, Authorization, Origin, Referer
 
-            Host is notably absent from those default headers.  When using
-            Server Name Indentification in CloudFront, Gateway relies on that
-            by default to verify the connection.  The usage of the Host header
-            causes Gateway to issue a 403 response, baring special
-            configuration.
-
-            You may specify an empty array, [].  In this case Sky will set no
-            headers.  This will forward the default headers, BUT NOT CACHE
-            BASED ON THEM.
-
-            You may specify a wildcard, [*], which forwards ALL headers.
-            But in this case, CloudFront cannot leverage caching nor accept
-            additional, specific headers to cache.
+            You may specify an array with a wildcard, [*], which forwards
+            ALL headers. However, CloudFront disables caching generally.
           type: array
           items:
             type: string

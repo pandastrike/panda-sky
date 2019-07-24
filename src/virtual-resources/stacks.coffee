@@ -117,4 +117,4 @@ syncStacks = flow [
   announce
 ]
 
-export {syncStacks, teardownStacks}
+export {syncStacks, teardownStacks, cloudformation}

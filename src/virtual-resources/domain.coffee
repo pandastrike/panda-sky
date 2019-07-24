@@ -43,6 +43,7 @@ prompt = (action) ->
 establishLogBucket = (config) ->
   {bucketTouch} = config.sundog.S3()
   if {logBucket} = config.environment.cache.waf
+    console.log "configuring WAF logging bucket..."
     await bucketTouch logBucket
   config
 

@@ -3,25 +3,21 @@ import {flow} from "panda-garden"
 
 defaultHeaders = [
   "Accept",
+  "Accept-Encoding",
   "Access-Control-Request-Headers",
   "Access-Control-Request-Method",
-  "Authorization",
-  "Origin"
+  "Authorization"
 ]
 
 setHeaders = (headers) ->
   if !headers
     defaultHeaders
   else if "*" in headers && headers.length > 1
-    console.error """
+    throw new Error """
       ERROR: Incorrect header cache specificaton.  Wildcard cannot be used with
       other named headers.  Please adjust the cache configuration for this
       environment within sky.yaml and try again.
-
-      This process will discontinue.
     """
-    console.log "Done."
-    process.exit()
   else
     headers
 
