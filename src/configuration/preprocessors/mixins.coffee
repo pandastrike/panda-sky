@@ -21,16 +21,18 @@ fetch = (name) ->
 # Just like the core Sky configuration, mixins accept a terse configuration that gets expanded with implicit values and inferences.
 expandMixinConfigurations = (config) ->
   class Mixin
-    @create: ({name, policy, varaibles, template, cli}) ->
+    @create: ({name, policy, varaibles, vpc, template, cli}) ->
       @policy ?=  []
       @variables ?= {}
       @cli ?= false
+      @vpc ?= false
 
       stack = dashed "#{config.name} #{config.env} mixin #{name}"
 
-      new Mixin {name, policy, varaibles, template, cli, stack}
+      new Mixin {name, policy, vpc, varaibles, template, cli, stack}
 
-    constructor: ({@name, @policy, @variables, @template, @cli, @stack}) ->
+    constructor: ({@name, @policy, @variables,
+      @vpc, @template, @cli, @stack}) ->
 
   config.environment.mixins ?= {}
   modules = {}

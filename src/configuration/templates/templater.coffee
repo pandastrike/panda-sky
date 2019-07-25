@@ -23,7 +23,7 @@ setup = (config) ->
     rest: (input) -> rest input
     toJSON: (input) -> toJSON input
     equal: (A, B) -> A == B
-    empty: (input) -> empty input
+    empty: (input) -> isEmpty input
     dashed: (input) -> dashed input
     camelCase: (input) -> camelCase input
     capitalize: (input) -> capitalize input

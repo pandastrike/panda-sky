@@ -10,7 +10,6 @@ publishStack = flow [
   scanBucket
   syncPackage
   syncStacks
-  syncLambdas
 ]
 
 teardownStack = flow [

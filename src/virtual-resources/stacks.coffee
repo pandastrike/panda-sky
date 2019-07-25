@@ -1,8 +1,9 @@
 import {join} from "path"
 import {flow, wrap} from "panda-garden"
-import {map, reduce} from "panda-river"
-import {keys, dashed, include, toJSON} from "panda-parchment"
+import {map, reduce, wait} from "panda-river"
+import {keys, dashed, include, toJSON, isEmpty, merge} from "panda-parchment"
 import {s3} from "./bucket"
+import {_syncCode} from "./lambdas"
 
 cloudformation = (config) ->
   {get, create, put, outputs, delete:_delete} = config.sundog.CloudFormation()
@@ -15,15 +16,22 @@ cloudformation = (config) ->
 
     await put stack
   teardown: (name) -> _delete name
-  format: (name, key) ->
-      StackName: name
-      TemplateURL: "https://#{bucket}.s3.amazonaws.com/#{key}"
-      Capabilities: ["CAPABILITY_IAM"]
-  read: flow [
-    outputs
-    map ({OutputKey, OutputValue}) -> [OutputKey]: OutputValue
-    reduce include, {}
-  ]
+  format: (name, key, parameters) ->
+    StackName: name
+    TemplateURL: "https://#{bucket}.s3.amazonaws.com/#{key}"
+    Capabilities: ["CAPABILITY_IAM"]
+    Parameters: do ->
+      if parameters
+        (ParameterKey: k, ParameterValue: v for k, v of parameters)
+      else
+        undefined
+
+  read: (name) ->
+    await do flow [
+      wrap outputs name
+      map ({OutputKey, OutputValue}) -> [OutputKey]: OutputValue
+      reduce include, {}
+    ]
 
 teardownStacks = (config) ->
   {teardown} = cloudformation config
@@ -88,25 +96,38 @@ upsertDispatch = (config) ->
 
   config
 
+findPartitions = (partitions, mixinName) ->
+  parameters = []
+  for name, {mixins, stackParameters} of partitions
+    if mixins? && stackParameters? && (mixinName in mixins)
+      parameters.push stackParameters
+
+  if isEmpty parameters
+    undefined
+  else
+    # TODO: This is a placeholder.  It won't handle VPC sensitive mixins across multiple partitions with different VPC configurations.  But we shouldn't need anything like that for a while.
+    merge parameters...
+
+
 upsertMixins = (config) ->
   {publish, read, format} = cloudformation config
   {upload} = s3 config
-  {mixins, templates} = config.environment
+  {mixins, templates, partitions} = config.environment
 
   for name, template of templates.mixins
     console.log "Mixin Deploy: #{name}"
-    {stack} = mixins[name]
+    {stack, vpc} = mixins[name]
+
     key = join "mixins", name, "index.yaml"
     await upload key, template
-    await publish format stack, key
+
+    parameters = findPartitions partitions, name if vpc
+    await publish format stack, key, parameters
+
     parameters = await read stack
     config.environment.mixins[name].stackParameters = parameters
     console.log "Outputs:", toJSON parameters, true
 
-  config
-
-announce = (config) ->
-  console.log "Deploy ready at https://#{config.environment.dispatch.hostname}"
   config
 
 syncStacks = flow [
@@ -114,7 +135,7 @@ syncStacks = flow [
   upsertPartitions
   upsertDispatch
   upsertMixins
-  announce
+  _syncCode
 ]
 
 export {syncStacks, teardownStacks, cloudformation}

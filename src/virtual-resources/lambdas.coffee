@@ -36,14 +36,21 @@ _syncConfig = (config) ->
 
   config
 
+finalMessage = (config) ->
+  console.log "Deploy ready at https://#{config.environment.dispatch.hostname}"
+  config
+
 syncLambdaCode = flow [
   syncPackage
   _syncCode
+  finalMessage
 ]
 
 syncLambdas = flow [
-  syncLambdaCode
+  syncPackage
+  _syncCode
   _syncConfig
+  finalMessage
 ]
 
-export {syncLambdas, syncLambdaCode}
+export {syncLambdas, syncLambdaCode, _syncCode}

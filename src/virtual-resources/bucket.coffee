@@ -8,8 +8,11 @@ s3 = (config) ->
   {PUT, rmDir, list} = config.sundog.S3()
   list: -> list bucket
   upload: (key, string) ->
+    console.log "Syncing file @"
+    console.log "   #{bucket}"
+    console.log "   #{key}"
     PUT.string bucket, key, string, ContentType: "text/yaml"
-  uploadFromFile: (key, filePath) -> PUT.file bucket, key, filePath
+  uploadFromFile: (key, filePath) -> PUT.fileWithProgress bucket, key, filePath
   remove: (key) -> rmDir bucket, key
 
 establishBucket = (config) ->
