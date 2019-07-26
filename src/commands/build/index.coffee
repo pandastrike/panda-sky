@@ -1,7 +1,6 @@
 import {go, tee, pull} from "panda-river"
 import {values, toJSON} from "panda-parchment"
-import {exists, write, read} from "panda-quill"
-import {yaml} from "panda-serialize"
+import {exists, write} from "panda-quill"
 import pug from "pug"
 
 import transpile from "./transpile"
@@ -45,8 +44,7 @@ Build = (stopwatch, env, {profile}) ->
     config = await compile process.cwd(), env, profile
 
     console.log "        - Packaging API definition..."
-    {resources} = yaml await read "api.yaml"
-    file = Buffer.from toJSON {resources}
+    file = Buffer.from toJSON resources: config.resources
     await safe_mkdir "#{target}/api/json"
     await write "#{target}/api/json/identity", file
     await write "#{target}/api/json/gzip", await gzip file

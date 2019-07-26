@@ -9,13 +9,13 @@ expandSignature = (method) ->
   {signatures:{request, response}} = method
   {status} = response
 
-  if request.schema && !request.mediatype
-    request.mediatype = ["application/json"]
+  if request.schema
+    request.mediatype = ["application/json"] unless request.mediatype
     request.encoding = ["gzip", "identity"] unless request.encoding
 
-  if !response.mediatype && (within [200, 201], first status)
-    response.mediatype = ["application/json"]
-    response.encoding = ["gzip", "identity"] unless response.encoding      
+  if within [200, 201], first status
+    response.mediatype = ["application/json"] unless response.mediatype
+    response.encoding = ["gzip", "identity"] unless response.encoding
 
   status.push 304 if response.cache && (without status, 304)
   status.push 400 if (without status, 400)

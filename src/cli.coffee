@@ -101,9 +101,10 @@ do ->
       COMMANDS.mixin name, env, options, process.argv
 
   program
-    .command "secret"
-    .action  ->
-      COMMANDS.secret()
+    .command "secret [env]"
+    .action (env) ->
+      return if noEnv env
+      COMMANDS.secret env
 
   program
     .command('*')

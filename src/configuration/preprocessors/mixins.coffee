@@ -1,8 +1,9 @@
 import {resolve} from "path"
 import SDK from "aws-sdk"
 import {flow} from "panda-garden"
-import {cat, merge, dashed, include} from "panda-parchment"
+import {cat, merge, dashed, include, keys} from "panda-parchment"
 import {exists} from "panda-quill"
+import {yaml} from "panda-serialize"
 
 fetch = (name) ->
   path = resolve process.cwd(), "node_modules", "sky-mixin-#{name}"
@@ -21,18 +22,19 @@ fetch = (name) ->
 # Just like the core Sky configuration, mixins accept a terse configuration that gets expanded with implicit values and inferences.
 expandMixinConfigurations = (config) ->
   class Mixin
-    @create: ({name, policy, varaibles, vpc, template, cli}) ->
+    @create: ({name, policy, varaibles, vpc, template, cli, beforeHook}) ->
       @policy ?=  []
       @variables ?= {}
       @cli ?= false
       @vpc ?= false
+      beforeHook ?= false
 
       stack = dashed "#{config.name} #{config.env} mixin #{name}"
 
-      new Mixin {name, policy, vpc, varaibles, template, cli, stack}
+      new Mixin {name, policy, vpc, varaibles, template, cli, beforeHook, stack}
 
     constructor: ({@name, @policy, @variables,
-      @vpc, @template, @cli, @stack}) ->
+      @vpc, @template, @cli, @beforeHook, @stack}) ->
 
   config.environment.mixins ?= {}
   modules = {}
@@ -44,7 +46,8 @@ expandMixinConfigurations = (config) ->
   for name, mixin of config.environment.mixins
     {type, vpc, configuration} = mixin
     config.environment.mixins[name] =
-      Mixin.create await (await fetch type) SDK, config, {vpc}, configuration
+      Mixin.create await (await fetch type) SDK, config, {vpc, name},
+        configuration
 
   config
 
@@ -53,6 +56,9 @@ updatePartitions = (config) ->
   {mixins, partitions} = config.environment
   for name, partition of partitions
     partition.mixins ?= []
+    for m in partition.mixins
+      throw new Error "mixin #{m} is not defined" if m not in keys mixins
+
     include config.environment.partitions[name],
       policy: cat partition.lambda.policy,
         (mixins[m].policy for m in partition.mixins)...

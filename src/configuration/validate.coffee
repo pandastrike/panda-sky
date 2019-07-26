@@ -11,7 +11,9 @@ readSchema = (parts...) ->
   yaml await _read resolve __dirname,
     "..", "..", "..", "..", "schema", parts...
 
-startConfig = (root, env, profile="default") -> {root, env, profile}
+startConfig = (root, env, profile="default") ->
+  console.log "reading configuration..."
+  {root, env, profile}
 
 readAPI = (config) ->
   path = resolve config.root, "api.yaml"

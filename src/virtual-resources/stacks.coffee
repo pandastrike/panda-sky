@@ -116,10 +116,14 @@ upsertMixins = (config) ->
 
   for name, template of templates.mixins
     console.log "Mixin Deploy: #{name}"
-    {stack, vpc} = mixins[name]
+    {stack, vpc, beforeHook} = mixins[name]
 
     key = join "mixins", name, "index.yaml"
     await upload key, template
+
+    if beforeHook
+      console.log "  - Triggering before hook..."
+      await beforeHook config
 
     parameters = findPartitions partitions, name if vpc
     await publish format stack, key, parameters
