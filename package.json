@@ -71,7 +71,7 @@
     "panda-serialize": "^0.6.0",
     "panda-template": "^1.1.0",
     "pug": "^2.0.3",
-    "sundog": "file:../sundog"
+    "sundog": "^5.0.0"
   },
   "devDependencies": {
     "panda-9000": "^4.4.0",
