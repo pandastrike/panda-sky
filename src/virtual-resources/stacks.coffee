@@ -12,6 +12,7 @@ cloudformation = (config) ->
   publish: (stack) ->
     if result = await get stack.StackName
       if result.StackStatus == "ROLLBACK_COMPLETE"
+        console.warn "removing inert stack #{stack.StackName}"
         await _delete stack.StackName
 
     await put stack
