@@ -8,7 +8,7 @@ module.exports = (stopwatch, env, options) ->
     console.log "Compiling configuration for API custom domain."
     config = await compile appRoot, env, options.profile
 
-    await publishDomain config
+    await invalidateDomain config
     console.log "Done. (#{stopwatch()})"
   catch e
     console.error "Invalidation failure:"
