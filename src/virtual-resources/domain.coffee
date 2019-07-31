@@ -2,6 +2,7 @@ import {join} from "path"
 import {flow} from "panda-garden"
 import {first} from "panda-parchment"
 import Interview from "panda-interview"
+import {yaml} from "panda-serialize"
 import {s3} from "./bucket"
 import {cloudformation} from "./stacks"
 
@@ -49,12 +50,14 @@ establishLogBucket = (config) ->
 
 upsertDomain = (config) ->
   {upload} = s3 config
-  {format, publish} = cloudformation config
+  {format, publish, read} = cloudformation config
   {templates, cache} = config.environment
 
   console.log "Custom Domain Deploy"
   await upload "custom-domain.yaml", templates.customDomain
   await publish format cache.stack, "custom-domain.yaml"
+  console.log "Outputs:"
+  console.log yaml await read cache.stack
   config
 
 _teardownDomain = (config) ->

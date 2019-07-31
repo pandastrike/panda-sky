@@ -97,7 +97,13 @@ response:
       properties:
         maxAge:
           description: >
-            The value for the Cache-Control directive max-age.  The time in seconds this resource should be cached.  You may also set this to `manual` and specify your own max-age in the handler.
+            The value for the Cache-Control directive max-age.  The time in seconds this resource should be cached.
+          type: integer
+          minimum: 0
+          maximum: 31556926
+        sharedMaxAge:
+          description: >
+            The value for the Cache-Control directive s-maxage.  The time in seconds this resource should be cached by any intermediaries (ex: CloudFront).
           type: integer
           minimum: 0
           maximum: 31556926

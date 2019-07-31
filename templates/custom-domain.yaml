@@ -140,3 +140,12 @@ Resources:
             EvaluateTargetHealth: false
             HostedZoneId: Z2FDTNDATAQYW2
         {{/each}}
+
+Outputs:
+  CloudFrontDistributions:
+    Value: !Join
+      - ","
+      -
+      {{#each environment.hostnames}}
+        - !Ref CustomDomainCF{{@index}}
+      {{/each}}

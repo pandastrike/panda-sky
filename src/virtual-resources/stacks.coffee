@@ -1,7 +1,8 @@
 import {join} from "path"
 import {flow, wrap} from "panda-garden"
 import {map, reduce, wait} from "panda-river"
-import {keys, dashed, include, toJSON, isEmpty, merge} from "panda-parchment"
+import {keys, dashed, include, isEmpty, merge} from "panda-parchment"
+import {yaml} from "panda-serialize"
 import {s3} from "./bucket"
 import {_syncCode} from "./lambdas"
 
@@ -80,7 +81,8 @@ upsertPartitions = (config) ->
     await publish format stack, key
     parameters = await read stack
     config.environment.partitions[name].stackParameters = parameters
-    console.log "Outputs:", toJSON parameters, true
+    console.log "Outputs:"
+    console.log yaml parameters unless isEmpty parameters
 
   config
 
@@ -131,7 +133,8 @@ upsertMixins = (config) ->
 
     parameters = await read stack
     config.environment.mixins[name].stackParameters = parameters
-    console.log "Outputs:", toJSON parameters, true
+    console.log "Outputs:"
+    console.log yaml parameters unless isEmpty parameters
 
   config
 
