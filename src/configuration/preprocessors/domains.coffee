@@ -61,7 +61,7 @@ applyFirewall = (config) ->
   if !waf
     config.environment.cache.waf = false
   else
-    {name} = config.environment.variables
+    {name} = config.environment.stack
     config.environment.cache.waf =
       logBucket: "#{name}-#{config.projectID}-cflogs"
       floodThreshold: waf.floodThreshold ? 2000
