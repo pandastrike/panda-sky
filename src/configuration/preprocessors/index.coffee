@@ -8,6 +8,7 @@ import setVariables from "./variables"
 import setDomains from "./domains"
 import setPartitions from "./partitions"
 import setDispatch from "./dispatch"
+import setPreheater from "./preheaters"
 import setSignatures from "./signatures"
 import fetchMixins from "./mixins"
 
@@ -18,6 +19,7 @@ Preprocessor = flow [
   setDomains
   setPartitions
   setDispatch
+  setPreheater
   setSignatures
   fetchMixins
 ]

@@ -6,6 +6,8 @@ Resources:
 
   {{> iamrole}}
 
+  {{> cuddle-monkey}}
+
   {{> lambda }}
 
 {{#if vpc}}

@@ -1,0 +1,93 @@
+{{#with preheater}}
+CuddleMonkeyHeaterRole:
+  Type: "AWS::IAM::Role"
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - "sts:AssumeRole"
+    Policies:
+      - PolicyName: {{name}}
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          {{#each policy}}
+            - {{indent 14 (yaml .)}}
+          {{/each}}
+
+CuddleMonkeyHeater:
+  Type: "AWS::Lambda::Function"
+  DependsOn:
+    - CuddleMonkeyHeaterRole
+  Properties:
+    Description: Preheater Handler for partition {{@root.lambda.name}}
+    FunctionName: {{name}}
+    Handler: "index.handler"
+    Role: !GetAtt [ CuddleMonkeyHeaterRole, Arn ]
+    Runtime: nodejs8.10
+    MemorySize: 256
+    Timeout: 30
+    Code:
+      ZipFile: !Sub |
+        var SDK, invoke, lambda;
+
+        SDK = require("aws-sdk");
+
+        lambda = new SDK.Lambda();
+
+        invoke = function(name) {
+          var params;
+          params = {
+            FunctionName: name,
+            InvokeArgs: "{\"cuddleMonkey\": \"true\"}"
+          };
+          return new Promise(function(resolve, reject) {
+            return lambda.invokeAsync(params, function(err, data) {
+              if (err != null) {
+                return reject(err);
+              } else {
+                return resolve(data);
+              }
+            });
+          });
+        };
+
+        exports.handler = async function(request, context, callback) {
+          var i, j;
+          for (i = j = 0; j < {{scale}}; i = ++j) {
+            {{#each targets}}
+            await invoke("{{.}}");
+            {{/each}}
+          }
+          return callback(null, "Cuddle Monkey Success");
+        };
+
+
+CuddleMonkeyEventRule:
+  Type: "AWS::Events::Rule"
+  DependsOn:
+    - CuddleMonkeyHeater
+  Properties:
+    Description: Preheater for partition {{@root.lambda.name}}"
+    ScheduleExpression: rate(5 minutes)
+    State: ENABLED
+    Targets:
+      - Id: !Ref CuddleMonkeyHeater
+        Arn: !GetAtt [ CuddleMonkeyHeater, Arn ]
+        Input: '{"cuddleMonkey": "true"}'
+
+CuddleMonkeyEventRole:
+  Type: "AWS::Lambda::Permission"
+  DependsOn:
+    - CuddleMonkeyEventRule
+  Properties:
+    Action: "lambda:InvokeFunction"
+    FunctionName: !GetAtt [ CuddleMonkeyHeater, Arn ]
+    Principal: events.amazonaws.com
+    SourceArn: !GetAtt [ CuddleMonkeyEventRule, Arn ]
+{{/with}}

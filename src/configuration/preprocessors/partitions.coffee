@@ -8,7 +8,7 @@ Partitions = (config) ->
   for _name, partition of config.environment.partitions
     {lambda, vpc} = partition
     if lambda?
-      {runtime, memorySize, timeout, managedPolicies} = lambda
+      {runtime, memorySize, timeout, managedPolicies, preheater} = lambda
 
     name = dashed "#{config.name} #{config.env} #{_name}"
 
@@ -18,6 +18,7 @@ Partitions = (config) ->
       runtime: runtime ? "nodejs8.10"
       memorySize: memorySize ? 256
       timeout: timeout ? 60
+      preheater: preheater
       arn: "arn:aws:lambda:#{region}:#{accountID}:function:#{name}"
       code:
         bucket: stack.bucket

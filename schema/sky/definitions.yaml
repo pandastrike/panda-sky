@@ -102,6 +102,13 @@ partition:
           minimum: 1
           maximum: 900
 
+        preheater:
+          description: >
+            Invokes the API handler every five minutes this number of times to ensure some minimum amount of scale is always available to your clients.
+          type: integer
+          minimum: 1
+          maximum: 100
+
         managedPolicies:
           description: >
             An array of ARNs to IAM Role policies managed by AWS.  You can include them to give the partition access to a given resource.
