@@ -4,19 +4,17 @@ import {syncPackage, s3} from "./bucket"
 
 _syncCode = (config) ->
   {update} = config.sundog.Lambda()
-  {stack, partitions, dispatch} = config.environment
+  {stack, dispatch} = config.environment
 
   console.log "syncing lambda code"
   await update dispatch.name, stack.bucket, "package.zip"
-  for _, {lambda:{name}} of partitions
-    await update name, stack.bucket, "package.zip"
 
   config
 
 _syncConfig = (config) ->
   await sleep 5000
   {updateConfig} = config.sundog.Lambda()
-  {stack, partitions, dispatch} = config.environment
+  {stack, dispatch} = config.environment
 
   console.log "syncing lambda configurations"
   await updateConfig dispatch.name,
@@ -25,14 +23,6 @@ _syncConfig = (config) ->
     Runtime: dispatch.runtime
     Environment:
       Variables: dispatch.variables
-
-  for _, {lambda} of partitions
-    await updateConfig lambda.name,
-      MemorySize: lambda.memorySize
-      Timeout: lambda.timeout
-      Runtime: lambda.runtime
-      Environment:
-        Variables: lambda.variables
 
   config
 

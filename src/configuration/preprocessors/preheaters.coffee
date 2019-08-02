@@ -1,33 +1,28 @@
 
-Partitions = (config) ->
+Preheat = (config) ->
+  {dispatch} = config.environment
 
-  for _name, {lambda} of config.environment.partitions
+  if dispatch.preheater
+    name = "#{dispatch.name}-preheat"
 
-    if lambda.preheater
-      name = "#{lambda.name}-preheat"
-
-      config.environment.partitions[_name].preheater =
-        name: name
-        scale: lambda.preheater
-        targets: [config.environment.dispatch.name, lambda.name]
-        policy: [
-          Effect: "Allow"
-          Action: [
-            "logs:CreateLogGroup"
-            "logs:CreateLogStream"
-            "logs:PutLogEvents"
-          ]
-          Resource: [ "arn:aws:logs:*:*:log-group:/aws/lambda/#{name}:*" ]
-        ,
-          Effect: "Allow"
-          Action: [ "lambda:InvokeFunction" ]
-          Resource: [
-            lambda.arn
-            config.environment.dispatch.arn
-          ]
+    config.environment.dispatch.preheater =
+      name: name
+      scale: dispatch.preheater
+      targets: [dispatch.name]
+      policy: [
+        Effect: "Allow"
+        Action: [
+          "logs:CreateLogGroup"
+          "logs:CreateLogStream"
+          "logs:PutLogEvents"
         ]
-
+        Resource: [ "arn:aws:logs:*:*:log-group:/aws/lambda/#{name}:*" ]
+      ,
+        Effect: "Allow"
+        Action: [ "lambda:InvokeFunction" ]
+        Resource: [ dispatch.arn ]
+      ]
 
   config
 
-export default Partitions
+export default Preheat

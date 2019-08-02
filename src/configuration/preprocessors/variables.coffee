@@ -1,17 +1,6 @@
 import {flow} from "panda-garden"
 import {merge} from "panda-parchment"
 
-applyEnvironmentVariables = (config) ->
-  for _, partition of config.environment.partitions
-    partition.variables = merge
-      name: config.name
-      environment: config.env
-      skyBucket: config.environment.stack.bucket,
-      config.environment.variables,
-      partition.variables
-
-  config
-
 applyTags = (config) ->
   values =
     project: config.name
@@ -19,18 +8,17 @@ applyTags = (config) ->
 
   # Apply explicit tags, deleteing defaults if there is an override.
   values = merge values, config.tags
-  for name, partition of config.environment.partitions
-    partition.tags = merge values, partition: name, partition.tags
+  config.environment.dispatch.tags =
+    merge values, config.environment.dispatch.tags
 
   # Format as "Key" and "Value" for CloudFormation
   config.tags = ({Key, Value} for Key, Value of values)
-  for _, partition of config.environment.partitions
-    partition.tags = ({Key, Value} for Key, Value of partition.tags)
+  config.environment.dispatch.tags =
+    ({Key, Value} for Key, Value of config.environment.dispatch.tags)
 
   config
 
 Variables = flow [
-  applyEnvironmentVariables
   applyTags
 ]
 

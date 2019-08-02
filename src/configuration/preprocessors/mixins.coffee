@@ -51,25 +51,25 @@ expandMixinConfigurations = (config) ->
 
   config
 
-# Update partitions with the full mixin configurations and permissions.
-updatePartitions = (config) ->
-  {mixins, partitions} = config.environment
-  for name, partition of partitions
-    partition.mixins ?= []
-    for m in partition.mixins
-      throw new Error "mixin #{m} is not defined" if m not in keys mixins
+# Update dispatcher with the full mixin configurations and permissions.
+updateDispatch = (config) ->
+  {mixins, dispatch} = config.environment
 
-    include config.environment.partitions[name],
-      policy: cat partition.lambda.policy,
-        (mixins[m].policy for m in partition.mixins)...
-      variables: merge (mixins[m].variables for m in partition.mixins)...,
-        partition.variables
+  dispatch.mixins ?= []
+  for m in dispatch.mixins
+    throw new Error "mixin #{m} is not defined" if m not in keys mixins
+
+  include config.environment.dispatch,
+    policy: cat dispatch.policy,
+      (mixins[m].policy for m in dispatch.mixins)...
+    variables: merge (mixins[m].variables for m in dispatch.mixins)...,
+      dispatch.variables
 
   config
 
 Mixins = flow [
   expandMixinConfigurations
-  updatePartitions
+  updateDispatch
 ]
 
 export default Mixins

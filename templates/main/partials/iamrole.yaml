@@ -10,17 +10,17 @@ IAMRole:
               - lambda.amazonaws.com
           Action:
             - "sts:AssumeRole"
-    {{#if lambda.managedPolicies}}
+    {{#if environment.dispatch.managedPolicies}}
     ManagedPolicyArns:
-      {{#each lambda.managedPolicies}}
+      {{#each environment.dispatch.managedPolicies}}
       - {{.}}
       {{/each}}
     {{/if}}
     Policies:
-      - PolicyName: {{lambda.name}}
+      - PolicyName: {{environment.dispatch.name}}
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
-          {{#each policy}}
+          {{#each environment.dispatch.policy}}
             - {{indent 14 (yaml .)}}
           {{/each}}

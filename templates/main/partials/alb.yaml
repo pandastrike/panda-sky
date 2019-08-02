@@ -1,0 +1,149 @@
+{{#with environment.dispatch}}
+ALBVPC:
+  Type: "AWS::EC2::VPC"
+  Properties:
+    CidrBlock: "10.0.0.0/16"
+    EnableDnsSupport: true
+    EnableDnsHostnames: true
+    InstanceTenancy: default
+    Tags:
+      - Key: Name
+        Value: {{name}}
+
+ALBSubnet1:
+  DependsOn:
+    - ALBVPC
+  Type: "AWS::EC2::Subnet"
+  Properties:
+    AvailabilityZone: {{zone1}}
+    CidrBlock: "10.0.0.0/17"
+    MapPublicIpOnLaunch: true
+    VpcId: !Ref ALBVPC
+
+ALBSubnet2:
+  DependsOn:
+    - ALBVPC
+  Type: "AWS::EC2::Subnet"
+  Properties:
+    AvailabilityZone: {{zone2}}
+    CidrBlock: "10.0.128.0/17"
+    MapPublicIpOnLaunch: true
+    VpcId: !Ref ALBVPC
+
+ALBRouteTable:
+  DependsOn:
+    - ALBVPC
+  Type: "AWS::EC2::RouteTable"
+  Properties:
+    VpcId: !Ref ALBVPC
+
+ALBGateway:
+  Type: "AWS::EC2::InternetGateway"
+
+ALBPublicRoute:
+  Type: AWS::EC2::Route
+  DependsOn:
+    - ALBRouteTable
+    - ALBGateway
+  Properties:
+    DestinationCidrBlock: "0.0.0.0/0"
+    GatewayId: !Ref ALBGateway
+    RouteTableId: !Ref ALBRouteTable
+
+ALBGatewayAttachment:
+  DependsOn:
+    - ALBVPC
+    - ALBGateway
+  Type: "AWS::EC2::VPCGatewayAttachment"
+  Properties:
+    InternetGatewayId: !Ref ALBGateway
+    VpcId: !Ref ALBVPC
+
+ALBRouteRuleInternal:
+  DependsOn:
+    - ALBRouteTable
+    - ALBGatewayAttachment
+  Type: "AWS::EC2::Route"
+  Properties:
+    DestinationCidrBlock: "10.0.0.0/8"
+    GatewayId: !Ref ALBGateway
+    RouteTableId: !Ref ALBRouteTable
+
+ALBRouteTableSubnet1:
+  DependsOn:
+    - ALBRouteTable
+    - ALBSubnet1
+  Type: "AWS::EC2::SubnetRouteTableAssociation"
+  Properties:
+    RouteTableId: !Ref ALBRouteTable
+    SubnetId: !Ref ALBSubnet1
+
+ALBRouteTableSubnet2:
+  DependsOn:
+    - ALBRouteTable
+    - ALBSubnet2
+  Type: "AWS::EC2::SubnetRouteTableAssociation"
+  Properties:
+    RouteTableId: !Ref ALBRouteTable
+    SubnetId: !Ref ALBSubnet2
+
+ALBSecurityGroup:
+  DependsOn:
+    - ALBVPC
+  Type: "AWS::EC2::SecurityGroup"
+  Properties:
+    GroupName: {{name}}
+    GroupDescription: {{name}} Core Security Group
+    VpcId: !Ref ALBVPC
+
+ALBSecurityGroupEgressRule:
+  DependsOn:
+    - ALBSecurityGroup
+  Type: "AWS::EC2::SecurityGroupEgress"
+  Properties:
+    CidrIp: "0.0.0.0/0"
+    Description: Allow all outbound traffic
+    IpProtocol: "-1"
+    FromPort: 0
+    ToPort: 65535
+    GroupId: !Ref ALBSecurityGroup
+
+ALBSecurityGroupIngressRule:
+  DependsOn:
+    - ALBSecurityGroup
+  Type: "AWS::EC2::SecurityGroupIngress"
+  Properties:
+    Description: Opens the listener port
+    CidrIp: "0.0.0.0/0"
+    FromPort: 443
+    ToPort: 443
+    IpProtocol: tcp
+    GroupId: !Ref ALBSecurityGroup
+
+LoadBalancer:
+  Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+  DependsOn:
+    - ALBSubnet1
+    - ALBSubnet2
+    - ALBSecurityGroup
+  Properties:
+    Type: application
+    Scheme: internet-facing
+    IpAddressType: ipv4
+    Subnets:
+      - !Ref ALBSubnet1
+      - !Ref ALBSubnet2
+    SecurityGroups:
+      - !Ref ALBSecurityGroup
+    LoadBalancerAttributes:
+      - Key: routing.http2.enabled
+        Value: true
+      - Key: idle_timeout.timeout_seconds
+        Value: 300
+    Tags:
+      {{#each @root.tags}}
+      - Key: {{Key}}
+        Value: {{Value}}
+      {{/each}}
+
+{{/with}}

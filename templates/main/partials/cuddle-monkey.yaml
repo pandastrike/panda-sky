@@ -1,4 +1,4 @@
-{{#with preheater}}
+{{#with environment.dispatch.preheater}}
 CuddleMonkeyHeaterRole:
   Type: "AWS::IAM::Role"
   Properties:
@@ -25,7 +25,7 @@ CuddleMonkeyHeater:
   DependsOn:
     - CuddleMonkeyHeaterRole
   Properties:
-    Description: Preheater Handler for partition {{@root.lambda.name}}
+    Description: Sky Preheater Handler for {{../name}}
     FunctionName: {{name}}
     Handler: "index.handler"
     Role: !GetAtt [ CuddleMonkeyHeaterRole, Arn ]
@@ -58,8 +58,9 @@ CuddleMonkeyHeater:
         };
 
         exports.handler = async function(request, context, callback) {
-          var i, j;
-          for (i = j = 0; j < {{scale}}; i = ++j) {
+          var i, j, ref, scale;
+          ({scale} = request);
+          for (i = j = 0, ref = scale; (0 <= ref ? j < ref : j > ref); i = 0 <= ref ? ++j : --j) {
             {{#each targets}}
             await invoke("{{.}}");
             {{/each}}
@@ -73,13 +74,13 @@ CuddleMonkeyEventRule:
   DependsOn:
     - CuddleMonkeyHeater
   Properties:
-    Description: Preheater for partition {{@root.lambda.name}}"
+    Description: Sky Preheater for {{../name}}"
     ScheduleExpression: rate(5 minutes)
     State: ENABLED
     Targets:
       - Id: !Ref CuddleMonkeyHeater
         Arn: !GetAtt [ CuddleMonkeyHeater, Arn ]
-        Input: '{"cuddleMonkey": "true"}'
+        Input: '{"scale": {{scale}} }'
 
 CuddleMonkeyEventRole:
   Type: "AWS::Lambda::Permission"

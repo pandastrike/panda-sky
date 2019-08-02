@@ -19,6 +19,118 @@ vpc:
         type: string
         enum: [a, b, c, d, e, f]
 
+cache:
+  description: >
+    Optional configuration for CloudFront to provide caching on the AWS
+    global CDN infrastructure, including support for SSL.
+  type: object
+  additionalProperties: false
+  properties:
+    httpVersion:
+      description:
+        Determines the network protocol to serve content to clients. Sky defaults to HTTP/2 because it is newer and more awesome.
+      type: string
+      enum: [ "http1.1", "http2" ]
+
+    protocol:
+      description: >
+        Sets the TLS protocol version to use when serving your API over
+        HTTPS. Higher versions are not supported by older clients, but they
+        leverage more robust cryptography and signalling. Sky defaults to vTLSv1.2_2018.
+      type: string
+      enum: [ "SSLv3", TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018" ]
+
+    ttl:
+      description: >
+        The maximum amount of time, in seconds, that an entity stays
+        cached in the edge server before additional requests are forwarded
+        to your Gateway API to check for updates. Sky defaults to 0.
+
+        Setting this value to 0 gives you a custom domain with TLS
+        termination, but no caching. That configuraiton is useful for
+        development and staging environments.
+
+        You may also specify a tuple of integers
+        [minTTL, maxTTL, defaultTTL]
+      anyOf:
+        - type: integer
+          minimum: 0
+          maximum: 3153600000
+        - type: array
+          minItems: 3
+          maxItems: 3
+          items:
+            type: integer
+            minimum: 0
+            maximum: 3153600000
+
+    paths:
+      description: >
+        A set of cache behaviors specified as a dictionary of path patterns and their corresponding TTL, in seconds.  Sky uses the cache.expires field as a global default cache behavior, but this field allows you to set specific rules for parts of your distribution.
+      type: array
+      minItems: 1
+      items: {$ref: "#/definitions/cachePath"}
+
+    priceClass:
+      description: >
+        Sets the extent to which content is cached on CloudFront edge
+        servers.  By limiting to edge servers in cheaper locations
+        throughout the world, you can lower your expenses at the cost of
+        less coverage.  See https://aws.amazon.com/cloudfront/pricing/ for
+        a current description of what comes with each price class.
+
+        Sky defaults to 100, which is cheapest, but comes with the smallest coverage area.
+      anyOf:
+        - type: string
+          enum: [ "100", "200", "All"]
+        - type: integer
+          multipleOf: 100
+          minimum: 100
+          maximum: 200
+
+    headers:
+      description: >
+        This sets the list of headers forwarded and used to form a cache key by the CloudFront distribution.
+
+        Omitting this field will cause Sky to forward and
+        cache against the following headers: Accept, Accept-Encoding,
+        Access-Control-Request-Headers, Access-Control-Request-Method,
+        Authorization
+
+        You may specify an empty array, [].  In this case, Sky will set no
+        headers and CloudFront defaults to forwarding but NOT caching against the following: Accept, Accept-Charset, Accept-Datetime,
+        Accept-Language, Access-Control-Request-Headers,
+        Access-Control-Request-Method, Authorization, Origin, Referer
+
+        You may specify an array with a wildcard, [*], which forwards
+        ALL headers. However, CloudFront disables caching generally.
+      type: array
+      items:
+        type: string
+        minLength: 1
+
+    waf:
+      description: >
+        Configuration for the AWS Web Application Firewall stack that is associated with this environment custom domain.  This is an automated system to counter SQL injection, XSS, and DDOS attacks.
+      anyOf:
+        - type: boolean
+        - type: object
+          additionalProperties: false
+          properties:
+            floodThreshold:
+              description: >
+                The maximum acceptable requests per 5 (five) minute period per IP address. Minimum value of 2000; defaults to 2000.
+              type: integer
+              minimum: 2000
+            errorThreshold:
+              description: >
+                The maximum acceptable bad requests per minute per IP. Violating this causes the IP to be blocked for the given TTL. Defaults to 50.
+              type: integer
+              minimum: 0
+            blockTTL:
+              description: >
+                The period, in minutes, to block applicable IP addresses.  Defaults to 240.
+
 cachePath:
   description: >
     A object containing key-value pairing of a CloudFront distribution path pattern and its corresponding TTL in seconds.  The path may contain glob notation.
@@ -57,13 +169,31 @@ cachePath:
             maximum: 3153600000
 
 
-partition:
+mixin:
+  description: >
+    This is a Sky mixins definition.
+  type: object
+  additionalProperties: false
+  required: [type]
+  properties:
+    type:
+      description: >
+        The name of the mixin to be looked up in the project's module library, not the reference name used by partitions.  That is, "s3" rather than "myBucket".
+      type: string
+    vpc:
+      description: A flag to indicate to the mixin to expect VPC-related parameters when published in the stack.
+      type: boolean
+    configuration:
+      description: The schemas for this configuration are held within the mixins themselves.
+      type: object
+
+dispatch:
   description: >
   type: object
   properties:
     variables:
       description: >
-        A dictionary of variable names to be injected into the environment configuration for this stacks lambdas.  Total size cannot exceed 4kB, and there is already a portion of that taken up by Sky by default.  This dicitonary is not appropriate to store sensitive information (use ASM mixin instead).
+        A dictionary of variable names to be injected into the environment configuration for this stack's lambdas.  Total size cannot exceed 4kB, and there is already a portion of that taken up by Sky by default.  This dicitonary is not appropriate to store sensitive information (use ASM mixin instead).
       type: object
 
     mixins:
@@ -75,7 +205,7 @@ partition:
 
     lambda:
       description: >
-        Configuration object for the lambda that dispatches requests to this partition.
+        Configuration object for the lambda that handles dispatches for this API.
       type: object
       additionalProperties: false
       properties:
@@ -118,31 +248,12 @@ partition:
           items:
             type: string
 
-mixin:
-  description: >
-    This is a Sky mixins definition.
-  type: object
-  additionalProperties: false
-  required: [type]
-  properties:
-    type:
-      description: >
-        The name of the mixin to be looked up in the project's module library, not the reference name used by partitions.  That is, "s3" rather than "myBucket".
-      type: string
-    vpc:
-      description: A flag to indicate to the mixin to expect VPC-related parameters when published in the stack.
-      type: boolean
-    configuration:
-      description: The schemas for this configuration are held within the mixins themselves.
-      type: object
-
-
 environment:
   description: >
     A collection of Cloud resources allocated on your behalf to deploy the
     serverless Sky stack.
   type: object
-  required: [ partitions, hostnames ]
+  required: [ hostnames ]
   additionalProperties: false
   properties:
     variables:
@@ -170,121 +281,6 @@ environment:
       type: object
       additionalProperties: {$ref: "#/definitions/mixin"}
 
-    partitions:
-      description: >
-        A dictionary of API handler resources that have similar code, resource allocation, and permission needs.
-      type: object
-      minProperties: 1
-      additionalProperties: {$ref: "#/definitions/partition"}
+    dispatch: {$ref: "#/definitions/dispatch"}
 
-    cache:
-      description: >
-        Optional configuration for CloudFront to provide caching on the AWS
-        global CDN infrastructure, including support for SSL.
-      type: object
-      additionalProperties: false
-      properties:
-        httpVersion:
-          description:
-            Determines the network protocol to serve content to clients. Sky defaults to HTTP/2 because it is newer and more awesome.
-          type: string
-          enum: [ "http1.1", "http2" ]
-
-        protocol:
-          description: >
-            Sets the TLS protocol version to use when serving your API over
-            HTTPS. Higher versions are not supported by older clients, but they
-            leverage more robust cryptography and signalling. Sky defaults to vTLSv1.2_2018.
-          type: string
-          enum: [ "SSLv3", TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018" ]
-
-        ttl:
-          description: >
-            The maximum amount of time, in seconds, that an entity stays
-            cached in the edge server before additional requests are forwarded
-            to your Gateway API to check for updates. Sky defaults to 0.
-
-            Setting this value to 0 gives you a custom domain with TLS
-            termination, but no caching. That configuraiton is useful for
-            development and staging environments.
-
-            You may also specify a tuple of integers
-            [minTTL, maxTTL, defaultTTL]
-          anyOf:
-            - type: integer
-              minimum: 0
-              maximum: 3153600000
-            - type: array
-              minItems: 3
-              maxItems: 3
-              items:
-                type: integer
-                minimum: 0
-                maximum: 3153600000
-
-        paths:
-          description: >
-            A set of cache behaviors specified as a dictionary of path patterns and their corresponding TTL, in seconds.  Sky uses the cache.expires field as a global default cache behavior, but this field allows you to set specific rules for parts of your distribution.
-          type: array
-          minItems: 1
-          items: {$ref: "#/definitions/cachePath"}
-
-        priceClass:
-          description: >
-            Sets the extent to which content is cached on CloudFront edge
-            servers.  By limiting to edge servers in cheaper locations
-            throughout the world, you can lower your expenses at the cost of
-            less coverage.  See https://aws.amazon.com/cloudfront/pricing/ for
-            a current description of what comes with each price class.
-
-            Sky defaults to 100, which is cheapest, but comes with the smallest coverage area.
-          anyOf:
-            - type: string
-              enum: [ "100", "200", "All"]
-            - type: integer
-              multipleOf: 100
-              minimum: 100
-              maximum: 200
-
-        headers:
-          description: >
-            This sets the list of headers forwarded and used to form a cache key by the CloudFront distribution.
-
-            Omitting this field will cause Sky to forward and
-            cache against the following headers: Accept, Accept-Encoding,
-            Access-Control-Request-Headers, Access-Control-Request-Method,
-            Authorization
-
-            You may specify an empty array, [].  In this case, Sky will set no
-            headers and CloudFront defaults to forwarding but NOT caching against the following: Accept, Accept-Charset, Accept-Datetime,
-            Accept-Language, Access-Control-Request-Headers,
-            Access-Control-Request-Method, Authorization, Origin, Referer
-
-            You may specify an array with a wildcard, [*], which forwards
-            ALL headers. However, CloudFront disables caching generally.
-          type: array
-          items:
-            type: string
-            minLength: 1
-
-        waf:
-          description: >
-            Configuration for the AWS Web Application Firewall stack that is associated with this environment custom domain.  This is an automated system to counter SQL injection, XSS, and DDOS attacks.
-          anyOf:
-            - type: boolean
-            - type: object
-              additionalProperties: false
-              properties:
-                floodThreshold:
-                  description: >
-                    The maximum acceptable requests per 5 (five) minute period per IP address. Minimum value of 2000; defaults to 2000.
-                  type: integer
-                  minimum: 2000
-                errorThreshold:
-                  description: >
-                    The maximum acceptable bad requests per minute per IP. Violating this causes the IP to be blocked for the given TTL. Defaults to 50.
-                  type: integer
-                  minimum: 0
-                blockTTL:
-                  description: >
-                    The period, in minutes, to block applicable IP addresses.  Defaults to 240.
+    cache: {$ref: "#/definitions/cache"}

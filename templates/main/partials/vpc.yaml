@@ -1,4 +1,4 @@
-{{#if vpc}}
+{{#with environment.dispatch.vpc}}
 VPC:
   Type: "AWS::EC2::VPC"
   Properties:
@@ -7,7 +7,7 @@ VPC:
     EnableDnsHostnames: true
     InstanceTenancy: default
     Tags:
-      {{#each vpc.tags}}
+      {{#each tags}}
       - Key: {{Key}}
         Value: {{Value}}
       {{/each}}
@@ -17,7 +17,7 @@ Subnet1:
     - VPC
   Type: "AWS::EC2::Subnet"
   Properties:
-    AvailabilityZone: {{vpc.zone1}}
+    AvailabilityZone: {{zone1}}
     CidrBlock: "10.0.0.0/17"
     VpcId: !Ref VPC
 
@@ -26,7 +26,7 @@ Subnet2:
     - VPC
   Type: "AWS::EC2::Subnet"
   Properties:
-    AvailabilityZone: {{vpc.zone2}}
+    AvailabilityZone: {{zone2}}
     CidrBlock: "10.0.128.0/17"
     VpcId: !Ref VPC
 
@@ -82,8 +82,8 @@ SecurityGroup:
     - VPC
   Type: "AWS::EC2::SecurityGroup"
   Properties:
-    GroupName: {{variables.name}}
-    GroupDescription: {{variables.name}} Core Security Group
+    GroupName: {{../variables.name}}
+    GroupDescription: {{../variables.name}} Core Security Group
     VpcId: !Ref VPC
 
 SecurityGroupEgressRule:
@@ -125,4 +125,4 @@ EndpointS3:
       - - com.amazonaws.
         - !Ref "AWS::Region"
         - .s3
-{{/if}}
+{{/with}}

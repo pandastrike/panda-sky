@@ -6,7 +6,6 @@ import checkEnvironment from "./environment"
 import setStack from "./stack"
 import setVariables from "./variables"
 import setDomains from "./domains"
-import setPartitions from "./partitions"
 import setDispatch from "./dispatch"
 import setPreheater from "./preheaters"
 import setSignatures from "./signatures"
@@ -17,7 +16,6 @@ Preprocessor = flow [
   setStack
   setVariables
   setDomains
-  setPartitions
   setDispatch
   setPreheater
   setSignatures

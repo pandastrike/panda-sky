@@ -1,0 +1,81 @@
+Listener:
+  Type: AWS::ElasticLoadBalancingV2::Listener
+  DependsOn:
+    - LoadBalancer
+    - TargetGroup
+  Properties:
+    LoadBalancerArn: !Ref LoadBalancer
+    Port: 443
+    Protocol: HTTPS
+    {{!-- From https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html It is the most restrictive policy supported as of this writing --}}
+    SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
+    Certificates:
+      - CertificateArn: {{environment.dispatch.certificate}}
+    DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref TargetGroup
+
+{{#unless environment.isDev}}
+APIKeyMatchSet:
+  Type: AWS::WAFRegional::ByteMatchSet
+  Properties:
+    Name: API Key Match Set for {{environment.stack.name}}
+    ByteMatchTuples:
+      - FieldToMatch:
+          Type: HEADER
+          Data: x-api-key
+        PositionalConstraint: EXACTLY
+        TargetString: '{{environment.apiKey}}'
+        TextTransformation: NONE
+
+APIKeyRule:
+  Type: AWS::WAFRegional::Rule
+  DependsOn:
+    - APIKeyMatchSet
+  Properties:
+    Name: API Key Rule for {{environment.stack.name}} ALB
+    MetricName: APIKeyRule{{templateCase environment.stack.name}}
+    Predicates:
+      - Type: ByteMatch
+        Negated: false
+        DataId: !Ref APIKeyMatchSet
+
+WAF:
+  Type: AWS::WAFRegional::WebACL
+  DependsOn:
+    - APIKeyRule
+  Properties:
+    Name: WAF for {{environment.stack.name}} ALB
+    MetricName: {{templateCase environment.stack.name}}
+    DefaultAction:
+      Type: BLOCK
+    Rules:
+      - Action:
+          Type: ALLOW
+        Priority: 1
+        RuleId: !Ref APIKeyRule
+
+WAFAssociation:
+  Type: AWS::WAFRegional::WebACLAssociation
+  DependsOn:
+    - LoadBalancer
+    - WAF
+  Properties:
+    ResourceArn: !Ref LoadBalancer
+    WebACLId: !Ref WAF
+{{/unless}}
+
+DNS:
+  Type: "AWS::Route53::RecordSetGroup"
+  DependsOn:
+    - Listener
+  Properties:
+    Comment: Direct endpoint for Sky API {{environment.stack.name}}
+    HostedZoneId: {{environment.dispatch.hostedzone}}
+    RecordSets:
+      - Name: {{environment.dispatch.hostname}}
+        Type: A
+        AliasTarget:
+          DNSName: !GetAtt [ LoadBalancer, DNSName ]
+          EvaluateTargetHealth: false
+          HostedZoneId: !GetAtt [ LoadBalancer, CanonicalHostedZoneID ]

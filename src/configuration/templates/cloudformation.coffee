@@ -19,20 +19,6 @@ renderCustomDomain = ({T, config}) ->
 
   {T, config}
 
-renderPartition = (T, path = resolve "main", "partition.yaml") ->
-  ([name, partition]) ->
-    [name]: await render T, partition, path
-
-renderPartitions = ({T, config}) ->
-  config.environment.templates.partitions =
-    await do flow [
-      wrap pairs config.environment.partitions
-      wait map renderPartition T
-      reduce include, {}
-    ]
-
-  {T, config}
-
 addMixins = ({config}) ->
   config.environment.templates.mixins =
     await do flow [
@@ -48,7 +34,6 @@ Render = flow [
   registerPartials resolve "main", "partials"
   renderDispatch
   renderCustomDomain
-  renderPartitions
   addMixins
 ]
 

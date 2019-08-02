@@ -37,7 +37,7 @@ cloudformation = (config) ->
 
 teardownStacks = (config) ->
   {teardown} = cloudformation config
-  {dispatch, partitions, mixins} = config.environment
+  {dispatch, mixins} = config.environment
 
   console.log "Mixin Teardown"
   await Promise.all (teardown stack for name, {stack} of mixins)
@@ -45,15 +45,12 @@ teardownStacks = (config) ->
   console.log "Dispatcher Teardown"
   await teardown dispatch.name
 
-  console.log "Partition Teardown"
-  await Promise.all (teardown stack for name, {stack} of partitions)
-
   config
 
 teardownOld = (config) ->
   {teardown} = cloudformation config
   {remove} = s3 config
-  {stack:{remote}, partitions, mixins} = config.environment
+  {stack:{remote}, mixins} = config.environment
 
   # Remove stacks removed from the configuration.
   for name in remote.mixins when name not in keys mixins
@@ -61,33 +58,10 @@ teardownOld = (config) ->
     await teardown dashed "#{config.name} #{config.env} mixin #{name}"
     await remove join "mixins", name
 
-  for name in remote.partitions when name not in keys partitions
-    console.log "Partition Teardown: #{name}"
-    await teardown dashed "#{config.name} #{config.env} #{name}"
-    await remove join "partitions", name
-
-  config
-
-upsertPartitions = (config) ->
-  {publish, read, format} = cloudformation config
-  {upload} = s3 config
-  {partitions, templates} = config.environment
-
-  for name, template of templates.partitions
-    console.log "Partition Deploy: #{name}"
-    {stack} = partitions[name]
-    key = join "partitions", name, "index.yaml"
-    await upload key, template
-    await publish format stack, key
-    parameters = await read stack
-    config.environment.partitions[name].stackParameters = parameters
-    console.log "Outputs:"
-    console.log yaml parameters unless isEmpty parameters
-
   config
 
 upsertDispatch = (config) ->
-  {publish, format} = cloudformation config
+  {publish, format, read} = cloudformation config
   {upload, remove} = s3 config
   {dispatch, templates} = config.environment
 
@@ -96,26 +70,31 @@ upsertDispatch = (config) ->
   key = join "dispatch", "index.yaml"
   await upload key, templates.dispatch
   await publish format dispatch.name, key
+  parameters = await read dispatch.name
+  config.environment.dispatch.stackParameters = parameters
+  unless isEmpty parameters
+    console.log "Outputs:"
+    console.log yaml parameters
 
   config
 
-findPartitions = (partitions, mixinName) ->
+matchMixin = (dispatch, mixinName) ->
   parameters = []
-  for name, {mixins, stackParameters} of partitions
-    if mixins? && stackParameters? && (mixinName in mixins)
-      parameters.push stackParameters
+  {mixins, stackParameters} = dispatch
+  if mixins? && stackParameters? && (mixinName in mixins)
+    parameters.push stackParameters
 
   if isEmpty parameters
     undefined
   else
-    # TODO: This is a placeholder.  It won't handle VPC sensitive mixins across multiple partitions with different VPC configurations.  But we shouldn't need anything like that for a while.
+    # TODO: This is a placeholder.
     merge parameters...
 
 
 upsertMixins = (config) ->
   {publish, read, format} = cloudformation config
   {upload} = s3 config
-  {mixins, templates, partitions} = config.environment
+  {mixins, templates, dispatch} = config.environment
 
   for name, template of templates.mixins
     console.log "Mixin Deploy: #{name}"
@@ -128,7 +107,7 @@ upsertMixins = (config) ->
       console.log "  - Triggering before hook..."
       await beforeHook config
 
-    parameters = findPartitions partitions, name if vpc
+    parameters = matchMixin dispatch, name if vpc
     await publish format stack, key, parameters
 
     parameters = await read stack
@@ -140,7 +119,6 @@ upsertMixins = (config) ->
 
 syncStacks = flow [
   teardownOld
-  upsertPartitions
   upsertDispatch
   upsertMixins
   _syncCode

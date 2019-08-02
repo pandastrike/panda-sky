@@ -37,11 +37,9 @@ teardownBucket = (config) ->
 scanBucket = (config) ->
   console.log "scanning orchestration bucket..."
   {list} = s3 config
-  remote = partitions: [], mixins: []
+  remote = mixins: []
 
   for {Key, ETag} in await list()
-    if found = Key.match /partitions\/(.*?)\//
-      remote.partitions.push found[1] if found[1] not in remote.partitions
     if found = Key.match /mixins\/(.*?)\//
       remote.mixins.push found[1] if found[1] not in remote.mixins
 

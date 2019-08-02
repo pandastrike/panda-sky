@@ -1,8 +1,8 @@
-{{#with lambda}}
-Handler:
+{{#with environment.dispatch}}
+DispatchHandler:
   Type: "AWS::Lambda::Function"
   Properties:
-    Description: "Handler for parition {{name}}"
+    Description: "Handler for {{@root.name}} {{@root.env}}"
     FunctionName: {{name}}
 
     Handler: "lib/sky.handler"
@@ -10,7 +10,7 @@ Handler:
     Runtime: {{runtime}}
     MemorySize: {{memorySize}}
     Timeout: {{timeout}}
-    {{#if ../vpc}}
+    {{#if vpc}}
     VpcConfig:
       SecurityGroupIds:
         - !Ref SecurityGroup
@@ -20,10 +20,30 @@ Handler:
     {{/if}}
     Environment:
       Variables:
-      {{#each ../variables}}
+      {{#each variables}}
         {{@key}}: {{this}}
       {{/each}}
     Code:
       S3Bucket: {{code.bucket}}
       S3Key: {{code.key}}
 {{/with}}
+
+TargetPermission:
+  Type: "AWS::Lambda::Permission"
+  DependsOn:
+    - DispatchHandler
+  Properties:
+    FunctionName: {{environment.dispatch.arn}}
+    Action: 'lambda:InvokeFunction'
+    Principal: elasticloadbalancing.amazonaws.com
+
+TargetGroup:
+  Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  DependsOn:
+    - DispatchHandler
+    - TargetPermission
+  Properties:
+    TargetType: lambda
+    HealthCheckEnabled: false
+    Targets:
+      - Id: !GetAtt [ DispatchHandler, Arn ]

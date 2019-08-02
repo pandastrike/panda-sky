@@ -1,295 +1,43 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Panda Sky Core Resources - Dispatcher
+Description: Panda Sky Core Resources - Dispatcher {{name}} {{env}}
 Resources:
+
+  {{> alb }}
+
+  {{> vpc }}
+
+  {{> iamrole }}
+
+  {{> cuddle-monkey }}
+
+  {{> lambda }}
+
+  {{> edge }}
+
+{{#if vpc}}
+Outputs:
   VPC:
-    Type: "AWS::EC2::VPC"
-    Properties:
-      CidrBlock: "10.0.0.0/16"
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      InstanceTenancy: default
-      Tags:
-        - Key: Name
-          Value: {{environment.dispatch.name}}
+    Value: !Ref VPC
 
-  Subnet1:
-    DependsOn:
-      - VPC
-    Type: "AWS::EC2::Subnet"
-    Properties:
-      AvailabilityZone: {{environment.dispatch.zone1}}
-      CidrBlock: "10.0.0.0/17"
-      MapPublicIpOnLaunch: true
-      VpcId: !Ref VPC
-
-  Subnet2:
-    DependsOn:
-      - VPC
-    Type: "AWS::EC2::Subnet"
-    Properties:
-      AvailabilityZone: {{environment.dispatch.zone2}}
-      CidrBlock: "10.0.128.0/17"
-      MapPublicIpOnLaunch: true
-      VpcId: !Ref VPC
-
-  RouteTable:
-    DependsOn:
-      - VPC
-    Type: "AWS::EC2::RouteTable"
-    Properties:
-      VpcId: !Ref VPC
-
-  Gateway:
-    Type: "AWS::EC2::InternetGateway"
-
-  PublicRoute:
-    Type: AWS::EC2::Route
-    DependsOn:
-      - RouteTable
-      - Gateway
-    Properties:
-      DestinationCidrBlock: "0.0.0.0/0"
-      GatewayId: !Ref Gateway
-      RouteTableId: !Ref RouteTable
-
-  GatewayAttachment:
-    DependsOn:
-      - VPC
-      - Gateway
-    Type: "AWS::EC2::VPCGatewayAttachment"
-    Properties:
-      InternetGatewayId: !Ref Gateway
-      VpcId: !Ref VPC
-
-  RouteRuleInternal:
-    DependsOn:
-      - RouteTable
-      - GatewayAttachment
-    Type: "AWS::EC2::Route"
-    Properties:
-      DestinationCidrBlock: "10.0.0.0/8"
-      GatewayId: !Ref Gateway
-      RouteTableId: !Ref RouteTable
-
-  RouteTableSubnet1:
-    DependsOn:
-      - RouteTable
-      - Subnet1
-    Type: "AWS::EC2::SubnetRouteTableAssociation"
-    Properties:
-      RouteTableId: !Ref RouteTable
-      SubnetId: !Ref Subnet1
-
-  RouteTableSubnet2:
-    DependsOn:
-      - RouteTable
-      - Subnet2
-    Type: "AWS::EC2::SubnetRouteTableAssociation"
-    Properties:
-      RouteTableId: !Ref RouteTable
-      SubnetId: !Ref Subnet2
-
-  SecurityGroup:
-    DependsOn:
-      - VPC
-    Type: "AWS::EC2::SecurityGroup"
-    Properties:
-      GroupName: {{environment.dispatch.name}}
-      GroupDescription: {{environment.dispatch.name}} Core Security Group
-      VpcId: !Ref VPC
-
-  SecurityGroupEgressRule:
-    DependsOn:
-      - SecurityGroup
-    Type: "AWS::EC2::SecurityGroupEgress"
-    Properties:
-      CidrIp: "0.0.0.0/0"
-      Description: Allow all outbound traffic
-      IpProtocol: "-1"
-      FromPort: 0
-      ToPort: 65535
-      GroupId: !Ref SecurityGroup
-
-  SecurityGroupIngressRule:
-    DependsOn:
-      - SecurityGroup
-    Type: "AWS::EC2::SecurityGroupIngress"
-    Properties:
-      Description: Opens the listener port
-      CidrIp: "0.0.0.0/0"
-      FromPort: 443
-      ToPort: 443
-      IpProtocol: tcp
-      GroupId: !Ref SecurityGroup
-
-  LoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    DependsOn:
-      - Subnet1
-      - Subnet2
-      - SecurityGroup
-    Properties:
-      Type: application
-      Scheme: internet-facing
-      IpAddressType: ipv4
-      Subnets:
-        - !Ref Subnet1
+  Subnets:
+    Value: !Join
+      - ","
+      - - !Ref Subnet1
         - !Ref Subnet2
-      SecurityGroups:
-        - !Ref SecurityGroup
-      LoadBalancerAttributes:
-        - Key: routing.http2.enabled
-          Value: true
-        - Key: idle_timeout.timeout_seconds
-          Value: 300
-      Tags:
-        {{#each tags}}
-        - Key: {{Key}}
-          Value: {{Value}}
-        {{/each}}
 
-  DispatchRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
-      Policies:
-        - PolicyName: {{environment.dispatch.name}}
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-            {{#each environment.dispatch.policy}}
-              - {{indent 16 (yaml .)}}
-            {{/each}}
+  AvailabilityZones:
+    Value: !Join
+      - ","
+      - - !GetAtt [ Subnet1, AvailabilityZone ]
+        - !GetAtt [ Subnet2, AvailabilityZone ]
 
-  {{#with environment.dispatch}}
-  DispatchLambda:
-    Type: "AWS::Lambda::Function"
-    DependsOn:
-      - DispatchRole
-    Properties:
-      Description: "Dispatch for {{name}}"
-      FunctionName: {{name}}
-      Handler: "lib/dispatch.handler"
-      Role: !GetAtt [ DispatchRole, Arn ]
-      Runtime: {{runtime}}
-      MemorySize: {{memorySize}}
-      Timeout: {{timeout}}
-      Environment:
-        Variables:
-        {{#each variables}}
-          {{@key}}: {{this}}
-        {{/each}}
-      Code:
-        S3Bucket: {{code.bucket}}
-        S3Key: {{code.key}}
-  {{/with}}
+  SecurityGroups:
+    Value: !Join
+      - ","
+      - - !Ref SecurityGroup
 
-  TargetPermission:
-    Type: "AWS::Lambda::Permission"
-    DependsOn:
-      - DispatchLambda
-    Properties:
-      FunctionName: {{environment.dispatch.arn}}
-      Action: 'lambda:InvokeFunction'
-      Principal: elasticloadbalancing.amazonaws.com
-
-  TargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    DependsOn:
-      - DispatchLambda
-      - TargetPermission
-    Properties:
-      TargetType: lambda
-      HealthCheckEnabled: false
-      Targets:
-        - Id: !GetAtt [ DispatchLambda, Arn ]
-
-  Listener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    DependsOn:
-      - LoadBalancer
-      - TargetGroup
-    Properties:
-      LoadBalancerArn: !Ref LoadBalancer
-      Port: 443
-      Protocol: HTTPS
-      {{!-- From https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html It is the most restrictive policy supported as of this writing --}}
-      SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
-      Certificates:
-        - CertificateArn: {{environment.dispatch.certificate}}
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref TargetGroup
-
-  {{#unless environment.isDev}}
-  APIKeyMatchSet:
-    Type: AWS::WAFRegional::ByteMatchSet
-    Properties:
-      Name: API Key Match Set for {{environment.stack.name}}
-      ByteMatchTuples:
-        - FieldToMatch:
-            Type: HEADER
-            Data: x-api-key
-          PositionalConstraint: EXACTLY
-          TargetString: '{{environment.apiKey}}'
-          TextTransformation: NONE
-
-  APIKeyRule:
-    Type: AWS::WAFRegional::Rule
-    DependsOn:
-      - APIKeyMatchSet
-    Properties:
-      Name: API Key Rule for {{environment.stack.name}} ALB
-      MetricName: APIKeyRule{{templateCase environment.stack.name}}
-      Predicates:
-        - Type: ByteMatch
-          Negated: false
-          DataId: !Ref APIKeyMatchSet
-
-  WAF:
-    Type: AWS::WAFRegional::WebACL
-    DependsOn:
-      - APIKeyRule
-    Properties:
-      Name: WAF for {{environment.stack.name}} ALB
-      MetricName: {{templateCase environment.stack.name}}
-      DefaultAction:
-        Type: BLOCK
-      Rules:
-        - Action:
-            Type: ALLOW
-          Priority: 1
-          RuleId: !Ref APIKeyRule
-
-  WAFAssociation:
-    Type: AWS::WAFRegional::WebACLAssociation
-    DependsOn:
-      - LoadBalancer
-      - WAF
-    Properties:
-      ResourceArn: !Ref LoadBalancer
-      WebACLId: !Ref WAF
-  {{/unless}}
-
-  DNS:
-    Type: "AWS::Route53::RecordSetGroup"
-    DependsOn:
-      - Listener
-    Properties:
-      Comment: Direct endpoint for Sky API {{environment.stack.name}}
-      HostedZoneId: {{environment.dispatch.hostedzone}}
-      RecordSets:
-        - Name: {{environment.dispatch.hostname}}
-          Type: A
-          AliasTarget:
-            DNSName: !GetAtt [ LoadBalancer, DNSName ]
-            EvaluateTargetHealth: false
-            HostedZoneId: !GetAtt [ LoadBalancer, CanonicalHostedZoneID ]
+  RouteTables:
+    Value: !Join
+      - ","
+      - - !Ref RouteTable
+{{/if}}
