@@ -7,7 +7,7 @@ import {glob, read} from "panda-quill"
 
 import {pathWithUnderscore, context, write} from "../../../utils"
 
-formats = w ".html .css .xml .json .yaml"
+formats = w ".html .css .xml .json .yaml .hbs"
 
 render = ({source, target}) ->
   target.content = createReadStream source.path
