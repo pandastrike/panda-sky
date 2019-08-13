@@ -105,30 +105,43 @@ html(lang="en")
          font-size: inherit; }
 
       h1 {
-         font-size: 28px;
+         font-size: 30px;
          color: black;
          text-transform: capitalize; }
 
       h2 {
-         font-size: 24px;
+         font-size: 26px;
          border-bottom: 1px solid #cccccc;
          color: black; }
 
       h3 {
-         font-size: 22px; }
+         font-size: 24px; }
 
       h4 {
-         font-size: 16px; }
+         font-size: 20px; }
 
       h5 {
-         font-size: 14px; }
+         font-size: 18px; }
 
       h6 {
          color: #777777;
-         font-size: 14px; }
+         font-size: 16px; }
 
       p, blockquote, ul, ol, dl, li, table, pre {
          margin: 15px 0; }
+         
+      p {
+        font-size: 16px;
+        max-width: 600px;
+      }
+      
+      p > code, pre > code, td > code, ul > code, ol > code {
+        font-size: 16px;
+      }
+      
+      td {
+        font-size: 16px;
+      }
 
       hr {
          border: 0 none;
@@ -347,6 +360,13 @@ html(lang="en")
             word-wrap: break-word;
          }
       }
+      
+    link( 
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/styles/a11y-light.min.css"
+    )
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/highlight.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/languages/yaml.min.js")
 
   body
     div#tocLink 
@@ -368,3 +388,6 @@ html(lang="en")
       {{#each resources}}
       {{> resource }}
       {{/each}}
+      
+    script.
+      hljs.initHighlightingOnLoad();

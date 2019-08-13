@@ -1,6 +1,6 @@
 {
   "name": "panda-sky",
-  "version": "5.0.8",
+  "version": "5.0.9",
   "description": "Quickly publish serverless applications in the cloud.",
   "main": "build/npm/src/index.js",
   "files": [
@@ -58,6 +58,8 @@
     "coffeescript": "^2.3.2",
     "colors": "^1.1.2",
     "commander": "2.12.0",
+    "markdown-it": "^9.1.0",
+    "markdown-it-emoji": "^1.4.0",
     "moment": "^2.19.3",
     "moment-duration-format": "^1.3.0",
     "panda-confidential": "^2.0.0",

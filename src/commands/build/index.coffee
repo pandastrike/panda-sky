@@ -2,6 +2,16 @@ import {go, tee, pull} from "panda-river"
 import {values, toJSON} from "panda-parchment"
 import {exists, write} from "panda-quill"
 import pug from "pug"
+import MarkdownIt from "markdown-it"
+import emoji from "markdown-it-emoji"
+
+markdown = do (p = undefined) ->
+  p = MarkdownIt
+    linkify: true
+    typographer: true
+    quotes: '“”‘’'
+  .use emoji
+  (string) -> p.render string
 
 import transpile from "./transpile"
 import {safe_mkdir, bellChar, outputDuration, shell, isCompressible, gzip, brotli} from "../../utils"
@@ -51,7 +61,9 @@ Build = (stopwatch, env, {profile}) ->
     await write "#{target}/api/json/brotli", await brotli file
 
     console.log "        - Packaging API documentation..."
-    file = pug.render config.environment.templates.apiDocs
+    file = pug.render config.environment.templates.apiDocs,
+      filters: {markdown}
+
     await safe_mkdir "#{target}/api/html"
     await write "#{target}/api/html/identity", file
     await write "#{target}/api/html/gzip", await gzip file

@@ -8,29 +8,33 @@ article
       code {{template}}
 
     {{#if description}}
-    p.
+    :markdown
       {{indent 6 description}}
     {{/if}}
 
   section
     {{#with parameterDefinitions}}
     h4 Parameters
+    
     {{#with path}}
     h5 Path
     ul
     {{#each .}}
       li
         code {{@key}}
-        p {{.}}
+        :markdown
+          {{indent 10 .}}
     {{/each}}
     {{/with}}
+    
     {{#with query}}
     h5 Query
     ul
     {{#each .}}
       li
         code {{@key}}
-        p {{.}}
+        :markdown
+          {{indent 10 .}}
     {{/each}}
     {{/with}}
     {{/with}}
@@ -40,7 +44,8 @@ article
     {{#each .}}
     h4.httpMethod#{{camelCase ../../name}}{{capitalize @key}} 
       a(href="#{{camelCase ../../name}}{{capitalize @key}} ") {{@key}}
-    p {{description}}
+    :markdown
+      {{indent 6 description}}
 
     {{#with signatures}}
     h4 Signature
@@ -104,16 +109,19 @@ article
       
     {{#if request.schema}}
     h5 Request Body Schema
-    pre 
-      code.
+    
+    pre
+      code.yaml.
         {{indent 8 (yaml request.schema)}}
+        
     {{/if}}
     
     {{#if response.schema}}
     h5 Response Body Schema
-    pre 
-      code.
+    pre
+      code.yaml.
         {{indent 8 (yaml response.schema)}}
+      
     {{/if}}
     {{/with}}
     {{/each}}
