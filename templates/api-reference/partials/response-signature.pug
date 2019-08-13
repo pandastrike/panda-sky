@@ -1,0 +1,49 @@
+h5 Response
+table
+  tbody
+    {{#if response.mediatype}}
+    tr
+      td Content-Type(s)  
+      td: code {{toJSON response.mediatype}}
+    {{/if}}
+    {{#if response.encoding}}
+    tr
+      td Content-Encoding 
+      td: code {{toJSON response.encoding}}
+    {{/if}}
+    {{#if (equal (first response.status) 201)}}
+    tr
+      td Location
+      td: code true
+    {{/if}}
+    tr
+      td Success Status
+      td: code {{first response.status}}
+    {{#if (rest response.status)}} 
+    tr
+      td Other Defined Status
+      td: code {{toJSON (rest response.status)}}
+    {{/if}}
+    {{#if response.cache}}
+    tr
+      td Cache-Control
+      td: code max-age={{response.cache.maxAge}}
+    {{#if response.cache.etag}}
+    tr
+      td ETag
+      td: code true
+    {{/if}}
+    {{#if response.cache.lastModified}}
+    tr
+      td Last-Modified
+      td: code true
+    {{/if}}
+    {{/if}}
+    
+{{#if response.schema}}
+h5 Response Body Schema
+pre
+  code.yaml.
+    {{indent 4 (yaml response.schema)}}
+  
+{{/if}}

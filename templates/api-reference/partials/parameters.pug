@@ -1,0 +1,25 @@
+{{#with parameterDefinitions}}
+h4 Parameters
+
+{{#with path}}
+h5 Path
+ul
+{{#each .}}
+  li
+    code {{@key}}
+    :markdown
+      {{indent 10 .}}
+{{/each}}
+{{/with}}
+
+{{#with query}}
+h5 Query
+ul
+{{#each .}}
+  li
+    code {{@key}}
+    :markdown
+      {{indent 6 .}}
+{{/each}}
+{{/with}}
+{{/with}}

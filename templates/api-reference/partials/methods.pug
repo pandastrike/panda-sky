@@ -1,0 +1,19 @@
+{{#with methods}}
+{{#each .}}
+h4.httpMethod#{{camelCase ../../name}}{{capitalize @key}} 
+  a(href="#{{camelCase ../../name}}{{capitalize @key}} ") {{@key}}
+
+{{#if description}}
+:markdown
+  {{indent 6 description}}
+{{/if}}
+
+{{#with signatures}}
+h4 Signature
+{{> request-signature}}
+    
+{{> response-signature}}
+
+{{/with}}
+{{/each}}
+{{/with}}

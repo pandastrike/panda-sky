@@ -1,0 +1,27 @@
+h5 Request
+table
+  tbody  
+    tr
+      td Authorization
+      td: code {{request.authorization}} 
+  
+    {{#if request.mediatype}}
+    tr
+      td Content-Type  
+      td: code {{toJSON request.mediatype}}
+    {{/if}}
+    
+    {{#if request.encoding}}
+    tr
+      td Content-Encoding 
+      td: code {{toJSON request.encoding}}
+    {{/if}}
+
+{{#if request.schema}}
+h5 Request Body Schema
+
+pre
+  code.yaml.
+    {{indent 4 (yaml request.schema)}}
+    
+{{/if}}

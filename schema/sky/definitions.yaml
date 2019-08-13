@@ -284,3 +284,15 @@ environment:
     dispatch: {$ref: "#/definitions/dispatch"}
 
     cache: {$ref: "#/definitions/cache"}
+
+    favicon:
+      description: >
+        The URL of a favicon for your API documentation.  Sky blindly accepts this field without checking if it is valid or setting anything up.  If you want to serve the image from the API, you must code that up yourself. Also watch out for CORS configuration if you are serving from a somewhere else.
+      type: string
+      format: uri
+
+    logo:
+      description: >
+        The URL of a logo for your API documentation.  Sky blindly accepts this field without checking if it is valid or setting anything up.  If you want to serve the image from the API, you must code that up yourself. Also watch out for CORS configuration if you are serving from a somewhere else.
+      type: string
+      format: uri

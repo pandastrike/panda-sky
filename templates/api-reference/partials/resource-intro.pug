@@ -1,0 +1,11 @@
+h3#{{camelCase name}}
+  a(href="#{{camelCase name}}") {{name}}
+
+p
+  | URL Template:
+  code {{template}}
+
+{{#if description}}
+:markdown
+  {{indent 2 description}}
+{{/if}}

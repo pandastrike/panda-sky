@@ -9,6 +9,8 @@ expandSignature = (method) ->
   {signatures:{request, response}} = method
   {status} = response
 
+  request.authorization ?= false
+
   if request.schema
     request.mediatype = ["application/json"] unless request.mediatype
     request.encoding = ["gzip", "identity"] unless request.encoding

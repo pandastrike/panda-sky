@@ -70,7 +70,6 @@ Build = (stopwatch, env, {profile}) ->
     await write "#{target}/api/html/brotli", await brotli file
 
 
-
     # Package up the lib and node_modules dirs into a ZIP archive for AWS.
     console.log "    -- Compressing final deploy package..."
     await safe_mkdir "deploy"

@@ -10,6 +10,7 @@ import setDispatch from "./dispatch"
 import setPreheater from "./preheaters"
 import setSignatures from "./signatures"
 import fetchMixins from "./mixins"
+import setAPIDocs from "./docs"
 
 Preprocessor = flow [
   checkEnvironment
@@ -20,6 +21,7 @@ Preprocessor = flow [
   setPreheater
   setSignatures
   fetchMixins
+  setAPIDocs
 ]
 
 export default Preprocessor
