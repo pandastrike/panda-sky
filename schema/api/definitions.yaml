@@ -56,7 +56,7 @@ request:
   type: object
   properties:
     authorization:
-      type: boolean
+      type: string
     schema:
       type: object
     mediatype:
