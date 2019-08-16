@@ -216,6 +216,7 @@ dispatch:
           enum:
             - nodejs10.x
             - nodejs8.10
+            - provided
 
         memorySize:
           description: >
@@ -244,6 +245,13 @@ dispatch:
             An array of ARNs to IAM Role policies managed by AWS.  You can include them to give the partition access to a given resource.
 
             Sky automatically adds "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole" to VPC enabled partitions to grant them access to construct ENIs to reach the VPC.
+          type: array
+          items:
+            type: string
+
+        layers:
+          description: >
+            An array of ARNs pointing to AWS Lambda Layers used to build up the lambda running your API code. Please note that the ARN must point to a *version* of your Lambda Layer to be accepted. Your code will be applied after the layers specified here.
           type: array
           items:
             type: string

@@ -10,14 +10,6 @@ DispatchHandler:
     Runtime: {{runtime}}
     MemorySize: {{memorySize}}
     Timeout: {{timeout}}
-    {{#if vpc}}
-    VpcConfig:
-      SecurityGroupIds:
-        - !Ref SecurityGroup
-      SubnetIds:
-        - !Ref Subnet1
-        - !Ref Subnet2
-    {{/if}}
     Environment:
       Variables:
       {{#each variables}}
@@ -26,6 +18,23 @@ DispatchHandler:
     Code:
       S3Bucket: {{code.bucket}}
       S3Key: {{code.key}}
+
+    {{#if layers}}
+    Layers:
+      {{#each layers}}
+      - {{.}}
+      {{/each}}
+    {{/if}}
+
+    {{#if vpc}}
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+    {{/if}}
+  
 {{/with}}
 
 TargetPermission:

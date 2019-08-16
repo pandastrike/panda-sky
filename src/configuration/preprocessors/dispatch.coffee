@@ -8,7 +8,8 @@ Dispatch = (config) ->
     {lambda, variables, mixins} = dispatch
 
   if lambda?
-    {runtime, memorySize, timeout, managedPolicies, vpc, preheater} = lambda
+    {runtime, memorySize, timeout, managedPolicies, vpc, preheater,
+      layers} = lambda
 
   name = dashed "#{name} #{env} dispatch"
 
@@ -19,6 +20,7 @@ Dispatch = (config) ->
     timeout: timeout ? 60
     preheater: preheater
     variables: merge name: config.name, environment: env, variables
+    layers: layers
     code:
       bucket: stack.bucket
       key: "package.zip"
