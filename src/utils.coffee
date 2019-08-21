@@ -1,26 +1,40 @@
+import {spawn} from "child_process"
+import {parse as _parse, relative, join, resolve as resolvePath} from "path"
+import zlib from "zlib"
+
 import moment from "moment"
 import "moment-duration-format"
-import {parse as _parse, relative, join} from "path"
-import zlib from "zlib"
+
 import {curry, binary} from "panda-garden"
-import {include, isMatch} from "panda-parchment"
+import {include, isMatch, w} from "panda-parchment"
 import {exists, mkdirp, isDirectory, write as _write, read} from "panda-quill"
 
-shell = (command) ->
-  {exec} = require "child_process"
+print = (_process) ->
   new Promise (resolve, reject) ->
-    exec command, (error, stdout, stderr) ->
-      if error
-        reject error
+    _process.stdout.on "data", (data) -> process.stdout.write data.toString()
+    _process.stderr.on "data", (data) -> process.stderr.write data.toString()
+    _process.on "error", (error) ->
+      console.error error
+      reject()
+    _process.on "close", (exitCode) ->
+      if exitCode == 0
+        resolve()
       else
-        resolve {stdout, stderr}
+        console.error "Exited with non-zero code, #{exitCode}"
+        reject()
+
+
+shell = (str, path="") ->
+  [command, args...] = w str
+  await print await spawn command, args,
+    cwd: resolvePath process.cwd(), path
 
 pathWithUnderscore = (path) -> isMatch /(^|\/)_/, path
 
 # Make a directory at the specified path if it doesn't already exist.
 safe_mkdir = (path, mode) ->
   if await exists path
-    console.error "Warning: #{path} exists. Skipping."
+    console.warn "#{path} exists. Skipping."
     return
 
   mode ||= "0777"
@@ -29,7 +43,7 @@ safe_mkdir = (path, mode) ->
 # Copy a file to the target, but only if it doesn't already exist.
 safe_cp = (original, target) ->
   if await exists target
-    console.error "Warning: #{target} exists. Skipping."
+    console.warn "#{target} exists. Skipping."
     return
 
   if await isDirectory original
@@ -93,7 +107,7 @@ gzip = (buffer, level=9) ->
       if error
         reject error
       else
-        resolve result
+        resolve result.toString "base64"
 
 brotli = (buffer, level=10) ->
   new Promise (resolve, reject) ->
@@ -101,6 +115,6 @@ brotli = (buffer, level=10) ->
       if error
         reject error
       else
-        resolve result
+        resolve result.toString "base64"
 
 export {pathWithUnderscore, safe_mkdir, safe_cp, bellChar, getVersion, context, write, stopwatch, shell, isCompressible, gzip, brotli}

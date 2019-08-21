@@ -10,6 +10,8 @@ DispatchHandler:
     Runtime: {{runtime}}
     MemorySize: {{memorySize}}
     Timeout: {{timeout}}
+    TracingConfig:
+      Mode: {{trace}}
     Environment:
       Variables:
       {{#each variables}}
@@ -34,7 +36,7 @@ DispatchHandler:
         - !Ref Subnet1
         - !Ref Subnet2
     {{/if}}
-  
+
 {{/with}}
 
 TargetPermission:

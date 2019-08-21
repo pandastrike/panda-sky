@@ -17,11 +17,10 @@ check = (config) ->
     throw new Error "environment \"#{env}\" is not specified"
 
   # Sundog instanication
-  SDK.config =
-     credentials: new SDK.SharedIniFileCredentials {profile}
-     region: config.region
-     sslEnabled: true
-  config.sundog = Sundog(SDK).AWS
+  config.sundog = Sundog
+    credentials: new SDK.SharedIniFileCredentials {profile}
+    region: config.region
+    sslEnabled: true
 
   # Confirm we have a TLS certificate for this domain.
   acm = config.sundog.ACM region: "us-east-1"
@@ -46,6 +45,10 @@ check = (config) ->
 
   # Top level IDs.
   config.accountID = (await config.sundog.STS().whoAmI()).Account
+
+  # TODO: move webpack to another file.
+  config.environment.webpack.target ?= "10.16"
+  config.environment.webpack.mode ?= "production"
 
   config
 

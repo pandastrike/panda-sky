@@ -140,6 +140,13 @@ LoadBalancer:
         Value: true
       - Key: idle_timeout.timeout_seconds
         Value: 300
+      {{#if albLogBucket}}
+      - Key: access_logs.s3.enabled
+        Value: true
+      - Key: access_logs.s3.bucket
+        Value: {{albLogBucket}}
+      {{/if}}
+
     Tags:
       {{#each @root.tags}}
       - Key: {{Key}}

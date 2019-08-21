@@ -1,4 +1,5 @@
 # Logging.  Output everything to Console Error, but color code based on flag.
+import "source-map-support/register"
 import "colors"
 import moment from "moment"
 originalError = console.error

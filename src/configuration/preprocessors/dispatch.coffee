@@ -1,4 +1,5 @@
-import {dashed, merge} from "panda-parchment"
+import {dashed, merge, toJSON} from "panda-parchment"
+import elbAccountIDs from "../../../../../files/elb-account-ids.json"
 
 Dispatch = (config) ->
   {region, accountID, name, env, environment} = config
@@ -9,7 +10,7 @@ Dispatch = (config) ->
 
   if lambda?
     {runtime, memorySize, timeout, managedPolicies, vpc, preheater,
-      layers} = lambda
+      trace, albLogging, layers} = lambda
 
   name = dashed "#{name} #{env} dispatch"
 
@@ -21,6 +22,7 @@ Dispatch = (config) ->
     preheater: preheater
     variables: merge name: config.name, environment: env, variables
     layers: layers
+    trace: if trace then "Active" else "PassThrough"
     code:
       bucket: stack.bucket
       key: "package.zip"
@@ -41,6 +43,31 @@ Dispatch = (config) ->
       ]
       Resource: [ "arn:aws:logs:*:*:log-group:/aws/lambda/#{name}:*" ]
     ]
+
+  if trace
+    config.environment.dispatch.trace = "Active"
+    config.environment.dispatch.managedPolicies
+      .push "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+  else
+    config.environment.dispatch.trace = "PassThrough"
+
+  if albLogging
+    S3 = config.sundog.S3()
+    bucket = "#{config.projectID}-#{config.env}-alb-access"
+
+    await S3.bucketTouch bucket
+    await S3.bucketSetPolicy bucket, toJSON
+      Version: "2008-10-17"
+      Statement: [
+        Effect: "Allow"
+        Principal:
+          AWS: elbAccountIDs[config.region]
+        Action: "s3:PutObject"
+        Resource: "arn:aws:s3:::#{bucket}/AWSLogs/#{config.accountID}/*"
+      ]
+
+    config.environment.dispatch.albLogBucket = bucket
+
 
   if vpc
     config.environment.dispatch.managedPolicies.push "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
