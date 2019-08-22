@@ -1,8 +1,8 @@
 # Vault loads configuration secrets from AWS SecretsManager
 check = (config) ->
-  {name, env, profile} = config
-
+  config.environment.dispatch.vault ?= []
   {read} = config.sundog.ASM()
+
   vault = {}
   for name in config.environment.dispatch.vault
      vault[name] = await read name
