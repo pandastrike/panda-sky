@@ -8,7 +8,7 @@ import {render, cleanup} from "./data"
 import transpile from "./webpack"
 
 START = 0
-Build = (stopwatch, env, {profile}) ->
+Build = (env, {profile}) ->
   try
     source = "src"
     target = "lib"
@@ -48,10 +48,9 @@ Build = (stopwatch, env, {profile}) ->
 
     console.log "Cleanup..."
     await cleanup config
-
-    console.log "Done. (#{stopwatch()})"
   catch e
     console.error e.stack
   console.info bellChar
+  config
 
 export default Build

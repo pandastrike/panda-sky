@@ -6,7 +6,7 @@ Dispatch = (config) ->
   {stack, dispatch} = environment
 
   if dispatch?
-    {lambda, variables, mixins} = dispatch
+    {lambda, variables, vault, mixins} = dispatch
 
   if lambda?
     {runtime, memorySize, timeout, managedPolicies, vpc, preheater,
@@ -21,6 +21,7 @@ Dispatch = (config) ->
     timeout: timeout ? 60
     preheater: preheater
     variables: merge name: config.name, environment: env, variables
+    vault: vault
     layers: layers
     trace: if trace then "Active" else "PassThrough"
     code:

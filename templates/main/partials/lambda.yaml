@@ -12,11 +12,6 @@ DispatchHandler:
     Timeout: {{timeout}}
     TracingConfig:
       Mode: {{trace}}
-    Environment:
-      Variables:
-      {{#each variables}}
-        {{@key}}: {{this}}
-      {{/each}}
     Code:
       S3Bucket: {{code.bucket}}
       S3Key: {{code.key}}

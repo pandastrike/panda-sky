@@ -46,10 +46,6 @@ check = (config) ->
   # Top level IDs.
   config.accountID = (await config.sundog.STS().whoAmI()).Account
 
-  # TODO: move webpack to another file.
-  config.environment.webpack.target ?= "10.16"
-  config.environment.webpack.mode ?= "production"
-
   config
 
 export default check

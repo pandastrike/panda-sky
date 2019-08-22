@@ -193,7 +193,7 @@ dispatch:
   properties:
     variables:
       description: >
-        A dictionary of variable names to be injected into the environment configuration for this stack's lambdas.  Total size cannot exceed 4kB, and there is already a portion of that taken up by Sky by default.  This dicitonary is not appropriate to store sensitive information (use ASM mixin instead).
+        A dictionary of variable names to be injected into the environment configuration for this stack's lambdas.
       type: object
 
     mixins:
@@ -202,6 +202,17 @@ dispatch:
       type: array
       items:
         type: string
+
+    vault:
+      description: |
+        An array of names mapping to secrets from AWS SecretsManager.
+
+        DO NOT PUT THE SECRET VALUES IN THIS FIELD!!
+
+        Sky looks up the secrets and bundles them with your deployment before uploading, allowing you to safely use secrets in configuration while keeping the values out of your project code.
+      type: array
+      items:
+        type: string 
 
     lambda:
       description: >

@@ -6,18 +6,12 @@ import {bellChar, shell} from "../utils"
 import compile from "../configuration"
 import {syncLambdas, syncLambdaCode} from "../virtual-resources"
 
+import build from "./build"
+
 Update = (stopwatch, env, {profile, hard}) ->
   console.log "Updating #{env}..."
   try
-    appRoot = process.cwd()
-    config = await compile appRoot, env, profile
-
-    # # Push code through asset pipeline.
-    # fail() if !await exists resolve process.cwd(), "deploy", "package.zip"
-    # await transpile "src", "lib"
-    #
-    # # Push code into pre-existing Zip archive.
-    # await shell "zip -qr -9 deploy/package.zip lib -x *node_modules*"
+    config = await build env, {profile}
 
     # Update Sky metadata with new Zip acrhive, and republish all lambdas.
     if hard

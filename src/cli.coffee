@@ -21,7 +21,9 @@ do ->
     .command "build [env]"
     .action (env, options) ->
       return if noEnv env
-      COMMANDS.build stopwatch(), env, options
+      timer = stopwatch()
+      await COMMANDS.build env, options
+      console.log "Done. (#{timer()})"
 
   program
     .command "init [name]"
