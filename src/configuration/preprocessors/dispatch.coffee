@@ -3,10 +3,10 @@ import elbAccountIDs from "../../../../../files/elb-account-ids.json"
 
 Dispatch = (config) ->
   {region, accountID, name, env, environment} = config
-  {stack, dispatch} = environment
+  {stack, dispatch, workers} = environment
 
   if dispatch?
-    {lambda, variables, vault, mixins} = dispatch
+    {lambda, variables, vault, mixins, tags} = dispatch
 
   if lambda?
     {runtime, memorySize, timeout, managedPolicies, vpc, preheater,
@@ -16,7 +16,7 @@ Dispatch = (config) ->
 
   config.environment.dispatch =
     name: name
-    runtime: runtime ? "nodejs8.10"
+    runtime: runtime ? "nodejs10.x"
     memorySize: memorySize ? 256
     timeout: timeout ? 60
     preheater: preheater
@@ -24,6 +24,7 @@ Dispatch = (config) ->
     vault: vault
     layers: layers
     trace: if trace then "Active" else "PassThrough"
+    tags: tags
     code:
       bucket: stack.bucket
       key: "package.zip"
@@ -44,6 +45,15 @@ Dispatch = (config) ->
       ]
       Resource: [ "arn:aws:logs:*:*:log-group:/aws/lambda/#{name}:*" ]
     ]
+
+  if workers
+    config.environment.dispatch.policy.push
+      Effect: "Allow"
+      Action: ["lambda:InvokeFunction"]
+      Resource: do ->
+        for worker in workers
+          fnName = dashed "#{config.name} #{env} worker #{worker}"
+          "arn:aws:lambda:#{region}:#{accountID}:function:#{fnName}"
 
   if trace
     config.environment.dispatch.trace = "Active"

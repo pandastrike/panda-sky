@@ -1,6 +1,6 @@
 import {flow} from "panda-garden"
 import {sleep} from "panda-parchment"
-import {syncPackage, s3} from "./bucket"
+import {syncPackage, syncWorkers, s3} from "./bucket"
 
 _syncCode = (config) ->
   {update} = config.sundog.Lambda()
@@ -8,6 +8,9 @@ _syncCode = (config) ->
 
   console.log "syncing lambda code"
   await update dispatch.name, stack.bucket, "package.zip"
+
+  for name, worker of config.environment.workers
+    await update worker.lambda.name, stack.bucket, "worker-code/#{name}.zip"
 
   config
 
@@ -21,8 +24,12 @@ _syncConfig = (config) ->
     MemorySize: dispatch.memorySize
     Timeout: dispatch.timeout
     Runtime: dispatch.runtime
-    Environment:
-      Variables: dispatch.variables
+
+  for name, worker of config.environment.workers
+    await updateConfig worker.lambda.name,
+      MemorySize: worker.lambda.memorySize
+      Timeout: worker.lambda.timeout
+      Runtime: worker.lambda.runtime
 
   config
 
@@ -32,12 +39,14 @@ finalMessage = (config) ->
 
 syncLambdaCode = flow [
   syncPackage
+  syncWorkers
   _syncCode
   finalMessage
 ]
 
 syncLambdas = flow [
   syncPackage
+  syncWorkers
   _syncCode
   _syncConfig
   finalMessage

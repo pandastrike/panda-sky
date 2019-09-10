@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Panda Sky Worker Defintions
+Resources:
+
+  {{#each environment.workers}}
+  {{#with lambda}}
+  Worker{{workerName}}Role:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      {{#if managedPolicies}}
+      ManagedPolicyArns:
+        {{#each managedPolicies}}
+        - {{.}}
+        {{/each}}
+      {{/if}}
+      Policies:
+        - PolicyName: {{name}}
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            {{#each policy}}
+              - {{indent 16 (yaml .)}}
+            {{/each}}
+
+  Worker{{workerName}}Handler:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Handler for worker {{@root.name}} {{@root.env}} {{workerName}}"
+      FunctionName: {{name}}
+
+      Handler: "index.handler"
+      Role: !GetAtt [ Worker{{workerName}}Role, Arn ]
+      Runtime: {{runtime}}
+      MemorySize: {{memorySize}}
+      Timeout: {{timeout}}
+      TracingConfig:
+        Mode: {{trace}}
+      Tags:
+        {{#each tags}}
+        - Key: {{Key}}
+          Value: {{Value}}
+        {{/each}}
+      Code:
+        S3Bucket: {{code.bucket}}
+        S3Key: {{code.key}}
+
+      {{#if layers}}
+      Layers:
+        {{#each layers}}
+        - {{.}}
+        {{/each}}
+      {{/if}}
+
+  {{/with}}
+  {{/each}}

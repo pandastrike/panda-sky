@@ -3,14 +3,15 @@ import fs from "fs"
 import webpack from "webpack"
 
 transpile = (config) ->
-  new Promise (yay, nay) ->
+  console.log "bundling API code"
+  await new Promise (yay, nay) ->
     webpack
       entry: Path.resolve "src", "sky.coffee"
       mode: config.environment.webpack.mode
       devtool: "inline-source-map"
       target: "node"
       output:
-        path: Path.resolve "lib"
+        path: Path.resolve "build", "main"
         filename: "sky.js"
         libraryTarget: "umd"
         devtoolNamespace: config.name
@@ -52,9 +53,9 @@ transpile = (config) ->
             "resources.json"
           "-sky-api-handlers": Path.resolve "src", "handlers"
           "-sky-api-env": Path.resolve config.environment.temp,
-            "env.json"
+            "main", "env.json"
           "-sky-api-vault": Path.resolve config.environment.temp,
-            "vault.json"
+            "main", "vault.json"
         modules: [
           "node_modules"
           "src/handlers"
@@ -79,7 +80,6 @@ transpile = (config) ->
           console.warn info.warnings
 
         console.log info
-        fs.writeFileSync "webpack-stats.json", JSON.stringify stats.toJson()
-        yay()
+        yay config
 
 export default transpile

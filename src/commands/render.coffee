@@ -13,6 +13,8 @@ render = (env, {profile}) ->
 
     banner "dispatch/index.yaml", config.environment.templates.dispatch
 
+    banner "workers/index.yaml", config.environment.templates.workers
+
     for key, stack of config.environment.templates.mixins
       banner "mixins/#{key}/index.yaml", stack
 

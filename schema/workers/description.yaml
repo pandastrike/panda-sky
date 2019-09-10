@@ -1,0 +1,20 @@
+type: object
+additionalProperties: false
+required: [ environments ]
+properties:
+
+  environments:
+    description:
+      An environment is a collection of Cloud resources that are allocated
+      on your behalf to deploy the worker.
+      For example, perhaps you wish to test changes at a secondary hostname
+      without disrupting production deployments. Organizing configuration
+      for those two cases into separate environments allows you to publish
+      from the commandline by just invoking the name, not adjusting
+      configuration each time.
+
+      environments is a dictionary. The keys are the name of the given
+      environment, and its value is the definition.
+    type: object
+    minProperties: 1
+    additionalProperties: {$ref: "#/definitions/environment"}

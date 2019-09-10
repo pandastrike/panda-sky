@@ -1,7 +1,7 @@
-import {resolve} from "path"
+import {resolve, basename} from "path"
 import {flow} from "panda-garden"
 import {keys} from "panda-parchment"
-import {exists} from "panda-quill"
+import {exists, glob} from "panda-quill"
 
 s3 = (config) ->
   {bucket} = config.environment.stack
@@ -58,5 +58,15 @@ syncPackage = (config) ->
 
   config
 
+syncWorkers = (config) ->
+  {uploadFromFile} = s3 config
+  files = await glob "*.zip", resolve process.cwd(), "deploy", "workers"
 
-export {establishBucket, teardownBucket, scanBucket, syncPackage, s3}
+  for file in files
+    console.log "uploading #{file}"
+    await uploadFromFile "worker-code/#{basename file}", file
+
+  config
+
+
+export {establishBucket, teardownBucket, scanBucket, syncPackage, syncWorkers, s3}

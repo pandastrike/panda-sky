@@ -5,13 +5,18 @@ DispatchHandler:
     Description: "Handler for {{@root.name}} {{@root.env}}"
     FunctionName: {{name}}
 
-    Handler: "lib/sky.handler"
+    Handler: "sky.handler"
     Role: !GetAtt [ IAMRole, Arn ]
     Runtime: {{runtime}}
     MemorySize: {{memorySize}}
     Timeout: {{timeout}}
     TracingConfig:
       Mode: {{trace}}
+    Tags:
+      {{#each tags}}
+      - Key: {{Key}}
+        Value: {{Value}}
+      {{/each}}
     Code:
       S3Bucket: {{code.bucket}}
       S3Key: {{code.key}}

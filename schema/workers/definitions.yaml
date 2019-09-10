@@ -1,0 +1,122 @@
+webpack:
+  type: object
+  description: |
+    Configuration stanza to help Sky configure webpack for you.
+  additionalProperties: false
+  properties:
+    target:
+      description: |
+        Describes the @babel/preset-env node target for your package. Should be a semver designation, ex: 10.16. Defaults to 10.16
+      type: string
+    mode:
+      description: |
+        Describes the mode webpack should use to construct your JS bundle. `production` is slower to build, but includes more performance optimizations. `development` is faster to build, but leaves performance optimizations out. Defaults to `production`
+      type: string
+      enum: [ development, production ]
+
+lambda:
+  description: >
+    Configuration object for the lambda that handles dispatches for this API.
+  type: object
+  additionalProperties: false
+  properties:
+    runtime:
+      description: >
+        The Lambda runtime environment used to run your code. Sky defaults to Node 8.10.
+      type: string
+      enum:
+        - nodejs10.x
+        - nodejs8.10
+        - provided
+
+    memorySize:
+      description: >
+        The Lambda memory allocation in MB.  Larger values also get more network throughput and CPU horsepower, as well as superior cold-start behavior, but the specifics on that are left murky by AWS docs. Minimum value is 128, and it must be specified as multiples of 64.  Sky defaults to 256.
+      type: integer
+      minimum: 128
+      maximum: 3008
+      multipleOf: 64
+
+    timeout:
+      description: >
+        The Lambda timeout limit, in seconds.  Sky defaults to 60.
+      type: integer
+      minimum: 1
+      maximum: 900
+
+    preheater:
+      description: >
+        Invokes the API handler every five minutes this number of times to ensure some minimum amount of scale is always available to your clients.
+      type: integer
+      minimum: 1
+      maximum: 100
+
+    managedPolicies:
+      description: >
+        An array of ARNs to IAM Role policies managed by AWS.  You can include them to give the partition access to a given resource.
+
+        Sky automatically adds "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole" to VPC enabled partitions to grant them access to construct ENIs to reach the VPC.
+      type: array
+      items:
+        type: string
+
+    layers:
+      description: >
+        An array of ARNs pointing to AWS Lambda Layers used to build up the lambda running your API code. Please note that the ARN must point to a *version* of your Lambda Layer to be accepted. Your code will be applied after the layers specified here.
+      type: array
+      items:
+        type: string
+
+    trace:
+      description: >
+        When this is true, Sky will set the lambda's TraceConfig to "Active", enabling AWS X-Ray request tracing.
+      type: boolean
+
+    albLogging:
+      description: >
+        Enables ALB Access Logging for the ALB associated with this environment.  Sky sets up a bucket at {projectID}-{env}-alb-access and gives it the proper permissions.  Check there for logs.  ALB deposits logs every 5 minutes.
+
+variables:
+  description: >
+    A dictionary of variable names to be injected into the environment configuration for this worker.
+  type: object
+
+mixins:
+  description: >
+    This is an array of names assigned to Sky mixin configuration declared at the environment level.  Listing names here grants the worker permission to relevant resources via the policy exposed in the mixin.
+  type: array
+  items:
+    type: string
+
+vault:
+  description: |
+    An array of names mapping to secrets from AWS SecretsManager.
+
+    DO NOT PUT THE SECRET VALUES IN THIS FIELD!!
+
+    Sky looks up the secrets and bundles them with your deployment before uploading, allowing you to safely use secrets in configuration while keeping the values out of your project code.
+  type: array
+  items:
+    type: string
+
+tags:
+  description: >
+    Optional tags attached to your deployed resources when possible to make
+    it easier to track and monitor. These are applied to all environments.
+  type: object
+
+
+
+environment:
+  description: >
+    A collection of Cloud resources allocated on your behalf to deploy the
+    serverless Sky stack.
+  type: object
+  additionalProperties: false
+  properties:
+    tags: {$ref: "#/definitions/tags"}
+    variables: {$ref: "#/definitions/variables"}
+    mixins: {$ref: "#/definitions/mixins"}
+    webpack: {$ref: "#/definitions/webpack"}
+    vault: {$ref: "#/definitions/vault"}
+    lambda: {$ref: "#/definitions/lambda"}

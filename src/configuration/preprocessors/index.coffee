@@ -5,26 +5,28 @@ import {flow} from "panda-garden"
 import checkEnvironment from "./environment"
 import checkWebpack from "./webpack"
 import setStack from "./stack"
-import setVariables from "./variables"
+import setTags from "./tags"
 import setVault from "./vault"
 import setDomains from "./domains"
 import setDispatch from "./dispatch"
 import setPreheater from "./preheaters"
 import setSignatures from "./signatures"
 import fetchMixins from "./mixins"
+import setWorkers from "./workers"
 import setAPIDocs from "./docs"
 
 Preprocessor = flow [
   checkEnvironment
   checkWebpack
   setStack
-  setVariables
+  setTags
   setVault
   setDomains
   setDispatch
   setPreheater
   setSignatures
   fetchMixins
+  setWorkers
   setAPIDocs
 ]
 

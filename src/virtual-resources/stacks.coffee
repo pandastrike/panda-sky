@@ -37,10 +37,13 @@ cloudformation = (config) ->
 
 teardownStacks = (config) ->
   {teardown} = cloudformation config
-  {dispatch, mixins} = config.environment
+  {dispatch, mixins, stack} = config.environment
 
   console.log "Mixin Teardown"
   await Promise.all (teardown stack for name, {stack} of mixins)
+
+  console.log "Worker Teardown"
+  await teardown stack.workers
 
   console.log "Dispatcher Teardown"
   await teardown dispatch.name
@@ -75,6 +78,20 @@ upsertDispatch = (config) ->
   unless isEmpty parameters
     console.log "Outputs:"
     console.log yaml parameters
+
+  config
+
+upsertWorkers = (config) ->
+  {publish, format, read} = cloudformation config
+  {upload, remove} = s3 config
+  {templates, stack} = config.environment
+
+  console.log "Workers Deploy"
+  await remove "workers"
+  key = join "workers", "index.yaml"
+  await upload key, templates.workers
+  await publish format stack.workers, key
+  console.log "Workers Deploy Complete"
 
   config
 
@@ -120,6 +137,7 @@ upsertMixins = (config) ->
 syncStacks = flow [
   teardownOld
   upsertDispatch
+  upsertWorkers
   upsertMixins
   _syncCode
 ]

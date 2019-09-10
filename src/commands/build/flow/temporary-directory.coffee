@@ -4,17 +4,15 @@ import {sep, resolve as resolvePath} from "path"
 
 import {flow} from "panda-garden"
 import {toJSON, dashed} from "panda-parchment"
-import {write, rmr} from "panda-quill"
+import {mkdirp, write, rmr} from "panda-quill"
 import PandaTemplate from "panda-template"
 
 import renderDocs from "./render"
-import {safe_mkdir, gzip, brotli} from "../../utils"
+import {gzip, brotli} from "../../../utils"
 
 T = new PandaTemplate()
 T.handlebars().registerHelper
     dashed: (input) -> dashed input
-
-# {{@root.root}}
 
 indexTemplate = """
 handlers = do ->
@@ -55,11 +53,33 @@ export default out
 """
 
 setupTempDirectory = (config) ->
+  console.log "establishing temporary directory"
   tmpDir = os.tmpdir()
   config.environment.temp = await fs.mkdtemp "#{tmpDir}#{sep}"
   config
 
+setupSubdirectories = (config) ->
+  root = config.environment.temp
+  await mkdirp "0777", resolvePath root, "main"
+
+  for name of config.environment.workers
+    await mkdirp "0777", resolvePath root, "workers", name
+
+  # for name of config.environment.cache.edge
+  #   await mkdirp "0777", resolvePath root, "edge"
+  config
+
+writeHandlerIndex = (config) ->
+  console.log "writing handler manifest"
+  {resources} = config
+  root = resolvePath "handlers"
+  string = T.render indexTemplate, {resources, root}
+
+  await write (resolvePath "src", "handlers", "index.coffee"), string
+  config
+
 writeAPIResources = (config) ->
+  console.log "formatting API resources data"
   root = config.environment.temp
   await write (resolvePath root, "resources.json"), toJSON config.resources
   config
@@ -69,11 +89,11 @@ writeAPIDefinition = (config) ->
   string = toJSON resources: config.resources
 
   path = resolvePath root, "api-definition"
-  await safe_mkdir path
+  await mkdirp "0777", path
   await write (resolvePath path, "index.coffee"), docIndexFile
 
   path = resolvePath root, "api-definition", "json"
-  await safe_mkdir path
+  await mkdirp "0777", path
   await write (resolvePath path, "index.coffee"), encodingIndexFile
   await write (resolvePath path, "identity.coffee"), wrap string
   await write (resolvePath path, "gzip.coffee"), wrap await gzip string
@@ -83,11 +103,12 @@ writeAPIDefinition = (config) ->
 
 
 writeAPIDocs = (config) ->
+  console.log "formatting API docs"
   root = config.environment.temp
   string = renderDocs config
 
   path = resolvePath root, "api-definition", "html"
-  await safe_mkdir path
+  await mkdirp "0777", path
   await write (resolvePath path, "index.coffee"), encodingIndexFile
   await write (resolvePath path, "identity.coffee"), wrap string
   await write (resolvePath path, "gzip.coffee"), wrap await gzip string
@@ -95,39 +116,57 @@ writeAPIDocs = (config) ->
 
   config
 
-writeHandlerIndex = (config) ->
-  {resources} = config
-  root = resolvePath "handlers"
-  string = T.render indexTemplate, {resources, root}
-
-  root = config.environment.temp
-  await write (resolvePath "src", "handlers", "index.coffee"), string
-  config
-
-
 writeEnvironmentVariables = (config) ->
+  console.log "establishing environment variables"
   root = config.environment.temp
-  string = toJSON config.environment.dispatch.variables
-  await write (resolvePath root, "env.json"), string
+
+  # API environment variables
+  await write (resolvePath root, "main", "env.json"),
+    toJSON config.environment.dispatch.variables
+
+  # Worker environment variables
+  for name, worker of config.environment.workers
+    await write (resolvePath root, "workers", name, "env.json"),
+      toJSON worker.lambda.variables
+
+  # Edge lambda environment variables
+  # string = toJSON config.environment.dispatch.variables
+  # await write (resolvePath root, "main", "env.json"), string
   config
 
 writeVaultVariables = (config) ->
+  console.log "establishing environment secrets"
   root = config.environment.temp
-  string = toJSON config.environment.dispatch.vault
-  await write (resolvePath root, "vault.json"), string
+
+  # API vault
+  await write (resolvePath root, "main", "vault.json"),
+    toJSON config.environment.dispatch.vault
+
+  # Worker vaults
+  for name, worker of config.environment.workers
+    await write (resolvePath root, "workers", name, "vault.json"),
+      toJSON worker.vault
+
+  # Edge lambda vaults
+  # await write (resolvePath root, "main", "vault.json"),
+  #   toJSON config.environment.dispatch.vault
   config
 
 
-render = flow [
+setup = flow [
   setupTempDirectory
+  setupSubdirectories
+  writeHandlerIndex
   writeAPIResources
   writeAPIDefinition
   writeAPIDocs
-  writeHandlerIndex
   writeEnvironmentVariables
   writeVaultVariables
 ]
 
-cleanup = (config) -> await rmr config.environment.temp
+cleanup = (config) ->
+  console.log "removing temporary directory data"
+  await rmr config.environment.temp
+  config
 
-export {render, cleanup}
+export {setup, cleanup}

@@ -212,7 +212,7 @@ dispatch:
         Sky looks up the secrets and bundles them with your deployment before uploading, allowing you to safely use secrets in configuration while keeping the values out of your project code.
       type: array
       items:
-        type: string 
+        type: string
 
     lambda:
       description: >
@@ -288,6 +288,14 @@ environment:
       description: >
         A dictionary of variable names to be injected into the environment configuration for this stacks lambdas.  Total size cannot exceed 4kB, and there is already a portion of that taken up by Sky by default.  This dicitonary is not appropriate to store sensitive information (use ASM mixin instead).
       type: object
+
+    workers:
+      description: |
+        A list names of workers to associate with this deployment.  The workers
+        must be correctly configured in the workers/ directory.
+      type: array
+      items:
+        type: string
 
     hostnames:
       description: >
