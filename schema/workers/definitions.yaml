@@ -81,13 +81,6 @@ variables:
     A dictionary of variable names to be injected into the environment configuration for this worker.
   type: object
 
-mixins:
-  description: >
-    This is an array of names assigned to Sky mixin configuration declared at the environment level.  Listing names here grants the worker permission to relevant resources via the policy exposed in the mixin.
-  type: array
-  items:
-    type: string
-
 vault:
   description: |
     An array of names mapping to secrets from AWS SecretsManager.
@@ -95,6 +88,20 @@ vault:
     DO NOT PUT THE SECRET VALUES IN THIS FIELD!!
 
     Sky looks up the secrets and bundles them with your deployment before uploading, allowing you to safely use secrets in configuration while keeping the values out of your project code.
+  type: array
+  items:
+    type: string
+
+mixins:
+  description: >
+    This is an array of names assigned to Sky mixin configuration declared at the environment level.  Listing names here grants the worker permission to relevant resources via the policy exposed in the mixin.
+  type: array
+  items:
+    type: string
+
+workers:
+  description: |
+    This is an array of names assigned to workers declared in your deployment, including a self-reference to this worker.  Grants the worker permission to inovke the given worker(s).
   type: array
   items:
     type: string

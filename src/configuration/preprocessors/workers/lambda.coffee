@@ -42,6 +42,15 @@ Dispatch = (config) ->
   else
     config.environment.worker.lambda.trace = "PassThrough"
 
+  if config.environment.worker.workers?
+    config.environment.worker.lambda.policy.push
+      Effect: "Allow"
+      Action: ["lambda:InvokeFunction"]
+      Resource: do ->
+        for worker in config.environment.worker.workers
+          fnName = dashed "#{config.name} #{env} worker #{worker}"
+          "arn:aws:lambda:#{region}:#{accountID}:function:#{fnName}"
+
   config
 
 export default Dispatch
