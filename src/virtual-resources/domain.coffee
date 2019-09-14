@@ -3,8 +3,12 @@ import {flow} from "panda-garden"
 import {first} from "panda-parchment"
 import Interview from "panda-interview"
 import {yaml} from "panda-serialize"
+
 import {s3} from "./bucket"
 import {cloudformation} from "./stacks"
+import {setupEdgeLambdas, teardownEdgeLambdas} from "./edge-lambdas"
+import renderDomainTemplate from "../configuration/templates/custom-domain"
+
 
 questions = (action, domain) ->
   switch action
@@ -78,6 +82,8 @@ invalidateDomain = (config) ->
 publishDomain = flow [
   prompt "publish"
   establishLogBucket
+  setupEdgeLambdas
+  renderDomainTemplate
   upsertDomain
   invalidateDomain
 ]
@@ -85,6 +91,7 @@ publishDomain = flow [
 teardownDomain = flow [
   prompt "teardown"
   _teardownDomain
+  teardownEdgeLambdas
 ]
 
 

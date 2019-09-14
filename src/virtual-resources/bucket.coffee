@@ -68,5 +68,15 @@ syncWorkers = (config) ->
 
   config
 
+syncEdges = (config) ->
+  {uploadFromFile} = s3 config
+  files = await glob "*.zip", resolve process.cwd(), "deploy", "edges"
 
-export {establishBucket, teardownBucket, scanBucket, syncPackage, syncWorkers, s3}
+  for file in files
+    console.log "uploading #{file}"
+    await uploadFromFile "edge-code/#{basename file}", file
+
+  config
+
+
+export {establishBucket, teardownBucket, scanBucket, syncPackage, syncWorkers, syncEdges, s3}

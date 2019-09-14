@@ -20,9 +20,10 @@ renderWorkers = ({T, config}) ->
 
   {T, config}
 
-renderCustomDomain = ({T, config}) ->
-  config.environment.templates.customDomain = await do flow [
-      wrap resolve "custom-domain.yaml"
+renderEdges = ({T, config}) ->
+  unless isEmpty config.environment.cache.edges
+    config.environment.templates.edges = await do flow [
+      wrap resolve "custom-domain", "lambdas.yaml"
       render T, config
     ]
 
@@ -43,7 +44,7 @@ Render = flow [
   registerPartials resolve "main", "partials"
   renderDispatch
   renderWorkers
-  renderCustomDomain
+  renderEdges
   addMixins
 ]
 

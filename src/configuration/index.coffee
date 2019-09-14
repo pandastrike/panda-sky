@@ -1,12 +1,14 @@
 import {flow} from "panda-garden"
 import validate from "./validate"
 import preprocess from "./preprocessors"
-import render from "./templates"
+import renderCloudFormation from "./templates/cloudformation"
+import renderDocs from "./templates/api-reference"
 
 compile = flow [
   validate
   preprocess
-  render
+  renderCloudFormation
+  renderDocs
 ]
 
 export default compile

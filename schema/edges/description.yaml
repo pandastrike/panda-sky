@@ -6,7 +6,7 @@ properties:
   environments:
     description: |
       An environment is a collection of Cloud resources that are allocated
-      on your behalf to deploy the worker.
+      on your behalf to deploy the edge lambda.
       
       For example, perhaps you wish to test changes at a secondary hostname
       without disrupting production deployments. Organizing configuration

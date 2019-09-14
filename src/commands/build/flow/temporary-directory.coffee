@@ -65,8 +65,9 @@ setupSubdirectories = (config) ->
   for name of config.environment.workers
     await mkdirp "0777", resolvePath root, "workers", name
 
-  # for name of config.environment.cache.edge
-  #   await mkdirp "0777", resolvePath root, "edge"
+  for name of config.environment.cache.edges
+    await mkdirp "0777", resolvePath root, "edges", name
+
   config
 
 writeHandlerIndex = (config) ->
@@ -130,8 +131,10 @@ writeEnvironmentVariables = (config) ->
       toJSON worker.lambda.variables
 
   # Edge lambda environment variables
-  # string = toJSON config.environment.dispatch.variables
-  # await write (resolvePath root, "main", "env.json"), string
+  for name, edge of config.environment.cache.edges
+    await write (resolvePath root, "edges", name, "env.json"),
+      toJSON edge.lambda.varaibles
+
   config
 
 writeVaultVariables = (config) ->
@@ -148,8 +151,10 @@ writeVaultVariables = (config) ->
       toJSON worker.vault
 
   # Edge lambda vaults
-  # await write (resolvePath root, "main", "vault.json"),
-  #   toJSON config.environment.dispatch.vault
+  for name, edge of config.environment.cache.edges
+    await write (resolvePath root, "edges", name, "vault.json"),
+      toJSON edge.vault
+
   config
 
 

@@ -27,11 +27,10 @@ lambda:
       enum:
         - nodejs10.x
         - nodejs8.10
-        - provided
 
     memorySize:
       description: >
-        The Lambda memory allocation in MB.  Larger values also get more network throughput and CPU horsepower, as well as superior cold-start behavior, but the specifics on that are left murky by AWS docs. Minimum value is 128, and it must be specified as multiples of 64.  Sky defaults to 256.
+        The Lambda memory allocation in MB.  Larger values also get more network throughput and CPU horsepower, as well as superior cold-start behavior, but the specifics on that are left murky by AWS docs. Minimum value is 128, and it must be specified as multiples of 64.  Sky defaults to 256. This value is ignored for viewer-request and viewer-response lambdas as they are restricted to 128 exclusively.
       type: integer
       minimum: 128
       maximum: 3008
@@ -39,23 +38,15 @@ lambda:
 
     timeout:
       description: >
-        The Lambda timeout limit, in seconds.  Sky defaults to 60.
+        The Lambda timeout limit, in seconds.  Sky defaults to 60.  This value is ignored for viewer-request and viewer-response lambdas as they are restricted to a maximum of 5.
       type: integer
       minimum: 1
       maximum: 900
-
-    preheater:
-      description: >
-        Invokes the API handler every five minutes this number of times to ensure some minimum amount of scale is always available to your clients.
-      type: integer
-      minimum: 1
-      maximum: 100
 
     managedPolicies:
       description: >
         An array of ARNs to IAM Role policies managed by AWS.  You can include them to give the partition access to a given resource.
 
-        Sky automatically adds "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole" to VPC enabled partitions to grant them access to construct ENIs to reach the VPC.
       type: array
       items:
         type: string
@@ -66,11 +57,6 @@ lambda:
       type: array
       items:
         type: string
-
-    trace:
-      description: >
-        When this is true, Sky will set the lambda's TraceConfig to "Active", enabling AWS X-Ray request tracing.
-      type: boolean
 
 variables:
   description: >

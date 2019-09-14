@@ -5,20 +5,20 @@ import {dashed} from "panda-parchment"
 
 transpile = (config) ->
 
-  for name, worker of config.environment.workers
-    console.log "Bundling Worker #{name}..."
+  for name, edge of config.environment.cache.edges
+    console.log "Bundling Edge #{name}..."
 
     await new Promise (yay, nay) ->
       webpack
-        entry: Path.resolve "workers", name, "src", "index.coffee"
-        mode: worker.webpack.mode
+        entry: Path.resolve "edges", name, "src", "index.coffee"
+        mode: edge.webpack.mode
         devtool: "inline-source-map"
         target: "node"
         output:
-          path: Path.resolve "build", "workers", name
+          path: Path.resolve "build", "edges", name
           filename: "index.js"
           libraryTarget: "umd"
-          devtoolNamespace: dashed "#{config.name} worker.#{name}"
+          devtoolNamespace: dashed "#{config.name} edge.#{name}"
           devtoolModuleFilenameTemplate: (info, args...) ->
             {namespace, resourcePath} = info
             "webpack://#{namespace}/#{resourcePath}"
@@ -35,7 +35,7 @@ transpile = (config) ->
                   presets: [[
                     (require.resolve "@babel/preset-env"),
                     targets:
-                      node: worker.webpack.target
+                      node: edge.webpack.target
                   ]]
             ]
           ,
@@ -54,9 +54,9 @@ transpile = (config) ->
             "-sky-api-resources": Path.resolve config.environment.temp,
               "resources.json"
             "-sky-env": Path.resolve config.environment.temp,
-              "workers", name, "env.json"
+              "edges", name, "env.json"
             "-sky-vault": Path.resolve config.environment.temp,
-              "workers", name, "vault.json"
+              "edges", name, "vault.json"
           modules: [
             "node_modules"
           ]

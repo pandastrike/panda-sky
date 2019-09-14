@@ -1,5 +1,6 @@
-import {isArray, camelCase} from "panda-parchment"
+import {isArray, camelCase, clone} from "panda-parchment"
 import {flow} from "panda-garden"
+import applyEdgeLambdas from "./edge"
 
 defaultHeaders = [
   "Accept",
@@ -74,6 +75,7 @@ Domains = flow [
   applyHostnames
   applyDefaults
   applyFirewall
+  applyEdgeLambdas
 ]
 
 export default Domains

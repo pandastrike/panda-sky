@@ -131,6 +131,25 @@ cache:
               description: >
                 The period, in minutes, to block applicable IP addresses.  Defaults to 240.
 
+    edges:
+      description: |
+        Indicates which edge lambda slots should be filled when we deploy a
+        custom domain for this environment. The four possible slots are
+        viewer-request, origin-request, origin-response, and viewer-response.
+
+        The lambdas are merely enumerated here.  They are configured within
+        the "edge/" directory of your project and its configuration at
+        "edge/sky.yaml"
+
+      type: array
+      items:
+        type: string
+        enum:
+          - viewer-request
+          - viewer-response
+          - origin-request
+          - origin-response
+
 cachePath:
   description: >
     A object containing key-value pairing of a CloudFront distribution path pattern and its corresponding TTL in seconds.  The path may contain glob notation.

@@ -32,9 +32,9 @@ handler = (config) ->
     await zip (resolve "build", "workers", name, "index.js"),
       (resolve "deploy", "workers", "#{name}.zip")
 
-  # for name of config.environment.cache.edge
-      # await zip (resolve "build", "workers", name, "index.js"),
-      #   (resolve "deploy", "workers", "#{name}.zip")
+  for name of config.environment.cache.edges
+    await zip (resolve "build", "edges", name, "index.js"),
+      (resolve "deploy", "edges", "#{name}.zip")
 
   config
 
