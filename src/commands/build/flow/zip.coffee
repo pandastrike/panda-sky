@@ -32,6 +32,7 @@ handler = (config) ->
     await zip (resolve "build", "workers", name, "index.js"),
       (resolve "deploy", "workers", "#{name}.zip")
 
+  await mkdirp "0777", resolve "deploy", "edges"
   for name of config.environment.cache.edges
     await zip (resolve "build", "edges", name, "index.js"),
       (resolve "deploy", "edges", "#{name}.zip")

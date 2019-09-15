@@ -133,7 +133,7 @@ writeEnvironmentVariables = (config) ->
   # Edge lambda environment variables
   for name, edge of config.environment.cache.edges
     await write (resolvePath root, "edges", name, "env.json"),
-      toJSON edge.lambda.varaibles
+      toJSON edge.lambda.variables
 
   config
 

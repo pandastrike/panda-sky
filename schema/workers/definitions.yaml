@@ -120,6 +120,7 @@ environment:
     tags: {$ref: "#/definitions/tags"}
     variables: {$ref: "#/definitions/variables"}
     mixins: {$ref: "#/definitions/mixins"}
+    workers: {$ref: "#/definitions/workers"}
     webpack: {$ref: "#/definitions/webpack"}
     vault: {$ref: "#/definitions/vault"}
     lambda: {$ref: "#/definitions/lambda"}

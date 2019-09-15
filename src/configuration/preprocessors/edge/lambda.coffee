@@ -1,6 +1,8 @@
 import {join} from "path"
 import {dashed, merge, toJSON} from "panda-parchment"
 
+managedPolicyARN = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
 Dispatch = (config) ->
   {region, accountID} = config
   {lambda, variables, mixins, tags, type} = config.environment.edge
@@ -48,8 +50,11 @@ Dispatch = (config) ->
       Action: ["lambda:InvokeFunction"]
       Resource: do ->
         for worker in config.environment.edge.workers
-          fnName = dashed "#{config.name} #{env} worker #{worker}"
+          fnName = dashed "#{config.name} #{config.env} worker #{worker}"
           "arn:aws:lambda:#{region}:#{accountID}:function:#{fnName}"
+
+  unless managedPolicyARN in config.environment.edge.lambda.managedPolicies
+    config.environment.edge.lambda.managedPolicies.push managedPolicyARN
 
   config
 

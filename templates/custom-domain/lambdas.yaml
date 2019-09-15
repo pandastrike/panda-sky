@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Panda Sky Worker Defintions
+Description: Panda Sky Edge Lambda Defintions
 Resources:
 
   {{#each environment.cache.edges}}
@@ -39,7 +39,7 @@ Resources:
       FunctionName: {{name}}
 
       Handler: "index.handler"
-      Role: !GetAtt [ Worker{{templateCase type}}Role, Arn ]
+      Role: !GetAtt [ Edge{{templateCase type}}Role, Arn ]
       Runtime: {{runtime}}
       MemorySize: {{memorySize}}
       Timeout: {{timeout}}
