@@ -23,10 +23,6 @@ publishLambdas = (config) ->
   config
 
 publishLambdaVersions = (config) ->
-  {region, env, environment} = config
-  {edge, hostnames} = environment
-  bucket = edge.src
-
   unless isEmpty config.environment.cache.edges
     {publish, listVersions} = config.sundog.Lambda()
 

@@ -86,12 +86,13 @@ upsertWorkers = (config) ->
   {upload, remove} = s3 config
   {templates, stack} = config.environment
 
-  console.log "Workers Deploy"
-  await remove "workers"
-  key = join "workers", "index.yaml"
-  await upload key, templates.workers
-  await publish format stack.workers, key
-  console.log "Workers Deploy Complete"
+  if templates.workers?
+    console.log "Workers Deploy"
+    await remove "workers"
+    key = join "workers", "index.yaml"
+    await upload key, templates.workers
+    await publish format stack.workers, key
+    console.log "Workers Deploy Complete"
 
   config
 

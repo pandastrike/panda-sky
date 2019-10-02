@@ -2,7 +2,7 @@ import {resolve as _resolve, parse} from "path"
 import PandaTemplate from "panda-template"
 import {curry, memoize} from "panda-garden"
 import {first, rest, toJSON, equal, empty, dashed, camelCase, capitalize,
-  plainText} from "panda-parchment"
+  plainText, isEmpty} from "panda-parchment"
 import {read, glob} from "panda-quill"
 import {yaml} from "panda-serialize"
 

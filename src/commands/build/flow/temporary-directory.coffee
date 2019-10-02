@@ -3,7 +3,7 @@ import {promises as fs} from "fs"
 import {sep, resolve as resolvePath} from "path"
 
 import {flow} from "panda-garden"
-import {toJSON, dashed} from "panda-parchment"
+import {toJSON, dashed, clone} from "panda-parchment"
 import {mkdirp, write, rmr} from "panda-quill"
 import PandaTemplate from "panda-template"
 
@@ -85,9 +85,21 @@ writeAPIResources = (config) ->
   await write (resolvePath root, "resources.json"), toJSON config.resources
   config
 
+# This prepares a stringified version of the API definition to load into the environment. This is the publicly distributed version that's returned in the discovery response. So, we strip out implmentation details.
+sanitizeAPIDefinition = (config) ->
+  resources = clone config.resources
+
+  # Remove hints on the method definitions.
+  for _, {methods} of resources
+    for _, method of methods
+      delete method.hints
+
+  # Stringify
+  toJSON {resources}
+
 writeAPIDefinition = (config) ->
   root = config.environment.temp
-  string = toJSON resources: config.resources
+  string = sanitizeAPIDefinition config
 
   path = resolvePath root, "api-definition"
   await mkdirp "0777", path

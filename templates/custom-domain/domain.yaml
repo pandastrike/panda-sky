@@ -61,11 +61,13 @@ Resources:
           SmoothStreaming: false
           TargetOriginId: {{@root.environment.cache.originID}}
           ViewerProtocolPolicy: redirect-to-https
+          {{#unless (empty @root.environment.cache.edges)}}
           LambdaFunctionAssociations:
             {{#each @root.environment.cache.edges}}
             - EventType: {{type}}
               LambdaFunctionARN: {{arn}}
             {{/each}}
+          {{/unless}}
 
         {{#with @root.environment.cache.paths}}
         CacheBehaviors:
