@@ -8,6 +8,7 @@ import mixin from "./mixin"
 import publish from "./publish"
 import render from "./render"
 import secret from "./secret"
+import id  from "./id"
 import tail from "./tail"
 import test from "./test"
 import update from "./update"
@@ -28,4 +29,5 @@ export default {
   test
   update
   secret
+  id
 }

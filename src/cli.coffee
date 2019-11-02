@@ -109,6 +109,11 @@ do ->
       COMMANDS.secret env
 
   program
+    .command "id"
+    .action (env) ->
+      COMMANDS.id env
+
+  program
     .command('*')
     .action -> program.help()
 

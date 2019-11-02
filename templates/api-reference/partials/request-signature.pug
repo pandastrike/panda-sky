@@ -4,6 +4,12 @@ table
     tr
       td Authorization
       td: code {{request.authorization}} 
+      
+    {{#if request.signed}}
+    tr
+      td Signed
+      td: code true
+    {{/if}}
   
     {{#if request.mediatype}}
     tr
@@ -16,6 +22,11 @@ table
       td Content-Encoding 
       td: code {{toJSON request.encoding}}
     {{/if}}
+    
+{{#if request.signed}}
+h5 Request Body Signature
+  p Note that this request body must be signed and presented as a Panda-Confidential Declaration, cotaning the body to be validated against the below JSON schema, the digital signature(s), and the signatory(ies)
+{{/if}}
 
 {{#if request.schema}}
 h5 Request Body Schema
