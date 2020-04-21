@@ -42,8 +42,9 @@ teardownStacks = (config) ->
   console.log "Mixin Teardown"
   await Promise.all (teardown stack for name, {stack} of mixins)
 
-  console.log "Worker Teardown"
-  await teardown stack.workers
+  if stack.workers?
+    console.log "Worker Teardown"
+    await teardown stack.workers
 
   console.log "Dispatcher Teardown"
   await teardown dispatch.name
