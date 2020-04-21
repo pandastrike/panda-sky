@@ -16,7 +16,7 @@ Dispatch = (config) ->
 
   config.environment.dispatch =
     name: name
-    runtime: runtime ? "nodejs10.x"
+    runtime: runtime ? "nodejs12.x"
     memorySize: memorySize ? 256
     timeout: timeout ? 60
     preheater: preheater

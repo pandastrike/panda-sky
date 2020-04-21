@@ -13,7 +13,7 @@ Dispatch = (config) ->
   config.environment.worker.lambda =
     name: name
     workerName: workerName
-    runtime: runtime ? "nodejs10.x"
+    runtime: runtime ? "nodejs12.x"
     memorySize: memorySize ? 256
     timeout: timeout ? 60
     variables: merge name: config.name, environment: config.env, variables

@@ -22,7 +22,7 @@ Dispatch = (config) ->
   config.environment.edge.lambda =
     name: name
     type: type
-    runtime: runtime ? "nodejs10.x"
+    runtime: runtime ? "nodejs12.x"
     memorySize: memorySize
     timeout: timeout
     variables: merge name: config.name, environment: config.env, variables

@@ -241,11 +241,11 @@ dispatch:
       properties:
         runtime:
           description: >
-            The Lambda runtime environment used to run your code. Sky defaults to Node 8.10.
+            The Lambda runtime environment used to run your code. Sky defaults to Node 12.x.
           type: string
           enum:
+            - nodejs12.x
             - nodejs10.x
-            - nodejs8.10
             - provided
 
         memorySize:
