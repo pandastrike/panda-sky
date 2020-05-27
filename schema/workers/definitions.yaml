@@ -44,13 +44,6 @@ lambda:
       minimum: 1
       maximum: 900
 
-    preheater:
-      description: >
-        Invokes the API handler every five minutes this number of times to ensure some minimum amount of scale is always available to your clients.
-      type: integer
-      minimum: 1
-      maximum: 100
-
     managedPolicies:
       description: >
         An array of ARNs to IAM Role policies managed by AWS.  You can include them to give the partition access to a given resource.
@@ -109,6 +102,37 @@ tags:
   type: object
 
 
+schedule:
+  description: >
+    Specifies a scheduled invocation for this worker. You may specify this schedule as a fixed rate, or as a Cron expression.  Currently, there is no validation of the Cron expression, so consider it an expert feature.
+
+    https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html
+  oneOf:
+    - type: object
+      additionalProperties: false
+      required: [ rate ]
+      properties:
+        rate:
+          description: |
+            Specifies the fixed interval, in minutes, at which the worker lambda is invoked.
+          type: integer
+          minimum: 1
+          maximum: 525960 # 365.25 days
+    - type: object
+      additionalProperties: false
+      required: [ cron ]
+      properties:
+        cron:
+          description: |
+            Specifies cron expression format for scheduling, offering flexible scheduling configuration. Consider this an expert-only feature.
+
+            Specify only the expression. Sky will place that into the cron wrapper, ie "cron(EXPRESSION)".
+
+            See this for more details. https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#CronExpressions
+          type: string
+
+
+
 
 environment:
   description: >
@@ -124,3 +148,4 @@ environment:
     webpack: {$ref: "#/definitions/webpack"}
     vault: {$ref: "#/definitions/vault"}
     lambda: {$ref: "#/definitions/lambda"}
+    schedule: {$ref: "#/definitions/schedule"}

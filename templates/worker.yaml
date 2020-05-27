@@ -60,5 +60,96 @@ Resources:
         {{/each}}
       {{/if}}
 
+  {{#if schedule}}
+  Worker{{templateCase workerName}}ScheduleRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: {{schedule.name}}
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            {{#each schedule.policy}}
+              - {{indent 16 (yaml .)}}
+            {{/each}}
+
+  Worker{{templateCase workerName}}Schedule:
+    Type: "AWS::Lambda::Function"
+    DependsOn:
+      - Worker{{templateCase workerName}}ScheduleRole
+    Properties:
+      Description: scheduled invoker for worker {{workerName}}
+      FunctionName: {{schedule.name}}
+      Handler: "index.handler"
+      Role: !GetAtt [ Worker{{templateCase workerName}}ScheduleRole, Arn ]
+      Runtime: nodejs12.x
+      MemorySize: 256
+      Timeout: 30
+      Code:
+        ZipFile: !Sub |
+          var SDK, invoke, lambda;
+
+          SDK = require("aws-sdk");
+
+          lambda = new SDK.Lambda();
+
+          invoke = function(name) {
+            var params;
+            params = {
+              FunctionName: name,
+              InvokeArgs: "{\"scheduledInvocation\": \"true\"}"
+            };
+            return new Promise(function(resolve, reject) {
+              return lambda.invokeAsync(params, function(err, data) {
+                if (err != null) {
+                  return reject(err);
+                } else {
+                  return resolve(data);
+                }
+              });
+            });
+          };
+
+          exports.handler = async function(request, context, callback) {
+            {{#each schedule.targets}}
+            await invoke("{{.}}");
+            {{/each}}
+            return callback(null, "Scheduled Invocation Success");
+          };
+
+
+  Worker{{templateCase workerName}}ScheduleEventRule:
+    Type: "AWS::Events::Rule"
+    DependsOn:
+      - Worker{{templateCase workerName}}Schedule
+    Properties:
+      Description: Sky Scheduled Invoker for {{workerName}}"
+      ScheduleExpression: {{schedule.scheduleExpression}}
+      State: ENABLED
+      Targets:
+        - Id: !Ref Worker{{templateCase workerName}}Schedule
+          Arn: !GetAtt [ Worker{{templateCase workerName}}Schedule, Arn ]
+          Input: '{"scheduledInvocation": true }'
+
+  Worker{{templateCase workerName}}ScheduleEventRole:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+      - Worker{{templateCase workerName}}ScheduleEventRule
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt [ Worker{{templateCase workerName}}Schedule, Arn ]
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt [ Worker{{templateCase workerName}}ScheduleEventRule, Arn ]
+
+  {{/if}}
   {{/with}}
   {{/each}}

@@ -6,6 +6,7 @@ import checkWebpack from "./webpack"
 import setTags from "./tags"
 import setVault from "./vault"
 import configureLambda from "./lambda"
+import applySchedule from "./schedule"
 import applyMixins from "./mixins"
 
 attach = (config) ->
@@ -19,6 +20,7 @@ processWorker = flow [
   setTags
   setVault
   configureLambda
+  applySchedule
   applyMixins
   attach
 ]
