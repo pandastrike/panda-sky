@@ -48,7 +48,7 @@ Dispatch = (config) ->
       Action: ["lambda:InvokeFunction"]
       Resource: do ->
         for worker in config.environment.worker.workers
-          fnName = dashed "#{config.name} #{env} worker #{worker}"
+          fnName = dashed "#{config.name} #{config.env} worker #{worker}"
           "arn:aws:lambda:#{region}:#{accountID}:function:#{fnName}"
 
   config
