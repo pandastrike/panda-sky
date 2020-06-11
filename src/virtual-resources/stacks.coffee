@@ -1,7 +1,7 @@
 import {join} from "path"
 import {flow, wrap} from "panda-garden"
 import {map, reduce, wait} from "panda-river"
-import {keys, dashed, include, isEmpty, merge} from "panda-parchment"
+import {keys, dashed, include, isEmpty, merge, toJSON} from "panda-parchment"
 import {yaml} from "panda-serialize"
 import {s3} from "./bucket"
 import {_syncCode} from "./lambdas"
@@ -37,12 +37,13 @@ cloudformation = (config) ->
 
 teardownStacks = (config) ->
   {teardown} = cloudformation config
-  {dispatch, mixins, stack} = config.environment
+  {dispatch, mixins, stack, workers} = config.environment
 
   console.log "Mixin Teardown"
-  await Promise.all (teardown stack for name, {stack} of mixins)
+  await Promise.all (teardown _stack for name, {stack:_stack} of mixins)
 
-  if stack.workers?
+  # TODO: Putting the worker template name on "stack" is inconsistent
+  if workers?
     console.log "Worker Teardown"
     await teardown stack.workers
 
