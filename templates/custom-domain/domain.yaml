@@ -120,7 +120,7 @@ Resources:
           Bucket: {{@root.environment.cache.waf.logBucket}}.s3.amazonaws.com
           IncludeCookies: true
           Prefix: ""
-        WebACLId: !GetAtt [ WAF, Outputs.WAFWebACL ]
+        WebACLId: !GetAtt [ WAF, Outputs.WAFWebACLArn ]
         {{/if}}
       Tags:
       {{#each @root.tags}}
