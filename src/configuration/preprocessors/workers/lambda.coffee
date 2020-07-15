@@ -17,7 +17,6 @@ Dispatch = (config) ->
     memorySize: memorySize ? 256
     timeout: timeout ? 60
     variables: merge name: config.name, environment: config.env, variables
-    layers: layers
     trace: if trace then "Active" else "PassThrough"
     tags: tags
     code:
@@ -34,6 +33,9 @@ Dispatch = (config) ->
       ]
       Resource: [ "arn:aws:logs:*:*:log-group:/aws/lambda/#{name}:*" ]
     ]
+
+  if layers?
+    config.environment.worker.lambda.layers = layers
 
   if trace
     config.environment.worker.lambda.trace = "Active"
