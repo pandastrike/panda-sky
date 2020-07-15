@@ -22,7 +22,9 @@ validate = (config, name) ->
     console.error toJSON ajv.errors, true
     throw new Error "invalid worker configuration"
 
-  worker = workerConfig.environments[config.env]
+  unless (worker = workerConfig.environments[config.env])?
+    throw new Error "worker environment #{config.env} is not defined."
+  
   worker.name = name
   config.environment.worker = worker
   config
