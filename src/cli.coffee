@@ -6,21 +6,12 @@ import COMMANDS from "./commands"
 do ->
   version = await getVersion()
 
-  noEnv = (env) ->
-    if !env
-      console.error "ERROR: You must supply an environment name for this subcommand."
-      program.help()
-      true
-    else
-      false
-
   program
     .version(version)
 
   program
-    .command "build [env]"
+    .command "build <env>"
     .action (env, options) ->
-      return if noEnv env
       timer = stopwatch()
       await COMMANDS.build env, options
       console.log "Done. (#{timer()})"
@@ -30,42 +21,37 @@ do ->
     .action (name) -> COMMANDS.init name
 
   program
-    .command "publish [env]"
+    .command "publish <env>"
     .option '-o, --output [output]', 'Path to write API config file'
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .option '-f, --force', 'republish environment without state checks'
     .action (env, options) ->
-      return if noEnv env
       COMMANDS.publish stopwatch(), env, options
 
   program
-    .command "delete [env]"
+    .command "delete <env>"
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .action (env, options) ->
-      return if noEnv env
       COMMANDS.destroy stopwatch(), env, options
 
   program
-    .command "render [env]"
+    .command "render <env>"
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .action (env, options) ->
-      return if noEnv env
       COMMANDS.render env, options
 
   program
-  .command "update [env]"
+  .command "update <env>"
   .option '-p, --profile [profile]', 'Name of AWS profile to use'
   .option '-h, --hard', "Issues a full update that includes configuration"
   .action (env, options) ->
-    return if noEnv env
     COMMANDS.update stopwatch(), env, options
 
   program
-    .command "tail [env]"
+    .command "tail <env>"
     .option '-v, --verbose', 'output debug level logs'
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .action (env, options) ->
-      return if noEnv env
       COMMANDS.tail env, options
 
   program
@@ -74,44 +60,45 @@ do ->
     .action (options) -> COMMANDS.list options
 
   program
-    .command "test [env] [others...]"
+    .command "test <env> [others...]"
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .allowUnknownOption()
     .action (env, others, options) ->
-      return if noEnv env
       COMMANDS.test env, options, process.argv
 
   program
-  .command "domain [subcommand] [env]"
+  .command "domain <subcommand> <env>"
   .option '--hard', 'In domain publish, use hard rollover for replacements.'
   .option '--yes', "Always answer warning prompts with yes. Use with caution."
   .option '-p, --profile [profile]', 'Name of AWS profile to use'
   .action (subcommand, env, options) ->
     if COMMANDS.domain[subcommand]
-      return if noEnv env
       COMMANDS.domain[subcommand] stopwatch(), env, options
     else
       console.error "ERROR: unrecognized subcommand of sky domain."
       program.help()
 
   program
-    .command "mixin [name] [env] [others...]"
+    .command "mixin <name> <env> [others...]"
     .option '-p, --profile [profile]', 'Name of AWS profile to use'
     .allowUnknownOption()
     .action (name, env, others, options) ->
-      return if noEnv env
       COMMANDS.mixin name, env, options, process.argv
 
   program
-    .command "secret [env]"
-    .action (env) ->
-      return if noEnv env
-      COMMANDS.secret env
+    .command "secret <type> <subcommand> <env>"
+    .option '-p, --profile [profile]', 'Name of AWS profile to use'
+    .action (type, subcommand, env, options) ->
+      if COMMANDS.secret[type]?[subcommand]?
+        COMMANDS.secret[type][subcommand] stopwatch(), env, options
+      else
+        console.error "ERROR: unrecognized subcommand of sky secret."
+        program.help()
 
   program
     .command "id"
-    .action (env) ->
-      COMMANDS.id env
+    .action ->
+      COMMANDS.id()
 
   program
     .command('*')

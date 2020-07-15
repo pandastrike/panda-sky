@@ -1,10 +1,11 @@
 # This checks that the developer's selected environment is valid and sets some smart defaults for the Lambda resources.
+import {flow} from "panda-garden"
 import SDK from "aws-sdk"
 import Sundog from "sundog"
 import {keys, dashed} from "panda-parchment"
 
-check = (config) ->
-  {name, env, profile} = config
+validate = (config) ->
+  {env} = config
 
   if config.environments[env]
     config.environment = config.environments[env]
@@ -16,23 +17,37 @@ check = (config) ->
     """
     throw new Error "environment \"#{env}\" is not specified"
 
-  # Sundog instanication
+  config
+
+getSDK = (config) ->
+  {profile} = config
   config.sundog = Sundog
     credentials: new SDK.SharedIniFileCredentials {profile}
     region: config.region
     sslEnabled: true
 
-  # Confirm we have a TLS certificate for this domain.
+  config
+
+# Confirm we have a TLS certificate for this domain.
+getCertificate = (config) ->
   acm = config.sundog.ACM region: "us-east-1"
   unless config.environment.certificate = await acm.fetch config.domain
     throw new Error "unable to find wildcard TLS cert for #{config.domain}"
 
-  # Confirm we have access to this domain's DNS records.
+  config
+
+
+# Confirm we have access to this domain's DNS records.
+getHostedZone = (config) ->
   route53 = config.sundog.Route53()
   unless config.environment.hostedzone = await route53.hzGet config.domain
     throw new Error "unable to find hostedzone ID for #{config.domain}"
 
-  # Confirm we have API key for this environment in ASM.
+  config
+
+
+getAPIKey = (config) ->
+  {name, env} = config
   try
     asm = config.sundog.ASM()
     name = dashed "#{name} #{env} api key"
@@ -43,9 +58,23 @@ check = (config) ->
     console.log e
     throw new Error "unable to find API Key secret for #{env}"
 
-  # Top level IDs.
-  config.accountID = (await config.sundog.STS().whoAmI()).Account
-
   config
 
+
+# Top level IDs.
+getAccountID = (config) ->
+  config.accountID = (await config.sundog.STS().whoAmI()).Account
+  config
+
+check = flow [
+  validate
+  getSDK
+  getCertificate
+  getHostedZone
+  getAPIKey
+  getAccountID
+]
+
 export default check
+
+export {validate, getSDK, getCertificate, getHostedZone, getAPIKey, getAccountID}

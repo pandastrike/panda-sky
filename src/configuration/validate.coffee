@@ -50,3 +50,4 @@ validate = flow [
 ]
 
 export default validate
+export {startConfig, readAPI, readSky}

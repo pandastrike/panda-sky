@@ -5,7 +5,7 @@ import {dashed, plainText} from "panda-parchment"
 
 {randomBytes, convert} = confidential()
 
-Generate = (env) ->
+Generate = ->
   string = convert from: "bytes", to: "base64", await randomBytes 6
   console.log dashed plainText Base64Words.fromBase64 string
 
