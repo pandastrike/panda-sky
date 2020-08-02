@@ -44,6 +44,7 @@ transpile = (config) ->
             enforce: "pre"
           ,
             test: /\.yaml$/
+            type: "json"
             use: [ require.resolve "yaml-loader" ]
           ,
             test: /^\.\/src.*\.json$/
