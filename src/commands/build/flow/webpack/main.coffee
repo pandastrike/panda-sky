@@ -1,6 +1,7 @@
 import Path from "path"
 import fs from "fs"
 import webpack from "webpack"
+import {sharedDirectory} from "./helpers"
 
 transpile = (config) ->
   console.log "bundling API code"
@@ -57,6 +58,7 @@ transpile = (config) ->
             "main", "env.json"
           "-sky-api-vault": Path.resolve config.environment.temp,
             "main", "vault.json"
+          "-shared": sharedDirectory()
         modules: [
           "node_modules"
           "src/handlers"

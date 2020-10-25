@@ -2,6 +2,7 @@ import Path from "path"
 import fs from "fs"
 import webpack from "webpack"
 import {dashed} from "panda-parchment"
+import {sharedDirectory} from "./helpers"
 
 transpile = (config) ->
 
@@ -58,6 +59,7 @@ transpile = (config) ->
               "workers", name, "env.json"
             "-sky-vault": Path.resolve config.environment.temp,
               "workers", name, "vault.json"
+            "-shared": sharedDirectory()
           modules: [
             "node_modules"
           ]
