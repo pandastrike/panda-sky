@@ -53,8 +53,14 @@ transpile = (config) ->
           ]
         resolve:
           alias:
+            "-sky-api-definition": Path.resolve config.environment.temp,
+              "api-definition"
             "-sky-api-resources": Path.resolve config.environment.temp,
               "resources.json"
+            "-sky-api-env": Path.resolve config.environment.temp,
+              "main", "env.json"
+            "-sky-api-vault": Path.resolve config.environment.temp,
+              "main", "vault.json"
             "-sky-env": Path.resolve config.environment.temp,
               "workers", name, "env.json"
             "-sky-vault": Path.resolve config.environment.temp,
