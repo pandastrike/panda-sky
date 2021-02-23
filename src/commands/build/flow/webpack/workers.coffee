@@ -1,6 +1,7 @@
 import Path from "path"
 import fs from "fs"
 import webpack from "webpack"
+import markdown from "marked"
 import {dashed} from "panda-parchment"
 import {sharedDirectory} from "./helpers"
 
@@ -43,6 +44,11 @@ transpile = (config) ->
             test: /\.js$/
             use: [ require.resolve "source-map-loader" ]
             enforce: "pre"
+          ,
+            test: /\.pug$/
+            loader: "pug-loader"
+            options:
+              filters: {markdown}
           ,
             test: /\.yaml$/
             type: "json"
