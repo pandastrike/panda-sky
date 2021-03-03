@@ -80,7 +80,7 @@
     "panda-river": "^6.0.0",
     "panda-serialize": "^1.0.1",
     "panda-template": "^2.0.2",
-    "pug": "^2.0.0",
+    "pug": "^3.0.1",
     "pug-loader": "^2.4.0",
     "source-map-loader": "^1.0.1",
     "source-map-support": "^0.5.19",
