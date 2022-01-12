@@ -65,7 +65,7 @@
     "jstransformer": "^1.0.0",
     "jstransformer-stylus": "^1.5.0",
     "jszip": "^3.5.0",
-    "markdown-it": "^11.0.0",
+    "markdown-it": "^12.3.2",
     "markdown-it-emoji": "^1.4.0",
     "marked": "^2.0.0",
     "moment": "^2.27.0",
