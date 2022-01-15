@@ -67,7 +67,7 @@
     "jszip": "^3.5.0",
     "markdown-it": "^11.0.0",
     "markdown-it-emoji": "^1.4.0",
-    "marked": "^2.0.0",
+    "marked": "^4.0.10",
     "moment": "^2.27.0",
     "moment-duration-format": "^2.3.2",
     "panda-confidential": "^3.0.0",
